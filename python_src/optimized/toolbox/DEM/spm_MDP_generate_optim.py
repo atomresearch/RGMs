@@ -1,7 +1,14 @@
 """
 OPTIM1 — active inference / generative roll-out (optimized lane).
 
-Fork of ``spm_MDP_generate.py``. O-cell assembly deferred to post-loop (MATLAB-faithful).
+OPTIM2FULL (2026-07-23): function-handle likelihood branch matching MATLAB
+``spm_MDP_generate.m`` (``isa(A{g},'function_handle')``) for ``DEM_drone_vi`` /
+``GDP.A = @spm_depth`` / ``@spm_state``. Pre-change backup:
+``spm_MDP_generate_optim_bkp.py`` (same directory).
+
+OPTIM2FULL (2026-07-23 bkp2): local ``_b_matrix_for_u`` preserves logical ``B``
+dtype so place-factor sampling follows MATLAB ``islogical`` → ``randperm`` (k=1
+consumes no scalar ``rand``). Backup: ``spm_MDP_generate_optim_bkp2.py``.
 """
 
 from __future__ import annotations
@@ -17,7 +24,6 @@ from python_src.spm_kron import spm_kron
 from python_src.spm_softmax import spm_softmax
 from python_src.toolbox.DEM.spm_MDP_checkX import spm_MDP_checkX
 from python_src.toolbox.DEM.spm_MDP_generate import (
-    _b_matrix_for_u,
     _spm_norm,
     _spm_sample,
 )
@@ -25,12 +31,57 @@ from python_src.toolbox.DEM.spm_induction import spm_induction as _spm_induction
 from python_src.toolbox.DEM.spm_parents import spm_parents
 
 
+def _b_matrix_for_u(bf: Any, u_idx: int) -> np.ndarray:
+    """MATLAB ``B(:,:,u)`` with trailing ``Nu=1`` folded to ``Ns×Ns``.
+
+    OPTIM2FULL: do **not** coerce to float64. Logical place transitions must stay
+    ``bool`` so ``_spm_sample`` uses the MATLAB ``islogical`` / ``randperm`` path
+    (single-True column → no scalar ``rand`` draw).
+    """
+    arr = np.asarray(bf)
+    if arr.ndim == 2:
+        return arr
+    return np.asarray(arr[:, :, int(u_idx) - 1])
+
+
+def _is_likelihood_handle(ag: Any) -> bool:
+    """MATLAB ``isa(A{g},'function_handle')`` — callable likelihood, not an array."""
+    return callable(ag) and not isinstance(ag, (np.ndarray, np.generic))
+
+
 def _as_models(mdp_in: Union[dict, List[dict]]) -> List[dict]:
+    """checkX then return model list.
+
+    OPTIM2FULL: ``spm_MDP_checkX`` still assumes numeric ``A{g}.shape`` (Atari).
+    MATLAB ``size(@fh,1)==1``, so for handle likelihoods we temporarily stub
+    ``A{g}`` as ``ones(1,1)`` around checkX (fills D/E/C), then restore handles.
+    Does **not** edit ``spm_MDP_checkX.py``.
+    """
     if isinstance(mdp_in, dict):
-        return [spm_MDP_checkX(copy.deepcopy(mdp_in))]
-    if isinstance(mdp_in, list) and mdp_in and isinstance(mdp_in[0], dict):
-        return [spm_MDP_checkX(copy.deepcopy(x)) for x in mdp_in]
-    raise TypeError("spm_MDP_generate_optim: MDP must be a dict or list of dicts")
+        models_in = [mdp_in]
+    elif isinstance(mdp_in, list) and mdp_in and isinstance(mdp_in[0], dict):
+        models_in = mdp_in
+    else:
+        raise TypeError("spm_MDP_generate_optim: MDP must be a dict or list of dicts")
+
+    out: List[dict] = []
+    for raw in models_in:
+        mdp = copy.deepcopy(raw)
+        A = mdp.get("A")
+        handle_map: Dict[int, Any] = {}
+        if isinstance(A, list):
+            for g, ag in enumerate(A):
+                if _is_likelihood_handle(ag):
+                    handle_map[g] = ag
+                    A[g] = np.ones((1, 1), dtype=np.float64)
+        checked = spm_MDP_checkX(mdp)
+        if handle_map:
+            A2 = checked["A"]
+            for g, fn in handle_map.items():
+                A2[g] = fn
+            checked["A"] = A2
+        out.append(checked)
+    return out
 
 
 def spm_MDP_generate_optim(mdp_in: Union[dict, List[dict]]) -> Union[dict, List[dict]]:
@@ -43,7 +94,15 @@ def spm_MDP_generate_optim(mdp_in: Union[dict, List[dict]]) -> Union[dict, List[
     nu: List[List[int]] = []
     ns: List[List[int]] = []
     for m in range(nm):
-        no.append([int(np.asarray(models[m]["A"][g]).shape[0]) for g in range(ng[m])])
+        # MATLAB: No(m,g)=size(A{g},1); size(@fh,1)==1 for function handles
+        no_row: List[int] = []
+        for g in range(ng[m]):
+            ag = models[m]["A"][g]
+            if _is_likelihood_handle(ag):
+                no_row.append(1)
+            else:
+                no_row.append(int(np.asarray(ag).shape[0]))
+        no.append(no_row)
         ns.append([int(np.asarray(models[m]["B"][f]).shape[0]) for f in range(nf[m])])
         nu.append(
             [
@@ -59,7 +118,9 @@ def spm_MDP_generate_optim(mdp_in: Union[dict, List[dict]]) -> Union[dict, List[
     max_ng = max(ng) if ng else 0
     o_cell = [[[None for _ in range(t)] for _ in range(max_ng)] for _ in range(nm)]
 
-    a: List[List[np.ndarray]] = [[None] * ng[m] for m in range(nm)]
+    # a[m][g] may be ndarray (numeric A) or callable (handle) — MATLAB spm_norm
+    # passes non-numeric A through unchanged.
+    a: List[List[Any]] = [[None] * ng[m] for m in range(nm)]
     b: List[List[np.ndarray]] = [[None] * nf[m] for m in range(nm)]
     d: List[List[np.ndarray]] = [[None] * nf[m] for m in range(nm)]
     e: List[List[np.ndarray]] = [[None] * nf[m] for m in range(nm)]
@@ -71,12 +132,37 @@ def spm_MDP_generate_optim(mdp_in: Union[dict, List[dict]]) -> Union[dict, List[
     for m in range(nm):
         mdp = models[m]
         for g in range(ng[m]):
-            a[m][g] = _spm_norm(np.asarray(mdp["A"][g], dtype=np.float64))
+            ag = mdp["A"][g]
+            if _is_likelihood_handle(ag):
+                a[m][g] = ag
+            else:
+                a[m][g] = _spm_norm(np.asarray(ag, dtype=np.float64))
         for f in range(nf[m]):
-            b[m][f] = _spm_norm(np.asarray(mdp["B"][f], dtype=np.float64))
+            # MATLAB spm_norm: isnumeric(logical)==false → pass-through.
+            # Keep bool place B so sampling uses islogical/randperm path.
+            bf = np.asarray(mdp["B"][f])
+            if bf.dtype == bool:
+                b[m][f] = bf
+            else:
+                b[m][f] = _spm_norm(np.asarray(bf, dtype=np.float64))
             d[m][f] = _spm_norm(np.asarray(mdp["D"][f], dtype=np.float64))
             e[m][f] = _spm_norm(np.asarray(mdp["E"][f], dtype=np.float64))
-        u_row = np.any(np.asarray(mdp["U"], dtype=np.float64), axis=0)
+        # MATLAB any(U,1): accept 1×Nf or length-Nf (squeezed dump / drone GDP).
+        U_arr = np.asarray(mdp["U"], dtype=np.float64)
+        if U_arr.ndim == 1:
+            if int(U_arr.size) == int(nf[m]):
+                u_row = U_arr != 0.0
+            else:
+                u_row = np.any(U_arr.reshape(1, -1), axis=0)
+        else:
+            u_row = np.any(U_arr, axis=0)
+        u_row = np.asarray(u_row, dtype=bool).ravel(order="F")
+        if int(u_row.size) != int(nf[m]):
+            # pad/trim to Nf
+            tmp = np.zeros(nf[m], dtype=bool)
+            ncopy = min(int(u_row.size), int(nf[m]))
+            tmp[:ncopy] = u_row[:ncopy]
+            u_row = tmp
         k_list = np.flatnonzero(u_row) + 1
         nu_mk = [nu[m][int(i) - 1] for i in k_list.tolist()]
         u_mat = spm_combinations(np.asarray(nu_mk, dtype=np.float64))
@@ -154,7 +240,13 @@ def spm_MDP_generate_optim(mdp_in: Union[dict, List[dict]]) -> Union[dict, List[
                             b[m][f], int(mdp["u"][f, t_idx - 2])
                         )
                         ps = bmat[:, int(mdp["s"][f, t_idx - 2]) - 1]
-                        ps = np.asarray(ps, dtype=np.float64).reshape(-1, 1, order="F")
+                        # Preserve logical columns (MATLAB islogical → randperm).
+                        if np.asarray(ps).dtype == bool:
+                            ps = np.asarray(ps, dtype=bool).ravel(order="F")
+                        else:
+                            ps = np.asarray(ps, dtype=np.float64).reshape(
+                                -1, 1, order="F"
+                            )
                     else:
                         ps = d[m][f]
                     mdp["s"][f, t_idx - 1] = _spm_sample(ps)
@@ -168,8 +260,17 @@ def spm_MDP_generate_optim(mdp_in: Union[dict, List[dict]]) -> Union[dict, List[
                 ag = mdp["A"][g]
                 for o in i_arr.tolist():
                     ind = [int(mdp["s"][jj - 1, t_idx - 1]) for jj in j_arr.tolist()]
-                    sl = (slice(None),) + tuple(ii - 1 for ii in ind)
-                    sub = ag[sl]
+                    # MATLAB spm_MDP_generate.m ~L263–266:
+                    #   if isa(A{g},'function_handle')
+                    #       O = A{g}([ind{:}]);
+                    #   else
+                    #       O = A{g}(:,ind{:});
+                    if _is_likelihood_handle(ag):
+                        s_vec = np.asarray(ind, dtype=np.float64).ravel(order="F")
+                        sub = ag(s_vec)
+                    else:
+                        sl = (slice(None),) + tuple(ii - 1 for ii in ind)
+                        sub = ag[sl]
                     if sp.issparse(sub):
                         sub = sub.toarray()
                     col = np.asarray(sub)

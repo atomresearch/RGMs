@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import time
 from typing import Any, Callable, List, Optional, Tuple
 
 import numpy as np
@@ -17,6 +19,33 @@ from python_src.toolbox.DEM.spm_rgm_group import spm_rgm_group
 from python_src.optimized.toolbox.DEM.spm_unique_optim import spm_unique_optim
 
 
+def _fsl_timing_enabled() -> bool:
+    """``RGMS_OPTIM2FULL_FSL_TIMING`` — default **off** (OPTIM1FULL/COLAB1 quiet)."""
+    raw = str(os.getenv("RGMS_OPTIM2FULL_FSL_TIMING", "0")).strip().lower()
+    return raw not in ("0", "false", "no", "off")
+
+
+def _fsl_timing_log(msg: str) -> None:
+    if _fsl_timing_enabled():
+        print(f"[fsl_timing] {msg}", flush=True)
+
+
+def _rg_scale_pad(x: Any, default: float = 2.0) -> np.ndarray:
+    """MATLAB ``[x repmat(x(end),1,16)]`` for RG ``dx`` / ``dt``.
+
+    Compatible with both callers:
+    - OPTIM1FULL / Atari: scalar ``Sc`` / ``dx`` (e.g. ``9``) → length-17 constant pad
+      (same values as the prior ``float(dx)`` + ``repeat`` path).
+    - OPTIM2FULL / drone: vector ``[1 64]`` → level 1 uses ``1``, later levels ``64``.
+    """
+    if x is None:
+        x = default
+    arr = np.atleast_1d(np.asarray(x, dtype=np.float64)).ravel(order="F")
+    if arr.size < 1:
+        arr = np.asarray([float(default)], dtype=np.float64)
+    return np.concatenate([arr, np.repeat(float(arr[-1]), 16)])
+
+
 def spm_faster_structure_learning_optim(
     O,
     S,
@@ -28,6 +57,9 @@ def spm_faster_structure_learning_optim(
     rgm_spectral_probe_fn: Optional[Callable[[dict], None]] = None,
     link_dir_mi_fn: Optional[Callable[[np.ndarray], float]] = None,
     link_mi_probe_fn: Optional[Callable[[dict], None]] = None,
+    rgm_group_override_fn: Optional[
+        Callable[[List[Any], int, int], List[Any]]
+    ] = None,
 ):
     """RG structure learning — Pass 1 mirror of ``spm_faster_structure_learning.m``.
 
@@ -50,8 +82,13 @@ def spm_faster_structure_learning_optim(
         :func:`spm_rgm_group` (active set, MI block, eig/sort decisions). Intended
         for oracle/capture diagnostics only; default ``None`` keeps runtime behavior
         unchanged.
+    rgm_group_override_fn :
+        Optional ``(o_sub, dx, m) -> G`` replacing the entire ``spm_rgm_group`` call
+        (dump-once MATLAB ``G`` inject for OPTIM2FULL-scale Q). Default ``None``
+        keeps OPTIM1FULL / COLAB1 / native behavior unchanged.
     """
     spinblock = False
+    t_fsl0 = time.perf_counter()
     S = np.asarray(S, dtype=np.float64)
     if S.ndim == 1:
         S = S.reshape(1, -1)
@@ -62,29 +99,40 @@ def spm_faster_structure_learning_optim(
         prod_s = float(np.prod(S[0, :3]))
         S[0, 3] = n_o / prod_s
 
-    if dx is None:
-        dx = 2.0
-    if dt is None:
-        dt = 2.0
-    dx = np.concatenate(
-        [np.asarray([float(dx)], dtype=np.float64), np.repeat(float(dx), 16)]
-    )
-    dt = np.concatenate(
-        [np.asarray([float(dt)], dtype=np.float64), np.repeat(float(dt), 16)]
-    )
+    # MATLAB: if nargin < 3, dx = 2; end; dx = [dx repmat(dx(end),1,16)];
+    dx = _rg_scale_pad(dx, 2.0)
+    dt = _rg_scale_pad(dt, 2.0)
 
     mdp_h: list[dict] = []
     n_stream = int(S.shape[0])
     o_cur = O
+    nt0 = len(o_cur[0]) if len(o_cur) else 0
+    _fsl_timing_log(
+        f"BEGIN n_o={len(O)} n_stream={n_stream} nt={nt0} S={S.tolist()} "
+        f"dx0={float(dx[0])} dx1={float(dx[min(1, dx.size-1)])} "
+        f"mi_hook={'on' if rgm_mi_override_fn is not None else 'off'} "
+        f"eig_hook={'on' if rgm_eig_pair is not None else 'off'} "
+        f"link_dir_mi={'on' if link_dir_mi_fn is not None else 'off'} "
+        f"g_override={'on' if rgm_group_override_fn is not None else 'off'} "
+        f"(FSL_TIMING env on; OPTIM1FULL Entry4 used O(:,1:1000) — "
+        f"drone Q scale differs)"
+    )
 
     for n in range(1, 9):
+        t_lev0 = time.perf_counter()
         sg: list[np.ndarray | None] = [None] * n_stream
         n_cells: dict[tuple[int, int], np.ndarray] = {}
         ng = np.zeros(n_stream, dtype=np.int64)
 
         mdp_n = _new_mdp_level(n_stream, float(dt[n - 1]))
+        nt_lev = len(o_cur[0]) if len(o_cur) else 0
+        _fsl_timing_log(
+            f"level n={n} START n_stream={n_stream} nt={nt_lev} "
+            f"dx[n]={float(dx[n - 1])} dt[n]={float(dt[n - 1])}"
+        )
 
         for s in range(1, n_stream + 1):
+            t_stream0 = time.perf_counter()
             no = len(mdp_n["a"])
             ns = len(mdp_n["b"])
             nt = len(o_cur[0]) if len(o_cur) else 0
@@ -92,6 +140,10 @@ def spm_faster_structure_learning_optim(
             if t_idx.size == 0:
                 t_idx = np.array([1], dtype=np.int64)
 
+            t_mi = 0.0
+            t_rgm = 0.0
+            t_fast = 0.0
+            n_o_s = 0
             if spinblock:
                 g = _spm_group(S[s - 1, :].tolist(), int(dx[n - 1]))
             else:
@@ -101,29 +153,69 @@ def spm_faster_structure_learning_optim(
                 idx = (offset + np.arange(1, n_o_s + 1, dtype=np.float64)).astype(np.int64)
                 o_sub = [o_cur[int(i) - 1] for i in idx]
                 m_stream = int(S[s - 1, 3])
-                mi_override = None
-                if rgm_mi_override_fn is not None:
-                    mi_override = np.asarray(
-                        rgm_mi_override_fn(o_sub, m_stream), dtype=np.float64
+                dx_i = int(dx[n - 1])
+                if rgm_group_override_fn is not None:
+                    _fsl_timing_log(
+                        f"level n={n} stream s={s} G_override START "
+                        f"n_o_s={n_o_s} dx={dx_i} m={m_stream}"
                     )
-                g = spm_rgm_group(
-                    o_sub,
-                    int(dx[n - 1]),
-                    m_stream,
-                    eig_pair=rgm_eig_pair,
-                    mi_override=mi_override,
-                    spectral_probe_fn=(
-                        None
-                        if rgm_spectral_probe_fn is None
-                        else lambda rec, _n=n, _s=s: rgm_spectral_probe_fn(
-                            {
-                                **rec,
-                                "lev_call": int(_n),
-                                "stream_idx": int(_s),
-                            }
+                    t_rgm0 = time.perf_counter()
+                    g = rgm_group_override_fn(o_sub, dx_i, m_stream)
+                    t_rgm = time.perf_counter() - t_rgm0
+                    t_mi = 0.0
+                    _fsl_timing_log(
+                        f"level n={n} stream s={s} G_override END "
+                        f"elapsed_s={t_rgm:.3f} n_groups={len(g) if g is not None else 0}"
+                    )
+                else:
+                    mi_override = None
+                    if rgm_mi_override_fn is not None:
+                        n_cells_est = int(n_o_s * (len(o_sub[0]) if o_sub else 0))
+                        _fsl_timing_log(
+                            f"level n={n} stream s={s} MI_override START "
+                            f"n_o_s={n_o_s} m={m_stream} "
+                            f"nt_sub={len(o_sub[0]) if o_sub else 0} "
+                            f"n_cells_est={n_cells_est} "
+                            f"(Entry4 cell-push × Engine; see MI_override push lines "
+                            f"if FSL_TIMING + instrumented MI)"
                         )
-                    ),
-                )
+                        t_mi0 = time.perf_counter()
+                        mi_override = np.asarray(
+                            rgm_mi_override_fn(o_sub, m_stream), dtype=np.float64
+                        )
+                        t_mi = time.perf_counter() - t_mi0
+                        _fsl_timing_log(
+                            f"level n={n} stream s={s} MI_override END "
+                            f"elapsed_s={t_mi:.3f} MI_shape={getattr(mi_override, 'shape', None)}"
+                        )
+                    _fsl_timing_log(
+                        f"level n={n} stream s={s} spm_rgm_group START "
+                        f"n_o_s={n_o_s} dx={dx_i} m={m_stream}"
+                    )
+                    t_rgm0 = time.perf_counter()
+                    g = spm_rgm_group(
+                        o_sub,
+                        dx_i,
+                        m_stream,
+                        eig_pair=rgm_eig_pair,
+                        mi_override=mi_override,
+                        spectral_probe_fn=(
+                            None
+                            if rgm_spectral_probe_fn is None
+                            else lambda rec, _n=n, _s=s: rgm_spectral_probe_fn(
+                                {
+                                    **rec,
+                                    "lev_call": int(_n),
+                                    "stream_idx": int(_s),
+                                }
+                            )
+                        ),
+                    )
+                    t_rgm = time.perf_counter() - t_rgm0
+                    _fsl_timing_log(
+                        f"level n={n} stream s={s} spm_rgm_group END "
+                        f"elapsed_s={t_rgm:.3f} n_groups={len(g) if g is not None else 0}"
+                    )
 
             g_off = spm_unvec(spm_vec(g) + float(no), g)
             g_use = []
@@ -136,7 +228,12 @@ def spm_faster_structure_learning_optim(
             j_len = nt
             sg[s - 1] = np.zeros((int(ng[s - 1]), j_len), dtype=np.float64)
 
-            for g_i in range(1, int(ng[s - 1]) + 1):
+            n_g = int(ng[s - 1])
+            _fsl_timing_log(
+                f"level n={n} stream s={s} structure_fast START n_groups={n_g}"
+            )
+            t_fast0 = time.perf_counter()
+            for g_i in range(1, n_g + 1):
                 fg = ns + g_i
                 gg = mdp_n["G"][s][g_i - 1].ravel(order="F").astype(np.int64)
                 o_gg = [o_cur[int(ix) - 1] for ix in gg]
@@ -168,7 +265,24 @@ def spm_faster_structure_learning_optim(
                     else:
                         n_cells[(i_e, col_k)] = np.array([bool(np.asarray(p_t).ravel()[0])], dtype=bool)
 
+                # Heartbeat every 8 groups (or last) — inspect long group loops.
+                if _fsl_timing_enabled() and (g_i == 1 or g_i == n_g or g_i % 8 == 0):
+                    _fsl_timing_log(
+                        f"level n={n} stream s={s} structure_fast "
+                        f"progress g_i={g_i}/{n_g} "
+                        f"elapsed_s={time.perf_counter()-t_fast0:.3f}"
+                    )
+            t_fast = time.perf_counter() - t_fast0
+            _fsl_timing_log(
+                f"level n={n} stream s={s} END "
+                f"elapsed_s={time.perf_counter()-t_stream0:.3f} "
+                f"mi_s={t_mi:.3f} rgm_s={t_rgm:.3f} structure_fast_s={t_fast:.3f} "
+                f"n_groups={n_g} n_o_s={n_o_s}"
+            )
+
+        t_link = 0.0
         if n > 1:
+            t_link0 = time.perf_counter()
             _link_streams(
                 mdp_n,
                 mdp_h[n - 2],
@@ -178,13 +292,29 @@ def spm_faster_structure_learning_optim(
                 link_mi_probe_fn=link_mi_probe_fn,
                 lev_prev=n - 1,
             )
+            t_link = time.perf_counter() - t_link0
+            _fsl_timing_log(
+                f"level n={n} link_streams elapsed_s={t_link:.3f}"
+            )
 
         if int(np.max(ng)) < 2 and n > 1:
             mdp_h.append(mdp_n)
+            _fsl_timing_log(
+                f"level n={n} EARLY_BREAK max(ng)={int(np.max(ng))} "
+                f"elapsed_s={time.perf_counter()-t_lev0:.3f} "
+                f"total_s={time.perf_counter()-t_fsl0:.3f}"
+            )
             break
 
+        t_comp = 0.0
         if not spinblock:
+            t_comp0 = time.perf_counter()
             o_cur, S = _compress_unitary_and_slice_o(mdp_n, n_cells, t_idx, S, n_stream, n)
+            t_comp = time.perf_counter() - t_comp0
+            _fsl_timing_log(
+                f"level n={n} compress elapsed_s={t_comp:.3f} "
+                f"nt_next={len(o_cur[0]) if o_cur else 0} S={np.asarray(S).tolist()}"
+            )
         else:
             for s in range(1, n_stream + 1):
                 g_shape = mdp_n["G"][s]
@@ -192,7 +322,15 @@ def spm_faster_structure_learning_optim(
                 S[s - 1, :4] = np.array(s_dims + [2], dtype=np.float64)[:4]
 
         mdp_h.append(mdp_n)
+        _fsl_timing_log(
+            f"level n={n} END elapsed_s={time.perf_counter()-t_lev0:.3f} "
+            f"link_s={t_link:.3f} compress_s={t_comp:.3f} "
+            f"max_ng={int(np.max(ng))} n_levels_so_far={len(mdp_h)}"
+        )
 
+    _fsl_timing_log(
+        f"END total_s={time.perf_counter()-t_fsl0:.3f} n_levels={len(mdp_h)}"
+    )
     return mdp_h
 
 

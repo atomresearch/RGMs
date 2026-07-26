@@ -310,7 +310,12 @@ def _spm_MDP_checkX_single(MDP: dict) -> None:
     ns = np.zeros(nf, dtype=np.int64)
     nu = np.zeros(nf, dtype=np.int64)
     for g in range(ng):
-        no[g] = _getfield(MDP, "A")[g].shape[0]
+        # MATLAB: No(g)=size(A{g},1); size(@fh,1)==1 for function handles
+        ag = _getfield(MDP, "A")[g]
+        if callable(ag) and not isinstance(ag, (np.ndarray, np.generic)):
+            no[g] = 1
+        else:
+            no[g] = ag.shape[0]
     for f in range(nf):
         bf = _getfield(MDP, "B")[f]
         ns[f] = bf.shape[0]
@@ -419,6 +424,15 @@ def _spm_MDP_checkX_single(MDP: dict) -> None:
             idd["C"].append(np.array([], dtype=np.float64))
         _setfield(MDP, "id", idd)
 
+    # MATLAB spm_MDP_checkX.m L196–204: try MDP.id.A{g}=... catch → 1:(ndims(A)-1);
+    # then isempty → same default. Drone process ``id`` often exists (fg/ff/…) without ``A``.
+    # Do NOT pad missing slots with None then ``asarray(None,float64)`` — that yields NaN
+    # (silent) and later int64 cast → intmax / IndexError in VB ``U(:,f)``.
+    if "A" not in idd or idd["A"] is None:
+        idd["A"] = []
+    if not isinstance(idd["A"], list):
+        idd["A"] = list(idd["A"])
+
     try:
         idd["g"] = _id_g_cell_partitions(idd["g"])
         for g in range(len(idd["g"])):
@@ -427,17 +441,21 @@ def _spm_MDP_checkX_single(MDP: dict) -> None:
     except Exception:
         idd["g"] = [np.arange(1, ng + 1, dtype=np.float64).reshape(1, -1)]
 
+    out_A: list[Any] = []
     for g in range(ng):
+        ag = _getfield(MDP, "A")[g]
+        ndm = int(matlab_ndims(ag))
+        default = np.arange(1, ndm, dtype=np.float64).reshape(1, -1)
+        raw = idd["A"][g] if g < len(idd["A"]) else None
         try:
-            row = np.asarray(idd["A"][g], dtype=np.float64).reshape(-1, 1, order="F").T
-            idd["A"][g] = row
+            if raw is None:
+                raise ValueError("missing id.A{g}")
+            row = np.asarray(raw, dtype=np.float64).reshape(-1, 1, order="F").T
+            if row.size == 0 or bool(np.isnan(row).any()):
+                raise ValueError("empty/nan id.A{g}")
+            out_A.append(row)
         except Exception:
-            ag = _getfield(MDP, "A")[g]
-            ndm = int(matlab_ndims(ag))
-            idd["A"][g] = np.arange(1, ndm, dtype=np.float64).reshape(1, -1)
-        if idd["A"][g].size == 0:
-            ag = _getfield(MDP, "A")[g]
-            ndm = int(matlab_ndims(ag))
-            idd["A"][g] = np.arange(1, ndm, dtype=np.float64).reshape(1, -1)
+            out_A.append(default)
+    idd["A"] = out_A
 
     _setfield(MDP, "id", idd)

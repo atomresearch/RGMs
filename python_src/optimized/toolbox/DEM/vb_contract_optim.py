@@ -43,7 +43,12 @@ def forwards_dot_cell_chain(x: np.ndarray, q_cells: list[np.ndarray]) -> np.ndar
 
 
 def forwards_dot_A_qj(a: Any, qj: list[Any]) -> Any:
-    """``spm_dot(A, qj)`` — policy-loop likelihood / ambiguity (**6-C-2**)."""
+    """``spm_dot(A, qj)`` — policy-loop likelihood / ambiguity (**6-C-2**).
+
+    OPTIM2FULL / MATLAB ``isa(A,'function_handle')``: ``qo = A{m,g}(Q(j))``.
+    """
+    if callable(a) and not isinstance(a, (np.ndarray, np.generic)):
+        return a(qj)
     if not _dense_ndarray(a):
         return spm_dot(a, qj)
     for q in qj:

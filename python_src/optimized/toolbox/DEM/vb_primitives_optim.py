@@ -149,13 +149,30 @@ def _spm_multiply(p: Any, q: Any) -> np.ndarray:
 
 
 def _gb_predicted_state_qs(Gb: Any, s_ft: int, u_f: int) -> np.ndarray:
-    """MATLAB ``MDP.GB{f}(:, MDP.s(f,t), MDP.u(f))`` — ``Gb`` may be 2-D or 3-D."""
-    arr = _vb_as_float64_array(Gb)
+    """MATLAB ``MDP.GB{f}(:, MDP.s(f,t), MDP.u(f))`` — ``Gb`` may be 2-D or 3-D.
+
+    Preserve logical dtype so ``spm_sample`` takes the ``islogical`` / ``randperm``
+    path (OPTIM2FULL drone ``GB`` eyes). Numeric transitions stay float64.
+    """
+    raw = _unwrap_gp_elem(Gb)
+    if sparse.issparse(raw):
+        raw = mfull(raw)
+    arr = np.asarray(raw)
+    keep_bool = arr.dtype == bool or np.issubdtype(arr.dtype, np.bool_)
+    if keep_bool:
+        arr = np.asarray(arr, dtype=bool)
+    else:
+        arr = np.asarray(arr, dtype=np.float64)
     if arr.ndim >= 3:
-        return np.asarray(arr[:, s_ft - 1, u_f - 1], dtype=np.float64).reshape(-1, 1)
-    if arr.ndim == 2:
-        return np.asarray(arr[:, s_ft - 1], dtype=np.float64).reshape(-1, 1)
-    return np.asarray(arr, dtype=np.float64).reshape(-1, 1)
+        col = arr[:, s_ft - 1, u_f - 1]
+    elif arr.ndim == 2:
+        col = arr[:, s_ft - 1]
+    else:
+        col = arr
+    col = np.asarray(col).reshape(-1, 1, order="F")
+    if keep_bool:
+        return col.astype(bool)
+    return np.asarray(col, dtype=np.float64)
 
 
 def _id_control_g_indices(id_upper: dict[str, Any], n_a: int) -> list[int]:
@@ -388,7 +405,21 @@ def _vb_gp_A_outcome_column(Ag: Any, ind_parts: list[int]) -> np.ndarray:
 
     ``ind_parts`` are 0-based state indices (from MATLAB 1-based ``num2cell(s(j,t))``).
     Preserve logical dtype for ``spm_sample`` / ``randperm`` replay (see ``spm_MDP_generate``).
+
+    OPTIM2FULL / MATLAB ``isa(GP.A{g},'function_handle')``: ``O = GP.A{g}([ind{:}])``
+    with 1-based state values concatenated into one vector argument.
     """
+    if callable(Ag) and not isinstance(Ag, (np.ndarray, np.generic)):
+        s_vec = np.asarray([int(i) + 1 for i in ind_parts], dtype=np.float64).ravel(
+            order="F"
+        )
+        out = Ag(s_vec)
+        if hasattr(out, "toarray"):
+            out = out.toarray()
+        col = np.asarray(out).reshape(-1, 1, order="F")
+        if col.dtype == bool:
+            return col.astype(bool)
+        return np.asarray(col, dtype=np.float64)
     if hasattr(Ag, "toarray"):
         Ag_work = Ag.toarray()
     else:
@@ -407,8 +438,19 @@ def _vb_gp_A_outcome_column(Ag: Any, ind_parts: list[int]) -> np.ndarray:
 
 
 def _vb_gp_transition_column(Bg: Any, s_1based: int, u_1based: int) -> np.ndarray:
-    """MATLAB ``GP.B{f}(:, s, u)`` with 1-based indices; column ``Ns x 1``."""
-    Barr = np.asarray(_unwrap_gp_elem(Bg), dtype=np.float64)
+    """MATLAB ``GP.B{f}(:, s, u)`` with 1-based indices; column ``Ns x 1``.
+
+    Preserve logical dtype for ``spm_sample`` / ``randperm`` replay (``.m`` ~879).
+    """
+    raw = _unwrap_gp_elem(Bg)
+    if sparse.issparse(raw):
+        raw = mfull(raw)
+    Barr = np.asarray(raw)
+    keep_bool = Barr.dtype == bool or np.issubdtype(Barr.dtype, np.bool_)
+    if keep_bool:
+        Barr = np.asarray(Barr, dtype=bool)
+    else:
+        Barr = np.asarray(Barr, dtype=np.float64)
     if Barr.ndim == 2:
         Barr = Barr[:, :, np.newaxis]
     nu_third = int(Barr.shape[2])
@@ -418,7 +460,10 @@ def _vb_gp_transition_column(Bg: Any, s_1based: int, u_1based: int) -> np.ndarra
     si = max(0, min(int(s_1based) - 1, int(Barr.shape[1]) - 1))
     ui = max(0, min(int(u_1based) - 1, nu_third - 1))
     col = Barr[:, si, ui]
-    return np.asarray(col.reshape(-1, 1), dtype=np.float64)
+    col = np.asarray(col).reshape(-1, 1, order="F")
+    if keep_bool:
+        return col.astype(bool)
+    return np.asarray(col, dtype=np.float64)
 
 
 def _tensor_nonempty(x: Any) -> bool:
@@ -443,15 +488,15 @@ def _vb_no_list_from_mdp(md: dict[str, Any]) -> list[int]:
 
 
 def _vb_o_cell_to_column(part: Any, n_g: int) -> np.ndarray:
-    """One ``O{m,g,t}`` leaf as ``No(g)x1`` column (pad/truncate to ``size(A{g},1)``)."""
-    col = np.asarray(part, dtype=np.float64).reshape(-1, 1, order="F")
-    if n_g < 1:
-        return col
-    if col.shape[0] < n_g:
-        col = np.vstack([col, np.zeros((n_g - col.shape[0], 1), dtype=np.float64)])
-    elif col.shape[0] > n_g:
-        col = col[:n_g, :]
-    return col
+    """One existing MATLAB ``O{m,g,t}`` cell leaf as an F-order column.
+
+    ``No(g)`` describes ``size(A{g},1)`` and is used when constructing a
+    missing one-hot outcome; it does not resize an existing cell value.
+    This matters generally for functional likelihoods, where
+    ``size(@fn,1) == 1`` but the function may return a longer outcome vector.
+    """
+    del n_g
+    return np.asarray(part, dtype=np.float64).reshape(-1, 1, order="F")
 
 
 def _vb_workspace_A_like_mdp_shape(qa_arr: np.ndarray, Ag_mdp: Any) -> np.ndarray:

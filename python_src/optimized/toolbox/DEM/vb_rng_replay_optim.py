@@ -1,4 +1,9 @@
-"""W2 Phase 5-S-1 — optim-owned ``vb_rand_buf`` replay."""
+"""W2 Phase 5-S-1 — optim-owned ``vb_rand_buf`` replay.
+
+Also supports OPTIM2FULL drone ledger slices via an explicit buffer
+(``reuse_matlab_draws_drone`` + ``matlab_rand_buf``) without loading Entry 12
+``vb_rand_buf``.
+"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -10,6 +15,7 @@ from python_src.optimized.toolbox.DEM import vb_instrumentation_optim as _inst
 
 
 def vb_load_matlab_rand_buf(path: Path | None = None) -> np.ndarray:
+    """Load Atari Entry 12 ``vb_rand_buf`` (OPTIM1FULL / Validation 12 path)."""
     if path is not None:
         from scipy.io import loadmat
 
@@ -29,14 +35,29 @@ def vb_load_matlab_rand_buf(path: Path | None = None) -> np.ndarray:
 
 
 class VbMatlabRandReplay:
-    """Replay MATLAB ``rand(K,1)`` scalars through ``numpy.random.rand`` for ``_spm_sample``."""
+    """Replay MATLAB ``rand(K,1)`` scalars through ``numpy.random.rand`` for ``_spm_sample``.
 
-    __slots__ = ("_it", "_orig")
+    Works for Entry 12 ``vb_rand_buf`` **or** any explicit scalar ledger slice
+    (e.g. OPTIM2FULL ``dem_drone_rand_buf`` segment ``vb_1``).
+    """
 
-    def __init__(self, buf: np.ndarray) -> None:
-        data = np.asarray(buf, dtype=np.float64).ravel(order="F").tolist()
-        self._it = iter(data)
+    __slots__ = ("_it", "_orig", "_used", "_k", "_label")
+
+    def __init__(self, buf: np.ndarray, *, label: str = "vb_rand_buf") -> None:
+        data = np.asarray(buf, dtype=np.float64).ravel(order="F")
+        self._k = int(data.size)
+        self._it = iter(data.tolist())
         self._orig = np.random.rand
+        self._used = 0
+        self._label = str(label)
+
+    @property
+    def draws_used(self) -> int:
+        return int(self._used)
+
+    @property
+    def k(self) -> int:
+        return int(self._k)
 
     def _shim(self, *args: Any, **kwargs: Any) -> float:
         if args or kwargs:
@@ -44,14 +65,16 @@ class VbMatlabRandReplay:
                 "spm_MDP_VB_XXX reuse_matlab_draws: only scalar np.random.rand() is supported"
             )
         try:
-            return float(next(self._it))
+            v = float(next(self._it))
+            self._used += 1
+            return v
         except StopIteration as e:
             raise RuntimeError(
-                "spm_MDP_VB_XXX reuse_matlab_draws: exhausted MATLAB vb_rand_buf "
+                f"spm_MDP_VB_XXX reuse_matlab_draws: exhausted MATLAB {self._label} "
                 "(Python drew more scalars than MATLAB; refresh K preflight and dump)"
             ) from e
 
-    def __enter__(self) -> _VbMatlabRandReplay:
+    def __enter__(self) -> VbMatlabRandReplay:
         global _VB_RAND_REPLAY_ITER, _VB_RAND_REPLAY_ORIG_RAND
         _VB_RAND_REPLAY_ITER = self._it
         _VB_RAND_REPLAY_ORIG_RAND = self._orig
@@ -70,6 +93,6 @@ class VbMatlabRandReplay:
         except StopIteration:
             return
         raise RuntimeError(
-            "spm_MDP_VB_XXX reuse_matlab_draws: unused draws remain in vb_rand_buf "
+            f"spm_MDP_VB_XXX reuse_matlab_draws: unused draws remain in {self._label} "
             "(Python drew fewer scalars than MATLAB; K preflight / OPTIONS mismatch)"
         )

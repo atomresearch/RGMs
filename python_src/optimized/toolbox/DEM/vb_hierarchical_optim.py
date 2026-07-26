@@ -418,8 +418,12 @@ def vb_hierarchical_subordinate_outcomes_optim(
                     )[0]
                     j_arr = np.atleast_1d(np.asarray(j, dtype=np.int64).ravel())
                     q_list = [ws_q_cell(ws, mi, int(jj) - 1, t_idx, bundle) for jj in j_arr]
-                    Ag = _a_colon_s_coerce_likelihood_(bundle["A"][mi][int(g) - 1])
-                    po = np.asarray(spm_dot(Ag, q_list), dtype=np.float64).reshape(-1, 1)
+                    Ag_raw = bundle["A"][mi][int(g) - 1]
+                    if callable(Ag_raw) and not isinstance(Ag_raw, np.ndarray):
+                        po = np.asarray(Ag_raw(q_list), dtype=np.float64).reshape(-1, 1)
+                    else:
+                        Ag = _a_colon_s_coerce_likelihood_(Ag_raw)
+                        po = np.asarray(spm_dot(Ag, q_list), dtype=np.float64).reshape(-1, 1)
                     child["E"][f] = _spm_multiply(child["E"][f], po)
 
             idD = id_child.get("D", [])
@@ -432,8 +436,12 @@ def vb_hierarchical_subordinate_outcomes_optim(
                     )[0]
                     j_arr = np.atleast_1d(np.asarray(j, dtype=np.int64).ravel())
                     q_list = [ws_q_cell(ws, mi, int(jj) - 1, t_idx, bundle) for jj in j_arr]
-                    Ag = _a_colon_s_coerce_likelihood_(bundle["A"][mi][int(g) - 1])
-                    po = np.asarray(spm_dot(Ag, q_list), dtype=np.float64).reshape(-1, 1)
+                    Ag_raw = bundle["A"][mi][int(g) - 1]
+                    if callable(Ag_raw) and not isinstance(Ag_raw, np.ndarray):
+                        po = np.asarray(Ag_raw(q_list), dtype=np.float64).reshape(-1, 1)
+                    else:
+                        Ag = _a_colon_s_coerce_likelihood_(Ag_raw)
+                        po = np.asarray(spm_dot(Ag, q_list), dtype=np.float64).reshape(-1, 1)
                     child["D"][f] = _spm_multiply(child["D"][f], po)
 
         if _spm_is_process(child):
@@ -476,6 +484,14 @@ def vb_hierarchical_subordinate_outcomes_optim(
                 if len(ge_list) < nfu:
                     ge_list = list(ge_list) + [None] * (nfu - len(ge_list))
                     child["GE"] = ge_list
+                # ``.m`` L1142 assigns ``mdp.GD{f}`` into a cell field MATLAB creates on demand.
+                gd_list = child.get("GD")
+                if not isinstance(gd_list, list):
+                    gd_list = [None] * nfu if gd_list is None else list(gd_list)
+                    child["GD"] = gd_list
+                if len(gd_list) < nfu:
+                    gd_list = gd_list + [None] * (nfu - len(gd_list))
+                    child["GD"] = gd_list
                 for f in range(nfu):
                     if f < GU.size and float(GU[f]) != 0.0:
                         nu = _b_nu_third_dim(child["GB"][f])

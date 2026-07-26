@@ -373,10 +373,10 @@ def vb_orchestrator_generate_outcomes_if_options_o(
                         ]
                         Amg = _unwrap_gp_elem(bundle["A"][mi][g_idx])
                         if callable(Amg) and not isinstance(Amg, np.ndarray):
-                            raise NotImplementedError(
-                                "OPTIONS.O: likelihood function_handle A{g} not translated"
-                            )
-                        F = np.asarray(spm_dot(Amg, q_list), dtype=np.float64).reshape(-1, 1)
+                            # MATLAB: qo = A{m,g}(Q(...)) for function_handle
+                            F = np.asarray(Amg(q_list), dtype=np.float64).reshape(-1, 1)
+                        else:
+                            F = np.asarray(spm_dot(Amg, q_list), dtype=np.float64).reshape(-1, 1)
                         Fl = np.asarray(_spm_log(F), dtype=np.float64).reshape(-1, 1)
                         Ocell = np.asarray(spm_softmax(Fl * 512.0), dtype=np.float64).reshape(-1, 1)
                         _orch_assign_o_slot(bundle, mi, o_idx, t_idx, Ocell)
@@ -397,18 +397,18 @@ def vb_orchestrator_generate_outcomes_if_options_o(
                     ]
                     Amg = _unwrap_gp_elem(bundle["A"][mi][g_idx])
                     if callable(Amg) and not isinstance(Amg, np.ndarray):
-                        raise NotImplementedError(
-                            "OPTIONS.O: likelihood function_handle A{g} not translated (Fm branch)"
-                        )
-                    Fm_store[(t_idx, o_idx, mi)] = np.asarray(
-                        _spm_log(np.asarray(spm_dot(Amg, q_list), dtype=np.float64)),
-                        dtype=np.float64,
-                    ).reshape(-1, 1)
+                        Fm_store[(t_idx, o_idx, mi)] = np.asarray(
+                            _spm_log(np.asarray(Amg(q_list), dtype=np.float64)),
+                            dtype=np.float64,
+                        ).reshape(-1, 1)
+                    else:
+                        Fm_store[(t_idx, o_idx, mi)] = np.asarray(
+                            _spm_log(np.asarray(spm_dot(Amg, q_list), dtype=np.float64)),
+                            dtype=np.float64,
+                        ).reshape(-1, 1)
                     continue
 
                 Ag_raw = _unwrap_gp_elem(gpm["A"][g_idx])
-                if callable(Ag_raw) and not isinstance(Ag_raw, np.ndarray):
-                    raise NotImplementedError("OPTIONS.O: GP.A{g} function_handle not translated")
                 j_arr = np.atleast_1d(np.asarray(j_p, dtype=np.float64)).ravel()
                 ind_parts: list[int] = []
                 for jx in j_arr:
@@ -652,7 +652,9 @@ def vb_orchestrator_belief_after_forwards(
     V_csr = bundle["V"][mi]
     Vd = V_csr.toarray()
     Um_row = np.asarray(bundle["Um"][mi], dtype=np.float64).ravel()
-    E_list = bundle["gp"][mi]["E"]
+    # ``.m`` ~L1315–1322: path-prior LE uses workspace ``E{m,f}`` from ``MDP.E``,
+    # not ``GP(m).E`` (``GE`` on process — that is for path sampling ~L810).
+    E_list = bundle["E"][mi]
     nf_m = int(bundle["Nf"][mi])
     Nu_arr = bundle["Nu"]
 

@@ -563,7 +563,9 @@ def _fwd_write_belief_col(
         assert ws is not None and ws_m is not None
         ws_assign_q_belief_slot(ws, None, ws_m, f, t_col, col)
     else:
-        P[mi][f][t_col] = col
+        # MATLAB cell assignment is copy-on-write. Recursive VBX must not
+        # mutate the caller's predictive ``Q`` through this ``P`` slot.
+        P[mi][f][t_col] = np.asarray(col, dtype=np.float64).copy(order="F")
 
 
 def _forwards_ws(

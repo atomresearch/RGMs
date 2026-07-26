@@ -8,7 +8,7 @@ nested lists sync only at boundaries via ``ws_to_bundle`` (cold teardown, dumps,
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
@@ -53,6 +53,11 @@ class VbWorkspace:
     S: list[list[np.ndarray]]
     q_n: list[list[int]] | None = None
     p_n: list[list[int]] | None = None
+    # ``O{m,g,t}`` is a MATLAB cell, so its length is not bounded by ``No(m,g)``.
+    # For callable ``A{g}`` (drone ``@spm_depth``/``@spm_state``) ``No = size(@fn,1) = 1``
+    # while ``GP.A{g}([ind{:}])`` returns the full outcome vector (``.m`` ~965), which the
+    # dense ``(No, T)`` array cannot hold. Slots longer than ``No`` live here instead.
+    o_cell: dict[tuple[int, int, int], np.ndarray] = field(default_factory=dict)
 
 
 def _o_dim_from_bundle(bundle: dict[str, Any], m: int, g: int) -> int:
@@ -162,6 +167,28 @@ def _fill_from_legacy_list(
         dest[: col.size, t_idx] = col
 
 
+def _fill_o_from_legacy_list(
+    ws: VbWorkspace,
+    m: int,
+    g: int,
+    legacy: list[Any],
+    t_int: int,
+) -> None:
+    """Legacy ``O(m,g,:)`` into ``ws`` — columns longer than ``No(m,g)`` go to ``o_cell``."""
+    dest = ws.O[m][g]
+    dim = int(dest.shape[0])
+    for t_idx in range(t_int):
+        col = np.asarray(legacy[t_idx], dtype=np.float64).reshape(-1)
+        if col.size == 0:
+            ws.o_cell.pop((m, g, t_idx), None)
+            continue
+        dest[: min(col.size, dim), t_idx] = col[:dim]
+        if col.size > dim:
+            ws.o_cell[(m, g, t_idx)] = col.reshape(-1, 1, order="F")
+        else:
+            ws.o_cell.pop((m, g, t_idx), None)
+
+
 def ws_from_bundle(bundle: dict[str, Any]) -> VbWorkspace:
     """Copy legacy nested-list ``Q``/``P``/``O``/``X``/``S`` into contiguous workspace (cold init only)."""
     ws = ws_alloc_from_bundle(bundle)
@@ -187,7 +214,7 @@ def ws_from_bundle(bundle: dict[str, Any]) -> VbWorkspace:
         if isinstance(o_legacy, list) and m < len(o_legacy):
             for g_idx in range(len(ws.O[m])):
                 if g_idx < len(o_legacy[m]):
-                    _fill_from_legacy_list(ws.O[m][g_idx], o_legacy[m][g_idx], t_int)
+                    _fill_o_from_legacy_list(ws, m, g_idx, o_legacy[m][g_idx], t_int)
 
     return ws
 
@@ -217,7 +244,7 @@ def ws_refill_from_bundle(ws: VbWorkspace, bundle: dict[str, Any]) -> None:
         if isinstance(o_legacy, list) and m < len(o_legacy):
             for g_idx in range(len(ws.O[m])):
                 if g_idx < len(o_legacy[m]):
-                    _fill_from_legacy_list(ws.O[m][g_idx], o_legacy[m][g_idx], t_int)
+                    _fill_o_from_legacy_list(ws, m, g_idx, o_legacy[m][g_idx], t_int)
 
 
 def ws_to_bundle(ws: VbWorkspace, bundle: dict[str, Any]) -> None:
@@ -251,6 +278,13 @@ def ws_to_bundle(ws: VbWorkspace, bundle: dict[str, Any]) -> None:
                 if len(leg_row) != t_int:
                     raise ValueError(f"legacy O list length mismatch at m={m} g={g_idx}")
                 for t_idx in range(t_int):
+                    cell = ws.o_cell.get((m, g_idx, t_idx))
+                    if cell is not None:
+                        # Cell slot exceeds ``No(m,g)`` — replace, never truncate.
+                        leg_row[t_idx] = np.asarray(cell, dtype=np.float64).reshape(
+                            -1, 1, order="F"
+                        )
+                        continue
                     col_flat = np.asarray(ws.O[m][g_idx][:, t_idx], dtype=np.float64).reshape(-1)
                     slot = leg_row[t_idx]
                     if slot is None:
@@ -572,10 +606,14 @@ def _sync_ws_o_from_slot(
 ) -> None:
     flat = np.asarray(slot, dtype=np.float64).reshape(-1)
     n = int(flat.size)
+    dim = int(ws.O[m][g].shape[0])
     ws.O[m][g][:, t] = 0.0
     if n:
-        dim = int(ws.O[m][g].shape[0])
         ws.O[m][g][: min(n, dim), t] = flat[:dim]
+    if n > dim:
+        ws.o_cell[(m, g, t)] = flat.reshape(-1, 1, order="F")
+    else:
+        ws.o_cell.pop((m, g, t), None)
 
 
 def ws_assign_o_slot(
@@ -612,6 +650,9 @@ def ws_o_compact_column(
     t: int,
 ) -> np.ndarray:
     """Compact ``O(m,g,t)`` from ``ws`` — active dim from ``No`` metadata."""
+    cell = ws.o_cell.get((m, g, t))
+    if cell is not None:
+        return np.asarray(cell, dtype=np.float64).reshape(-1, order="F")
     n = _o_active_numel(bundle, m, g, ws)
     if n < 1:
         return np.zeros(0, dtype=np.float64)

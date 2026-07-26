@@ -71,13 +71,22 @@ def _induction_cache_key_factors(
     """0-based ``ws.Q`` factor indices for ``_induction_cached`` key (**ENDGAME-1 t6**)."""
     factors: set[int] = {int(f) - 1 for f in hif_kept}
     if has_cid:
-        cid = np.asarray(id_dict["cid"], dtype=np.float64)
-        hif_set = set(int(x) for x in hif_list)
-        for f0 in range(cid.shape[0]):
-            if (f0 + 1) in hif_set:
-                continue
-            if np.any(cid[f0, :] != 0):
-                factors.add(int(f0))
+        cid_raw = id_dict["cid"]
+        if callable(cid_raw):
+            factors.update(
+                int(x)
+                for x in np.asarray(
+                    getattr(cid_raw, "_rgms_cid_q_factors", []), dtype=np.int64
+                ).ravel()
+            )
+        else:
+            cid = np.asarray(cid_raw, dtype=np.float64)
+            hif_set = set(int(x) for x in hif_list)
+            for f0 in range(cid.shape[0]):
+                if (f0 + 1) in hif_set:
+                    continue
+                if np.any(cid[f0, :] != 0):
+                    factors.add(int(f0))
     return sorted(factors)
 
 
@@ -115,10 +124,14 @@ def _induction_hid_hif(H: list[Any], id_dict: dict[str, Any]) -> tuple[np.ndarra
     if "cid" in id_dict and id_dict["cid"] is not None:
         cid_raw = id_dict["cid"]
         if callable(cid_raw):
-            raise NotImplementedError("spm_induction: id.cid function_handle not translated")
-        cid_arr = np.asarray(cid_raw, dtype=np.float64)
-        if cid_arr.size != 0:
-            hif = (np.flatnonzero(np.all(cid_arr != 0, axis=1)) + 1).astype(np.int64).reshape(1, -1)
+            # Callable cid is dynamic in Q; drone @spm_cid has fixed hif=1:3.
+            hif = np.asarray(
+                getattr(cid_raw, "_rgms_cid_hif", hif), dtype=np.int64
+            ).reshape(1, -1)
+        else:
+            cid_arr = np.asarray(cid_raw, dtype=np.float64)
+            if cid_arr.size != 0:
+                hif = (np.flatnonzero(np.all(cid_arr != 0, axis=1)) + 1).astype(np.int64).reshape(1, -1)
 
     hif_list = [int(x) for x in np.asarray(hif, dtype=np.int64).ravel().tolist()]
     hid = np.asarray(hid, dtype=np.float64)
@@ -137,10 +150,13 @@ def induction_model_static(
     u_thr = 1.0 / 32.0
     hid, _hif, hif_list_arr = _induction_hid_hif(H, id_dict)
     hif_list = [int(x) for x in hif_list_arr.ravel().tolist()]
+    cid_value = id_dict.get("cid")
     has_cid = bool(
-        "cid" in id_dict
-        and id_dict["cid"] is not None
-        and np.asarray(id_dict["cid"], dtype=np.float64).size > 0
+        cid_value is not None
+        and (
+            callable(cid_value)
+            or np.asarray(cid_value, dtype=np.float64).size > 0
+        )
     )
 
     if len(hif_list) == 0:
@@ -262,22 +278,16 @@ def _ind_bf_prop_from_bool(
                 return ist.bf_float_nomask
             return np.asarray(ist.Bf_bool, dtype=np.float64)
         d_mul = np.asarray(d_flat, dtype=np.float64).ravel(order="F")
-        if d_mul.size != ist.bf_nelem:
-            raise ValueError("spm_induction: D size mismatch with Bf")
         base = (
             ist.bf_float_nomask
             if ist.bf_float_nomask is not None
             else np.asarray(ist.Bf_bool, dtype=np.float64)
         )
-        nrows, ncols = base.shape
-        d_2d = d_mul.reshape((nrows, ncols), order="F")
-        return base * d_2d
+        return _ind_bf_apply_d_mask_dense(base, d_flat, d_mul)
     if d_flat is None:
-        d_mul = np.ones(int(ist.Bf_bool.shape[0] * ist.Bf_bool.shape[1]), dtype=np.float64)
+        d_mul = np.ones(1, dtype=np.float64)
     else:
         d_mul = np.asarray(d_flat, dtype=np.float64).ravel(order="F")
-        if d_mul.size != int(ist.Bf_bool.shape[0] * ist.Bf_bool.shape[1]):
-            raise ValueError("spm_induction: D size mismatch with Bf")
     return _bf_apply_d_mask_sparse(ist.Bf_bool, d_flat, d_mul)
 
 
@@ -343,11 +353,23 @@ def _ind_bf_apply_d_mask_dense(
     d_flat: Any,
     d_mul: np.ndarray,
 ) -> np.ndarray:
-    """``Bf .* D`` on dense bool/float — same as ``_bf_apply_d_mask_sparse`` after ``toarray``."""
+    """MATLAB ``and(Bf,D(:))`` on dense bool/float.
+
+    ``D(:)`` is ``(nrows,1)`` and MATLAB implicitly expands it across Bf
+    columns. Retain the former full-matrix mask shape for existing callers.
+    """
     if d_flat is None:
         return np.asarray(Bf_dense, dtype=np.float64)
     nrows, ncols = Bf_dense.shape
-    d_2d = d_mul.reshape((nrows, ncols), order="F")
+    if d_mul.size == nrows:
+        d_2d = d_mul.reshape((nrows, 1), order="F")
+    elif d_mul.size == nrows * ncols:
+        d_2d = d_mul.reshape((nrows, ncols), order="F")
+    else:
+        raise ValueError(
+            f"spm_induction: D size {d_mul.size} incompatible with "
+            f"Bf shape {(nrows, ncols)}"
+        )
     return np.asarray(Bf_dense, dtype=np.float64) * d_2d
 
 
@@ -386,14 +408,20 @@ def _ind_g_column(I_big: np.ndarray, qf_ravel: np.ndarray, ncols: int) -> np.nda
 
 
 def _bf_apply_d_mask_sparse(Bf: sparse.csr_matrix, d_flat: Any, d_mul: np.ndarray) -> sparse.csr_matrix:
-    """Fidelity-equivalent ``Bf .* D`` without ``Bf.toarray()`` when ``Bf`` is large."""
+    """MATLAB ``and(Bf,D(:))`` without densifying a large sparse ``Bf``."""
     if d_flat is None:
         return Bf
     nrows, ncols = Bf.shape
     nelem = int(nrows * ncols)
-    if int(d_mul.size) != nelem:
-        raise ValueError("spm_induction: D size mismatch with Bf")
-    d_2d = d_mul.reshape((nrows, ncols), order="F")
+    if d_mul.size == nrows:
+        d_2d = d_mul.reshape((nrows, 1), order="F")
+    elif d_mul.size == nelem:
+        d_2d = d_mul.reshape((nrows, ncols), order="F")
+    else:
+        raise ValueError(
+            f"spm_induction: D size {d_mul.size} incompatible with "
+            f"Bf shape {(nrows, ncols)}"
+        )
     if nelem <= _DENSE_BF_ELEM_THRESHOLD:
         bf_dense = Bf.toarray(order="F") * d_2d
         return sparse.csr_matrix(bf_dense)
@@ -415,7 +443,24 @@ def _ind_cid_d_flat(
         return True, None
     cid_raw = id_dict["cid"]
     if callable(cid_raw):
-        raise NotImplementedError("spm_induction: id.cid function_handle not translated")
+        Q_cid = Q
+        if ws is not None and ws_m is not None and ws_t_col is not None:
+            q_factors = np.asarray(
+                getattr(cid_raw, "_rgms_cid_q_factors", []), dtype=np.int64
+            ).ravel()
+            if q_factors.size:
+                n_q = max(len(B), int(np.max(q_factors)) + 1)
+                Q_cid = [np.zeros((0, 1), dtype=np.float64) for _ in range(n_q)]
+                for f0 in q_factors.tolist():
+                    Q_cid[int(f0)] = ws_q_compact_column(
+                        ws, ws_m, int(f0), ws_t_col, None
+                    )
+        d_tensor, hif = cid_raw(Q_cid)
+        hif_arr = np.asarray(hif, dtype=np.int64).ravel()
+        if hif_list and hif_arr.tolist() != [int(x) for x in hif_list]:
+            raise ValueError("spm_induction: callable cid hif changed from static setup")
+        d_tensor = np.asarray(d_tensor, dtype=bool)
+        return d_tensor, d_tensor.reshape(-1, order="F")
     cid_arr = np.asarray(cid_raw, dtype=np.float64)
     if cid_arr.size == 0:
         return True, None
@@ -515,7 +560,14 @@ def _ind_run_goal_search(
     n_use = int(n_sel[j0])
     col_idx = max(int(n_use) - 1, 0)
     p_vec = P_stored[orig_j][:, col_idx].astype(np.float64)
-    p_col = p_vec.reshape(-1, 1, order="F")
+    # MATLAB: ``R = reshape(full(P),[Ns,1])``. MATLAB drops the trailing
+    # singleton when ``numel(Ns)>1``; retain a 2-D column for one factor.
+    r_shape = (
+        tuple(int(x) for x in ns_by_pos)
+        if len(ns_by_pos) > 1
+        else (int(ns_by_pos[0]), 1)
+    )
+    p_col = p_vec.reshape(r_shape, order="F")
     if d_tensor is True:
         d_col = np.ones_like(p_col, dtype=bool)
     else:
@@ -591,8 +643,12 @@ def _spm_induction_vb_optim(
                     _PROBE_12F_PARENT["D_nnz"] = 1
             if d_tensor is True:
                 return np.asarray(32.0, dtype=np.float64), np.asarray(hif_list, dtype=np.int64)
-            r32 = (32.0 * np.asarray(d_flat, dtype=np.float32).ravel(order="F")).astype(np.float32)
-            return r32, np.asarray(hif_list, dtype=np.int64)
+            # MATLAB ``R = 32*D`` keeps the constraint-tensor shape; ``true(Ns)`` with
+            # ``Ns = [ns(hif) 1]`` drops the trailing singleton above rank 2.
+            d_arr = np.asarray(d_tensor, dtype=bool)
+            while d_arr.ndim > 2 and d_arr.shape[-1] == 1:
+                d_arr = d_arr.reshape(d_arr.shape[:-1], order="F")
+            return (32.0 * d_arr).astype(np.float64), np.asarray(hif_list, dtype=np.int64)
 
         n_clip = int(min(int(N), 64))
         if "D" in id_dict and n_clip < 4:
@@ -650,12 +706,16 @@ def _spm_induction_vb_optim(
     if "cid" in id_dict and id_dict["cid"] is not None:
         cid_raw = id_dict["cid"]
         if callable(cid_raw):
-            raise NotImplementedError("spm_induction: id.cid function_handle not translated")
-        cid_arr = np.asarray(cid_raw, dtype=np.float64)
-        if cid_arr.size == 0:
+            d_tensor, hif = cid_raw(Q)
+            d_tensor = np.asarray(d_tensor, dtype=bool)
+            d_flat = d_tensor.reshape(-1, order="F")
+            cid_arr = None
+        else:
+            cid_arr = np.asarray(cid_raw, dtype=np.float64)
+        if cid_arr is not None and cid_arr.size == 0:
             d_tensor: Any = True
             d_flat = None
-        else:
+        elif cid_arr is not None:
             cid = cid_arr
             nid = cid.copy()
             hif = (np.flatnonzero(np.all(cid != 0, axis=1)) + 1).astype(np.int64).reshape(1, -1)
@@ -706,8 +766,12 @@ def _spm_induction_vb_optim(
                 _PROBE_12F_PARENT["D_nnz"] = 1
         if d_tensor is True:
             return np.asarray(32.0, dtype=np.float64), np.asarray(hif_list, dtype=np.int64)
-        r32 = (32.0 * np.asarray(d_flat, dtype=np.float32).ravel(order="F")).astype(np.float32)
-        return r32, np.asarray(hif_list, dtype=np.int64)
+        # Same contract as the static ``empty_hid`` branch: MATLAB ``R = 32*D``
+        # keeps the callable-``cid`` tensor shape in double precision.
+        d_arr = np.asarray(d_tensor, dtype=bool)
+        while d_arr.ndim > 2 and d_arr.shape[-1] == 1:
+            d_arr = d_arr.reshape(d_arr.shape[:-1], order="F")
+        return (32.0 * d_arr).astype(np.float64), np.asarray(hif_list, dtype=np.int64)
 
     N = int(min(int(N), 64))
     if "D" in id_dict and N < 4:
@@ -754,22 +818,18 @@ def _spm_induction_vb_optim(
     if use_dense_bf:
         Bf_dense_bool = _ind_bf_dense_build(hif_kept, b_map)
         if d_flat is None:
-            d_mul = np.ones(bf_nelem, dtype=np.float64)
+            d_mul = np.ones(1, dtype=np.float64)
         else:
             d_mul = np.asarray(d_flat, dtype=np.float64).ravel(order="F")
-            if d_mul.size != bf_nelem:
-                raise ValueError("spm_induction: D size mismatch with Bf")
         Bf_prop = _ind_bf_apply_d_mask_dense(Bf_dense_bool, d_flat, d_mul)
     else:
         Bf = sparse.csr_matrix([[1.0]], dtype=np.float64)
         for f in hif_kept:
             Bf = spm_kron(b_map[f], Bf)
         if d_flat is None:
-            d_mul = np.ones(int(Bf.shape[0] * Bf.shape[1]), dtype=np.float64)
+            d_mul = np.ones(1, dtype=np.float64)
         else:
             d_mul = np.asarray(d_flat, dtype=np.float64).ravel(order="F")
-            if d_mul.size != int(Bf.shape[0] * Bf.shape[1]):
-                raise ValueError("spm_induction: D size mismatch with Bf")
         Bf = _bf_apply_d_mask_sparse(Bf, d_flat, d_mul)
         Bf_prop = Bf
 

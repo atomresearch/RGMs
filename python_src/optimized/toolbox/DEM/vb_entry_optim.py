@@ -397,12 +397,20 @@ def run_optim_vb(
     monitoring: bool = False,
     dump_subentries: bool = False,
     reuse_matlab_draws: bool = False,
+    reuse_matlab_draws_drone: bool = False,
+    matlab_rand_buf: Any = None,
 ) -> Any:
     """
     **4-E-1** canonical optim VB entry — ``run_optim_vb(RDP, OPTIONS)``.
 
     Cold bands via ``vb_cold_optim``; hot **12F** via ``vb_t_loop_optim``; partial return
     via ``vb_lifecycle_optim``. No runtime monkey-patches on fidelity (**4-X-1**).
+
+    RNG (top-level only via ``VbRandContext``):
+    - ``reuse_matlab_draws=True`` — Atari Entry 12 ``vb_rand_buf`` (OPTIM1FULL).
+    - ``reuse_matlab_draws_drone=True`` — OPTIM2FULL drone ledger; requires
+      ``matlab_rand_buf`` (e.g. ``vb_1`` slice of ``dem_drone_rand_buf``).
+    - Both default **False**; mutually exclusive.
     """
     _inst._vb_timing_enter()
     if _inst._VB_TIMING_DEPTH == 1:
@@ -416,7 +424,11 @@ def run_optim_vb(
     if monitoring and _inst._VB_TIMING_DEPTH == 1:
         _inst._VB_MONITOR_REQUESTED = True
     try:
-        with VbRandContext(reuse_matlab_draws=reuse_matlab_draws):
+        with VbRandContext(
+            reuse_matlab_draws=reuse_matlab_draws,
+            reuse_matlab_draws_drone=reuse_matlab_draws_drone,
+            matlab_rand_buf=matlab_rand_buf,
+        ):
             return _vb_run_compute_pipeline(
                 mdp_in,
                 options,
@@ -438,6 +450,8 @@ def run_spm_MDP_VB_XXX_optim_entry(
     monitoring: bool = False,
     dump_subentries: bool = False,
     reuse_matlab_draws: bool = False,
+    reuse_matlab_draws_drone: bool = False,
+    matlab_rand_buf: Any = None,
 ) -> Any:
     """Deprecated alias — use ``run_optim_vb`` (**4-E-1**)."""
     return run_optim_vb(
@@ -446,4 +460,6 @@ def run_spm_MDP_VB_XXX_optim_entry(
         monitoring=monitoring,
         dump_subentries=dump_subentries,
         reuse_matlab_draws=reuse_matlab_draws,
+        reuse_matlab_draws_drone=reuse_matlab_draws_drone,
+        matlab_rand_buf=matlab_rand_buf,
     )

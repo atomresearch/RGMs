@@ -72,7 +72,12 @@ def spm_edges(id_dict: dict, g: int, Q):
 
             if "fg" in id_dict:
                 fg = id_dict["fg"]
-                if isinstance(fg, np.ndarray):
+                # MATLAB spm_edges.m L79–83: iscell → {g}{s{:}}; else fg(g,[s{:}])
+                # else covers both numeric indexing and function_handle call (drone id.fg=@spm_fg).
+                if callable(fg) and not isinstance(fg, (np.ndarray, np.generic, list, tuple)):
+                    s_vec = np.asarray(s, dtype=np.float64).ravel(order="F")
+                    j_out.append(np.atleast_1d(np.asarray(fg(g, s_vec))))
+                elif isinstance(fg, np.ndarray):
                     # MATLAB: id.fg(g, [s{:}]) — multiple indices along dim 2; higher
                     # dims default to first slice (see spm_edges.m).
                     cols = np.asarray(s, dtype=np.int64) - 1
@@ -86,7 +91,10 @@ def spm_edges(id_dict: dict, g: int, Q):
 
             if "gg" in id_dict:
                 gg = id_dict["gg"]
-                if isinstance(gg, np.ndarray):
+                if callable(gg) and not isinstance(gg, (np.ndarray, np.generic, list, tuple)):
+                    s_vec = np.asarray(s, dtype=np.float64).ravel(order="F")
+                    i_out.append(np.atleast_1d(np.asarray(gg(g, s_vec))))
+                elif isinstance(gg, np.ndarray):
                     cols = np.asarray(s, dtype=np.int64) - 1
                     tail = (0,) * max(0, gg.ndim - 2)
                     i_row = np.asarray(gg[(g - 1, cols) + tail])
@@ -98,8 +106,10 @@ def spm_edges(id_dict: dict, g: int, Q):
 
         return j_out, i_out, np.reshape(q_sub, (-1, 1))
 
-    A = np.asarray(id_dict["A"], dtype=float, order="F")
-    j = float(np.ravel(A, order="F")[g - 1])
-    i = g
+    # MATLAB parentheses retain the outer cells: ``j = id.A(g); i = {g}``.
+    # The full numeric parent vector lives inside ``j{1}``; flattening ``id.A``
+    # here would incorrectly retain only its first parent.
+    j = [np.asarray(id_dict["A"][g - 1], dtype=float).copy()]
+    i = [g]
     q = 1.0
     return j, i, q

@@ -132,6 +132,29 @@ def _vb_copy_gp_de_field(value: Any) -> Any:
     return value
 
 
+def _vb_refresh_gp_de_from_model(
+    md: dict[str, Any],
+    gpm: dict[str, Any],
+    *,
+    is_process: bool,
+) -> None:
+    """Refresh ``gp`` D/E from the current child model (MATLAB cold-init contract).
+
+    Non-process: ``gp.D/E ← MDP.D/E``. Process: ``gp.D/E ← MDP.GD/GE`` (``.m`` /
+    fidelity ``spm_MDP_VB_XXX`` process branch). Hierarchical prep updates ``D``/``E``
+    and, for process children, ``GD``/``GE`` before each nested VB call; cached-bundle
+    refresh must re-bind ``gp`` or LE at ``t==1`` keeps the previous child's ``GE``.
+    """
+    if not is_process:
+        gpm["D"] = _vb_copy_gp_de_field(md["D"])
+        gpm["E"] = _vb_copy_gp_de_field(md["E"])
+        return
+    if "GD" in md:
+        gpm["D"] = _vb_copy_gp_de_field(md["GD"])
+    if "GE" in md:
+        gpm["E"] = _vb_copy_gp_de_field(md["GE"])
+
+
 def vb_refresh_child_bundle_mutable(
     models: list[dict[str, Any]],
     bundle: dict[str, Any],
@@ -169,10 +192,7 @@ def vb_refresh_child_bundle_mutable(
         ng_m = int(Ng[m])
         nf_m = int(Nf[m])
 
-        if float(proc[m]) <= 0:
-            gpm["D"] = _vb_copy_gp_de_field(md["D"])
-            gpm["E"] = _vb_copy_gp_de_field(md["E"])
-
+        _vb_refresh_gp_de_from_model(md, gpm, is_process=float(proc[m]) > 0)
         U_arr = _vb_mdp_U_as_float_array(md)
 
         for g_idx in range(ng_m):
@@ -185,18 +205,25 @@ def vb_refresh_child_bundle_mutable(
             else:
                 Ag = md["A"][g_idx]
                 Ag = Ag[0] if isinstance(Ag, list) and len(Ag) == 1 else Ag
-                Ag_col = _a_colon_s_coerce_likelihood_(Ag)
-                qa_mg = _vb_as_float64_array(Ag_col) * 512.0
+                # MATLAB ~474–477: numeric → A*512; else keep function_handle
+                if callable(Ag) and not isinstance(Ag, (np.ndarray, np.generic)):
+                    qa_mg = Ag
+                else:
+                    Ag_col = _a_colon_s_coerce_likelihood_(Ag)
+                    qa_mg = _vb_as_float64_array(Ag_col) * 512.0
 
-            qa_ws = np.asarray(qa_mg, dtype=np.float64)
-            if not qa_ws.flags.writeable:
-                qa_ws = np.asarray(qa_mg, dtype=np.float64).copy(order="F")
-            _spm_norm_inplace(qa_ws)
-            if "A" in md:
-                Agf = md["A"][g_idx]
-                Agf = Agf[0] if isinstance(Agf, list) and len(Agf) == 1 else Agf
-                if isinstance(Agf, np.ndarray) and Agf.dtype == bool:
-                    qa_ws = qa_ws.astype(bool)
+            if callable(qa_mg) and not isinstance(qa_mg, (np.ndarray, np.generic)):
+                qa_ws = qa_mg
+            else:
+                qa_ws = np.asarray(qa_mg, dtype=np.float64)
+                if not qa_ws.flags.writeable:
+                    qa_ws = np.asarray(qa_mg, dtype=np.float64).copy(order="F")
+                _spm_norm_inplace(qa_ws)
+                if "A" in md:
+                    Agf = md["A"][g_idx]
+                    Agf = Agf[0] if isinstance(Agf, list) and len(Agf) == 1 else Agf
+                    if isinstance(Agf, np.ndarray) and Agf.dtype == bool:
+                        qa_ws = qa_ws.astype(bool)
             if "a" in md:
                 slot = md["a"][g_idx]
                 if isinstance(slot, list) and len(slot) == 1:
@@ -205,7 +232,9 @@ def vb_refresh_child_bundle_mutable(
                     md["a"][g_idx] = qa_ws
             bundle["pa"][m][g_idx] = qa_ws
             bundle["qa"][m][g_idx] = qa_ws
-            if "A" in md:
+            if callable(qa_ws) and not isinstance(qa_ws, (np.ndarray, np.generic)):
+                bundle["A"][m][g_idx] = qa_ws
+            elif "A" in md:
                 bundle["A"][m][g_idx] = _vb_workspace_A_like_mdp_shape(qa_ws, md["A"][g_idx])
             elif "a" in md:
                 bundle["A"][m][g_idx] = _vb_workspace_A_like_mdp_shape(qa_ws, md["a"][g_idx])
@@ -294,9 +323,7 @@ def vb_refresh_child_bundle_de_priors_only(
         gpm = gp[m]
         nf_m = int(Nf[m])
 
-        if float(proc[m]) <= 0:
-            gpm["D"] = _vb_copy_gp_de_field(md["D"])
-            gpm["E"] = _vb_copy_gp_de_field(md["E"])
+        _vb_refresh_gp_de_from_model(md, gpm, is_process=float(proc[m]) > 0)
 
         for f_idx in range(nf_m):
             if "d" in md:
@@ -381,7 +408,17 @@ def vb_posterior_predictive_Y_child_optim(
         id_m = bundle["id"][mi]
         for g_1b in range(1, ng_m + 1):
             g_idx = g_1b - 1
-            Ag = _vb_fidelity._vb_ag_for_posterior_predictive(md, bundle, mi, g_idx)
+            # ``.m`` ~1651: ``isa(A{m,g},'function_handle')`` → ``A{m,g}(Q(m,j,t))``;
+            # numeric ``A{m,g}`` keeps the ``spm_dot`` coercion path.
+            Ag_raw = _vb_fidelity._unwrap_gp_elem(bundle["A"][mi][g_idx])
+            if isinstance(Ag_raw, (list, tuple)) and len(Ag_raw) == 1:
+                Ag_raw = Ag_raw[0]
+            Ag_is_handle = callable(Ag_raw)
+            Ag = (
+                Ag_raw
+                if Ag_is_handle
+                else _vb_fidelity._vb_ag_for_posterior_predictive(md, bundle, mi, g_idx)
+            )
             for t_idx in range(t_int):
                 Qrow = _vb_fidelity._vb_q_row_for_parents(bundle["Q"][mi], t_idx)
                 j, i_ch = spm_parents(id_m, g_1b, Qrow)
@@ -397,7 +434,12 @@ def vb_posterior_predictive_Y_child_optim(
                 else:
                     md["i"][g_idx][t_idx] = copy.deepcopy(i_ch)
                 q_list = _vb_fidelity._vb_q_list_at_mt(bundle["Q"][mi], j, t_idx)
-                pred = np.asarray(forwards_dot_A_qj(Ag, q_list), dtype=np.float64).reshape(-1, 1)
+                if Ag_is_handle:
+                    pred = np.asarray(Ag(list(q_list)), dtype=np.float64).reshape(-1, 1)
+                else:
+                    pred = np.asarray(
+                        forwards_dot_A_qj(Ag, q_list), dtype=np.float64
+                    ).reshape(-1, 1)
                 for o in i_arr.tolist():
                     o_int = int(np.round(float(o)))
                     if o_int < 1 or o_int > ng_m:

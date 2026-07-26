@@ -270,6 +270,16 @@ def _callable_multi_out(Afun) -> bool:
     return int(getattr(Afun, "_rgms_vbx_nout", 1)) > 1
 
 
+def _vbx_iscell(U) -> bool:
+    """MATLAB ``iscell(U)`` — an **empty** cell is still a cell (``.m`` L232/L259).
+
+    Drone ``A_state`` returns ``{}`` when no occluder depth is confident; MATLAB then
+    contributes ``F = 0`` and leaves ``P`` untouched, rather than falling through to the
+    numeric-tensor branch.
+    """
+    return isinstance(U, (list, tuple))
+
+
 def _spm_VBX_update(P, A, O, i_children, j_parents):
     j = j_parents
     if isinstance(j, (list, tuple)):
@@ -295,7 +305,7 @@ def _spm_VBX_update(P, A, O, i_children, j_parents):
             else:
                 U = A(O[oi - 1], s)
                 r = np.arange(1, Nf + 1, dtype=int)
-            if isinstance(U, (list, tuple)) and len(U) > 0 and isinstance(U[0], np.ndarray):
+            if _vbx_iscell(U):
                 for f in range(len(U)):
                     t = _vbx_log(U[f])
                     M[f] = t if M[f] is None else (M[f] + t)
@@ -313,7 +323,7 @@ def _spm_VBX_update(P, A, O, i_children, j_parents):
     U = U_last
     if U is None:
         return P, -32.0
-    if isinstance(U, (list, tuple)) and len(U) > 0 and isinstance(U[0], np.ndarray):
+    if _vbx_iscell(U):
         F = 0.0
         Q = [None] * len(U)
         r_arr = np.asarray(r, dtype=int).ravel()

@@ -437,10 +437,12 @@ def policy_engine_step(
                     Amg = a_f64[gi0]
                     if Amg is None:
                         Amg = A[mi][gi0]
-                        if callable(Amg):
-                            raise NotImplementedError("spm_forwards: A{m,g} function_handle not translated")
                     qj = _qj_cached(j)
-                    qo = _as_col(_forwards_dot_A_qj(Amg, qj))
+                    if callable(Amg) and not isinstance(Amg, np.ndarray):
+                        # MATLAB: qo = A{m,g}(Q(j))
+                        qo = _as_col(Amg(qj))
+                    else:
+                        qo = _as_col(_forwards_dot_A_qj(Amg, qj))
                     No[0, i_cov] += float(
                         np.asarray(
                             _prim._spm_log(np.array([[float(np.size(qo))]], dtype=np.float64)),
@@ -538,7 +540,8 @@ def policy_engine_step(
             q = spm_cross(S_list)
             q = np.asarray(q, dtype=np.float64).reshape(tuple(n_list) + (1,), order="F")
             flat = q.ravel(order="F").copy()
-            order_idx = np.argsort(-flat)
+            # MATLAB ``sort(q(:),'descend')`` preserves column-major order for ties.
+            order_idx = np.argsort(-flat, kind="stable")
             if flat.size > 4:
                 flat[order_idx[4:]] = 0.0
             zs = float(np.sum(flat))
@@ -566,13 +569,20 @@ def policy_engine_step(
                         if Amg is None:
                             Amg = A[mi][gi0]
                         for o in np.atleast_1d(np.asarray(gg, dtype=np.int64).ravel()):
-                            if callable(Amg):
-                                raise NotImplementedError("spm_forwards: function_handle A in recursion")
-                            sl = tuple(slice(int(x - 1), int(x)) for x in ind_cell)
-                            if Amg.ndim == len(ind_cell) + 1:
-                                col = np.asarray(Amg[(slice(None),) + sl], dtype=np.float64).reshape(-1, 1, order="F")
+                            if callable(Amg) and not isinstance(Amg, np.ndarray):
+                                # MATLAB: O = A{m,g}([ind{:}]) with 1-based state values
+                                s_vec = np.asarray(ind_cell, dtype=np.float64).ravel(
+                                    order="F"
+                                )
+                                col = np.asarray(Amg(s_vec), dtype=np.float64).reshape(
+                                    -1, 1, order="F"
+                                )
                             else:
-                                col = np.asarray(Amg[sl], dtype=np.float64).reshape(-1, 1, order="F")
+                                sl = tuple(slice(int(x - 1), int(x)) for x in ind_cell)
+                                if Amg.ndim == len(ind_cell) + 1:
+                                    col = np.asarray(Amg[(slice(None),) + sl], dtype=np.float64).reshape(-1, 1, order="F")
+                                else:
+                                    col = np.asarray(Amg[sl], dtype=np.float64).reshape(-1, 1, order="F")
                             if use_ws and ws is not None and bundle is not None:
                                 ws_assign_o_slot(ws, None, mi, int(o) - 1, t, col)
                             else:

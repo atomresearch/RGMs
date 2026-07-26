@@ -5364,10 +5364,14 @@ def _vb_init_QXSP_outcomes_and_process(
 
 def _any_u_factor_cols(U: np.ndarray, factor_cols_1based: np.ndarray) -> bool:
     """MATLAB ``any(MDP.U(:,f))`` for columns ``f`` (1-based)."""
-    fc = np.asarray(factor_cols_1based, dtype=np.int64).ravel()
+    # float first so NaN parents (checkX None→nan footgun) are dropped, not cast to intmax
+    fc = np.asarray(factor_cols_1based, dtype=np.float64).ravel()
     if fc.size == 0:
         return False
-    cols = fc - 1
+    fc = fc[np.isfinite(fc)]
+    if fc.size == 0:
+        return False
+    cols = fc.astype(np.int64) - 1
     uu = np.asarray(U, dtype=np.float64)
     if uu.ndim == 1:
         uu = uu.reshape(1, -1)
@@ -5401,6 +5405,11 @@ def _vb_tensors_through_H(
         md = models[m]
         max_guess_ng = max(max_guess_ng, len(md.get("A", [])))
         max_guess_nf = max(max_guess_nf, len(md.get("B", [])))
+        # Process models: GP uses GA/GB, which can be *longer* than model A/B
+        # (drone packed MDP: B=8196, GB=8200). MATLAB cells grow; NumPy needs max.
+        if _spm_is_process(md):
+            max_guess_ng = max(max_guess_ng, len(md.get("GA", []) or []))
+            max_guess_nf = max(max_guess_nf, len(md.get("GB", []) or []))
 
     No = np.zeros((nm, max_guess_ng), dtype=np.int64)
     Ns = np.zeros((nm, max_guess_nf), dtype=np.int64)
@@ -5455,7 +5464,11 @@ def _vb_tensors_through_H(
         for g_idx in range(int(Ng[m])):
             Ag = md["A"][g_idx]
             Ag = Ag[0] if isinstance(Ag, list) and len(Ag) == 1 else Ag
-            No[m, g_idx] = int(_a_colon_s_coerce_likelihood_(Ag).shape[0])
+            # MATLAB: No(m,g)=size(A{g},1); size(@fh,1)==1 for function handles
+            if callable(Ag) and not isinstance(Ag, (np.ndarray, np.generic)):
+                No[m, g_idx] = 1
+            else:
+                No[m, g_idx] = int(_a_colon_s_coerce_likelihood_(Ag).shape[0])
         for f_idx in range(int(Nf[m])):
             Bg = md["B"][f_idx]
             Bg = Bg[0] if isinstance(Bg, list) and len(Bg) == 1 else Bg
@@ -5547,26 +5560,34 @@ def _vb_tensors_through_H(
             else:
                 Ag = md["A"][g_idx]
                 Ag = Ag[0] if isinstance(Ag, list) and len(Ag) == 1 else Ag
-                Ag_col = _a_colon_s_coerce_likelihood_(Ag)
-                if sparse.issparse(Ag_col):
-                    qa_mg = _vb_as_float64_array(Ag_col) * 512.0
+                # MATLAB ~474–477: numeric → A*512; else keep handle (function_handle)
+                if callable(Ag) and not isinstance(Ag, (np.ndarray, np.generic)):
+                    qa_mg = Ag
                 else:
-                    Ag_arr = np.asarray(Ag_col, dtype=np.float64)
-                    if np.issubdtype(Ag_arr.dtype, np.number) and Ag_arr.dtype != bool:
-                        qa_mg = Ag_arr * 512.0
+                    Ag_col = _a_colon_s_coerce_likelihood_(Ag)
+                    if sparse.issparse(Ag_col):
+                        qa_mg = _vb_as_float64_array(Ag_col) * 512.0
                     else:
-                        qa_mg = Ag_col
+                        Ag_arr = np.asarray(Ag_col, dtype=np.float64)
+                        if np.issubdtype(Ag_arr.dtype, np.number) and Ag_arr.dtype != bool:
+                            qa_mg = Ag_arr * 512.0
+                        else:
+                            qa_mg = Ag_col
 
             # MATLAB ~482–486: ``pa{m,g}=qa{m,g}`` then ``A{m,g}=spm_norm(qa{m,g})`` in place.
-            qa_ws = np.asarray(qa_mg, dtype=np.float64)
-            if not qa_ws.flags.writeable:
-                qa_ws = np.asarray(qa_mg, dtype=np.float64).copy(order="F")
-            _spm_norm_inplace(qa_ws)
-            if "A" in md:
-                Agf = md["A"][g_idx]
-                Agf = Agf[0] if isinstance(Agf, list) and len(Agf) == 1 else Agf
-                if isinstance(Agf, np.ndarray) and Agf.dtype == bool:
-                    qa_ws = qa_ws.astype(bool)
+            # ``spm_norm`` / ``spm_hnorm`` pass non-numeric (handles) through / return [].
+            if callable(qa_mg) and not isinstance(qa_mg, (np.ndarray, np.generic)):
+                qa_ws = qa_mg
+            else:
+                qa_ws = np.asarray(qa_mg, dtype=np.float64)
+                if not qa_ws.flags.writeable:
+                    qa_ws = np.asarray(qa_mg, dtype=np.float64).copy(order="F")
+                _spm_norm_inplace(qa_ws)
+                if "A" in md:
+                    Agf = md["A"][g_idx]
+                    Agf = Agf[0] if isinstance(Agf, list) and len(Agf) == 1 else Agf
+                    if isinstance(Agf, np.ndarray) and Agf.dtype == bool:
+                        qa_ws = qa_ws.astype(bool)
             if "a" in md:
                 slot = md["a"][g_idx]
                 if isinstance(slot, list) and len(slot) == 1:
@@ -5575,7 +5596,9 @@ def _vb_tensors_through_H(
                     md["a"][g_idx] = qa_ws
             pa_t[m][g_idx] = qa_ws
             qa_t[m][g_idx] = qa_ws
-            if "A" in md:
+            if callable(qa_ws) and not isinstance(qa_ws, (np.ndarray, np.generic)):
+                A_t[m][g_idx] = qa_ws
+            elif "A" in md:
                 A_t[m][g_idx] = _vb_workspace_A_like_mdp_shape(qa_ws, md["A"][g_idx])
             elif "a" in md:
                 A_t[m][g_idx] = _vb_workspace_A_like_mdp_shape(qa_ws, md["a"][g_idx])
