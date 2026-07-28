@@ -249,10 +249,10 @@ def run_dem_atariiii_optim(
     Same contract as ``run_dem_atariiii``; Entries **3, 4, 7, 8, 9, 10** use optimized kernels.
 
     ``entry4_*`` hooks (keyword-only, default ``None``) are forwarded to Entry **4**
-    ``spm_faster_structure_learning_optim`` → ``spm_rgm_group``. ``None`` keeps native
-    compute unchanged for OPTIM1 / native lanes. OPTIM1FULL Product B parity passes
-    MATLAB MI + ``eig(...,'nobalance')`` + link ``spm_dir_MI`` callables (see
-    ``optim1full_entry4_matlab.py``).
+    ``spm_faster_structure_learning_optim`` → ``spm_rgm_group_optim``. ``None`` keeps
+    native compute (Weak-B grouping default on; see ``FSL_optim.md``). OPTIM1FULL
+    Product B parity passes MATLAB MI + ``eig(...,'nobalance')`` + link ``spm_dir_MI``
+    callables (see ``optim1full_entry4_matlab.py``); ``eig_pair`` forces Weak-B off.
     """
     if entry_stop < 1:
         raise ValueError("entry_stop must be >= 1")
