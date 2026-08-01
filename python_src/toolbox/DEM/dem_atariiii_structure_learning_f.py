@@ -9,7 +9,7 @@ from typing import Any
 
 import numpy as np
 
-from python_src.toolbox.DEM.entry12_plot import spm_get_hits
+from python_src.toolbox.DEM.entry12_plot_support import spm_get_hits
 
 
 def _unwrap_b1(b_field: Any) -> np.ndarray:

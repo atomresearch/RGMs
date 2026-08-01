@@ -20,23 +20,34 @@ from python_src.toolbox.DEM.entry12_plot_support import (
     spm_get_hits,
 )
 from python_src.toolbox.DEM.spm_figure import spm_figure, spm_figure_clf
-from tests.demo1.optim1.optim1_paths import optim1_repo_root, optim1_visualizations_dir
+
+
+def _optim1_repo_root() -> Path:
+    from tests.demo1.optim1.optim1_paths import optim1_repo_root
+
+    return optim1_repo_root()
+
+
+def _optim1_visualizations_dir() -> Path:
+    from tests.demo1.optim1.optim1_paths import optim1_visualizations_dir
+
+    return optim1_visualizations_dir()
 
 
 def optim1_12plot_png_path(ts: str | None = None) -> Path:
     ts = ts or entry12plot_timestamp()
-    return optim1_visualizations_dir() / f"OPTIM1_12plot_{ts}.png"
+    return _optim1_visualizations_dir() / f"OPTIM1_12plot_{ts}.png"
 
 
 def optim1_12plot_python_pkl_pdp_png_path(ts: str | None = None) -> Path:
     ts = ts or entry12plot_timestamp()
-    return optim1_visualizations_dir() / f"OPTIM1_12plot_python_pkl_pdp_{ts}.png"
+    return _optim1_visualizations_dir() / f"OPTIM1_12plot_python_pkl_pdp_{ts}.png"
 
 
 def optim1_12plot_compare_matlab_vs_pklpdp_path(ts: str | None = None) -> Path:
     ts = ts or entry12plot_timestamp()
     return (
-        optim1_visualizations_dir()
+        _optim1_visualizations_dir()
         / f"OPTIM1_12plot_compare_matlab_vs_pklpdp_{ts}.png"
     )
 
@@ -50,7 +61,7 @@ def run_entry12plot(
     png_path: Path | None = None,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Path | None]:
     """Run staged ENTRY 12PLOT fence; does not invoke VB (DEMO1-faithful; OPTIM1 paths)."""
-    _ = repo_root or optim1_repo_root()
+    _ = repo_root or _optim1_repo_root()
     rgb = plot_ctx["RGB"]
     gdp_id = plot_ctx["GDP"]["id"]
 
@@ -85,7 +96,7 @@ def run_entry12plot_phase_b_visual_review(
     ts: str | None = None,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Path, Optional[Path]]:
     """Phase **B** plot PNG + MATLAB-vs-**``.pkl``** side-by-side compare (no VB re-run)."""
-    root = repo_root or optim1_repo_root()
+    root = repo_root or _optim1_repo_root()
     ts = ts or entry12plot_timestamp()
     ctx = load_plot_ctx_from_mat(plot_ctx_mat_path(root))
     pdp = load_pdp_pkl_for_plot(pdp_pkl_path(root))

@@ -11,7 +11,7 @@ from typing import Any, Optional, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 
-from python_src.toolbox.DEM.entry12_plot import spm_get_hits
+from python_src.toolbox.DEM.entry12_plot_support import spm_get_hits
 from python_src.toolbox.DEM.spm_figure import spm_figure, spm_figure_clf
 from python_src.toolbox.DEM.spm_show_RGB import spm_show_RGB
 
