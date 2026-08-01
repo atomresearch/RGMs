@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from python_src.toolbox.DEM.spm_show_RGB import spm_show_RGB
-from python_src.toolbox.DEM.entry12_plot import (
+from python_src.toolbox.DEM.entry12_plot_support import (
     compose_entry12plot_matlab_vs_pklpdp_png,
     entry12plot_timestamp,
     load_pdp_pkl_for_plot,

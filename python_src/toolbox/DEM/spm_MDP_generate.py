@@ -23,12 +23,56 @@ from python_src.spm_combinations import spm_combinations
 from python_src.spm_kron import spm_kron
 from python_src.spm_softmax import spm_softmax
 from python_src.toolbox.DEM.spm_MDP_checkX import spm_MDP_checkX
-from python_src.toolbox.DEM.spm_MDP_generate import (
-    _spm_norm,
-    _spm_sample,
-)
 from python_src.toolbox.DEM.spm_induction import spm_induction as _spm_induction
 from python_src.toolbox.DEM.spm_parents import spm_parents
+
+
+# Phase 2b-R: helpers previously borrowed from the fidelity twin at this path
+# (python_src/fidelity/toolbox/DEM/spm_MDP_generate.py). Inlined so the live
+# optim body is self-sufficient without importing itself or python_src.fidelity.
+def _spm_sample(p: Any) -> int:
+    if isinstance(p, np.ndarray) and p.dtype == bool:
+        flat = np.flatnonzero(p.ravel(order="F"))
+        k = int(flat.size)
+        if k == 0:
+            raise ValueError("spm_sample: empty logical mask")
+        # MATLAB spm_MDP_generate local spm_sample: logical P uses randperm(numel(i),1).
+        # For MATLAB's twister default, randperm(k,1) selects index floor(k*r1)+1 using the
+        # first rand() output r1 after reset; when 2<=k<=4 it also consumes a second rand()
+        # so the stream stays aligned with replayed MATLAB rand() buffers.
+        if k == 1:
+            return int(flat[0] + 1)
+        r1 = float(np.random.rand())
+        if k <= 4:
+            float(np.random.rand())
+        pos = int(np.floor(r1 * k))
+        if pos >= k:
+            pos = k - 1
+        return int(flat[pos] + 1)
+    pv = np.asarray(p, dtype=np.float64).ravel(order="F")
+    total = float(np.sum(pv))
+    if (not np.isfinite(total)) or total <= 0.0 or (not np.all(np.isfinite(pv))):
+        n = int(pv.size)
+        if n <= 0:
+            raise ValueError("spm_sample: empty numeric probability vector")
+        pv = np.ones((n,), dtype=np.float64) / float(n)
+    cs = np.cumsum(pv)
+    r = float(np.random.rand())
+    hit = np.flatnonzero(r < cs)
+    if hit.size == 0:
+        idx = int(pv.size) - 1
+    else:
+        idx = int(hit[0])
+    return idx + 1
+
+
+def _spm_norm(a: Any) -> np.ndarray:
+    if not (isinstance(a, np.ndarray) and np.issubdtype(a.dtype, np.number)):
+        return a
+    s = np.sum(a, axis=0, keepdims=True)
+    out = np.divide(a, s, out=np.zeros_like(a, dtype=np.float64), where=s != 0)
+    out = np.where(np.isnan(out), 1.0 / a.shape[0], out)
+    return out
 
 
 def _b_matrix_for_u(bf: Any, u_idx: int) -> np.ndarray:

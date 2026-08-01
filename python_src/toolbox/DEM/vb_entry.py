@@ -16,7 +16,7 @@ import copy
 import time
 from typing import Any
 
-from python_src.toolbox.DEM import spm_MDP_VB_XXX as _m
+from python_src.toolbox.DEM import vb_xxx_support as _m
 from python_src.toolbox.DEM.spm_MDP_checkX import spm_MDP_checkX
 from python_src.toolbox.DEM import vb_instrumentation as _inst
 from python_src.toolbox.DEM.vb_cold import (

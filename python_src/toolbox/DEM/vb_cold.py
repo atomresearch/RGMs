@@ -10,7 +10,7 @@ from typing import Any
 
 import numpy as np
 
-from python_src.toolbox.DEM import spm_MDP_VB_XXX as _vb_fidelity
+from python_src.toolbox.DEM import vb_xxx_support as _vb_fidelity
 from python_src.toolbox.DEM.spm_parents import spm_parents
 from python_src.toolbox.DEM import vb_instrumentation as _inst
 from python_src.toolbox.DEM.vb_cold_native import (

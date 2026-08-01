@@ -15485,3 +15485,13 @@ and) handled via F0 inject. Additional gap on thorough read: generative-model `m
 - Replaced `python_src.optimized.toolbox.DEM` -> `python_src.toolbox.DEM`; removed all `_optim` substrings (imports, defs, calls).
 - Verify: 0 remaining `python_src.optimized` / `_optim` in live tree; syntax compile OK on changed files; archives untouched.
 - Phase 3 (COLAB/harness outside this pass if any) PENDING.
+
+## 2026-08-01 COLAB authority + Phase 2b-R
+- Updated OPTIMCLEANUP.md: §1a COLAB1/COLAB2 inventory; retracted Phase 2b complete; Phase 2b-R fidelity helper/support copy schedule; Phase 3 blocked until cold-import green.
+- Finding: COLAB1/2 used optim generate/FSL/XXX (not fidelity); fidelity copy-back is helpers/support only, not wholesale twin restore.
+
+
+## 2026-08-01 Phase 2b-R local green
+- Inlined generate helpers; inlined sort flow_B; added vb_xxx_support + entry12_plot_support; retargeted vb_entry/vb_cold/vb_cold_native and entry12_plot.
+- COLAB cold-import gate PASS 38/38. No push yet (awaiting user).
+

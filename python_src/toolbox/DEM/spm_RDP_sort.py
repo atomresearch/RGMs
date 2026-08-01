@@ -15,7 +15,24 @@ from scipy import sparse
 
 from python_src.toolbox.DEM.spm_RDP_compress import spm_RDP_compress
 from python_src.spm_dir_norm import spm_dir_norm
-from python_src.toolbox.DEM.spm_RDP_sort import spm_RDP_sort_flow_B
+
+
+# Phase 2b-R: helper previously borrowed from the fidelity twin at this path
+# (python_src/fidelity/toolbox/DEM/spm_RDP_sort.py). Inlined so the live optim
+# body is self-sufficient without importing itself or python_src.fidelity.
+def spm_RDP_sort_flow_B(MDP: list[dict[str, Any]]) -> np.ndarray:
+    """Same `B` as MATLAB `spm_dir_norm(sum(MDP{end}.b{1},3) > 0)` (oracle helper)."""
+    end = MDP[-1]
+    b0 = end["b"][0]
+    if isinstance(b0, list) and len(b0) == 1:
+        b1 = np.asarray(b0[0], dtype=np.float64)
+    else:
+        b1 = np.asarray(b0, dtype=np.float64)
+    if b1.ndim == 2:
+        b1 = np.reshape(b1, (b1.shape[0], b1.shape[1], 1), order="F")
+    s = np.sum(b1, axis=2)
+    b = spm_dir_norm((s > 0).astype(np.float64))
+    return np.asarray(b, dtype=np.float64)
 
 
 def spm_RDP_sort(
