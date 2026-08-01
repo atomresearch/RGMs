@@ -1,6 +1,6 @@
 """Pass-1 translation of ``spm_mdp_a2A.m`` (Dirichlet counts → probabilities).
 
-No ``_optim`` twin — OPTIM2FULL calls this fidelity module (inventory § C/F).
+No ```` twin — OPTIM2FULL calls this fidelity module (inventory § C/F).
 """
 
 from __future__ import annotations

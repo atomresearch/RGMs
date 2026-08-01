@@ -1,4 +1,4 @@
-"""DEM_AtariIII Entry 7 — hit/miss ``spm_merge_structure_learning`` assimilations."""
+"""OPTIM1 — Entry 7 hit/miss assimilations via ``spm_merge_structure_learning``."""
 
 from __future__ import annotations
 
@@ -7,7 +7,9 @@ from typing import Any
 
 import numpy as np
 
-from python_src.toolbox.DEM.spm_merge_structure_learning import spm_merge_structure_learning
+from python_src.toolbox.DEM.spm_merge_structure_learning import (
+    spm_merge_structure_learning,
+)
 
 
 def assimilate_hit_miss_sequences(
@@ -16,7 +18,7 @@ def assimilate_hit_miss_sequences(
     entry6_windows: list[dict[str, Any]],
     ne: int,
 ) -> list[dict[str, Any]]:
-    """MATLAB inner loop: ``MDP = spm_merge_structure_learning(PDP.O(:,t+s),MDP)``."""
+    """Same ledger as fidelity Entry **7**; merge kernel = optim."""
     mdp_out = copy.deepcopy(mdp)
     ng = len(pdp_o_cells)
     for rec in entry6_windows:

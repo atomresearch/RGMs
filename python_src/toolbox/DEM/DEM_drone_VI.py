@@ -498,7 +498,7 @@ def apply_pg_angles(phi: Any, FOV: Any) -> None:
     Those ULPs change ``ph``/``th`` enough that plain ``ceil`` on ray coords
     diverges from MATLAB ``spm_fg``. For F1 generate parity, install the same-
     session F1 ``PG.phi`` / ``PG.FOV`` (Engine ``linspace`` authority) before
-    calling ``spm_MDP_generate_optim``. Do **not** snap ``ceil`` inputs — that
+    calling ``spm_MDP_generate``. Do **not** snap ``ceil`` inputs — that
     fights IEEE when angles already match (see translation-issues note).
     """
     global _PG
@@ -901,7 +901,7 @@ def _q_onehot_col(cls_1based: int, Nc: int) -> np.ndarray:
 
     Python FSL / Entry4 MI bridges use ``np.asarray(..., float64)`` (Atari O path).
     Emitting dense here keeps the Q *producer* compatible with that shared pipeline;
-    do not densify inside ``spm_faster_structure_learning_optim``.
+    do not densify inside ``spm_faster_structure_learning``.
     """
     col = np.zeros((int(Nc), 1), dtype=np.float64)
     col[int(cls_1based) - 1, 0] = 1.0
@@ -912,7 +912,7 @@ def assemble_Q_from_pdp(PDP: dict[str, Any], pg: dict[str, Any], Nu: int, No: in
     """MATLAB F1 Q assembly from ``PDP.s`` (~L396–411).
 
     MATLAB stores ``Q{f,t}`` as sparse one-hots; Python emits dense float64 columns
-    with identical values so downstream ``spm_faster_structure_learning_optim`` /
+    with identical values so downstream ``spm_faster_structure_learning`` /
     Entry4 MI hooks (OPTIM1FULL-proven) receive the same cell type as Atari ``O``.
     """
     T = int(PDP["T"])
@@ -970,7 +970,7 @@ def run_fence_f1(
     *,
     try_generate: bool = True,
 ) -> dict[str, Any]:
-    """F0 inject → GDP assemble → F1 PG angles → ``spm_MDP_generate_optim`` + ``pre_fsl``.
+    """F0 inject → GDP assemble → F1 PG angles → ``spm_MDP_generate`` + ``pre_fsl``.
 
     F1.mat is post-generate + Q. Default path is ledger generate (optim), not PDP inject.
     Same-session F1 ``PG.phi``/``FOV`` are required for ``spm_fg`` / ``PDP.o`` parity.
@@ -1026,7 +1026,7 @@ def run_fence_f1(
             "draws_used": 0,
             "capture": f0.get("capture"),
             "fence": "F1",
-            "generate_entry": "spm_MDP_generate_optim",
+            "generate_entry": "spm_MDP_generate",
             "rng_policy": "F1_PDP_inject",
             "generate_note": "skipped_pdp_inject",
             "nonscalar_policy": "same_session_F1_PDP_Q_inject_debug",
@@ -1035,21 +1035,21 @@ def run_fence_f1(
 
     from tests.demo1.optim1.optim1_replay_rand import optim1_replay_matlab_draws
     from tests.demo1.optim2full.optim2full_rand_ledger import (
-        load_optim2full_rand_buf,
-        load_optim2full_rand_manifest,
+        load2full_rand_buf,
+        load2full_rand_manifest,
     )
-    from python_src.optimized.toolbox.DEM.spm_MDP_generate_optim import (
-        spm_MDP_generate_optim,
+    from python_src.toolbox.DEM.spm_MDP_generate import (
+        spm_MDP_generate,
     )
 
-    buf, _ = load_optim2full_rand_buf()
-    seg = load_optim2full_rand_manifest().segment("pre_fsl")
+    buf, _ = load2full_rand_buf()
+    seg = load2full_rand_manifest().segment("pre_fsl")
     pre_fsl_k = int(seg.k)
     slice_ = buf[int(seg.start) : int(seg.start) + pre_fsl_k]
     t0 = time.perf_counter()
     timing_log("run_fence_f1", f"generate START pre_fsl_k={pre_fsl_k}")
     with optim1_replay_matlab_draws(pre_fsl_k, slice_) as ctr:
-        PDP = spm_MDP_generate_optim(GDP)
+        PDP = spm_MDP_generate(GDP)
     draws_used = int(ctr[0])
     timing_log(
         "run_fence_f1",
@@ -1084,9 +1084,9 @@ def run_fence_f1(
         "draws_used": draws_used,
         "capture": f0.get("capture"),
         "fence": "F1",
-        "generate_entry": "spm_MDP_generate_optim",
+        "generate_entry": "spm_MDP_generate",
         "rng_policy": "pre_fsl_replay+F1_PG_angles",
-        "generate_note": "spm_MDP_generate_optim_pre_fsl",
+        "generate_note": "spm_MDP_generate_pre_fsl",
         "nonscalar_policy": nonscalar_policy,
         "pg_angles_policy": pg_angles_policy,
     }
@@ -1132,7 +1132,7 @@ def _q_cell_dense_float64(cell: Any) -> np.ndarray:
     """Dense float64 column when loading MATLAB-sparse ``Q`` from F2.mat.
 
     Authority ``.mat`` cells are sparse; adapt at the load boundary (not inside
-    shared ``spm_faster_structure_learning_optim``) so Entry4 MI / FSL see Atari-like
+    shared ``spm_faster_structure_learning``) so Entry4 MI / FSL see Atari-like
     dense columns. Values unchanged vs ``sparse(cls,1,1,Nc,1)``.
     """
     if hasattr(cell, "toarray"):
@@ -1180,22 +1180,22 @@ def run_fence_f2(
     f1_pkl: Path | None = None,
     rgm_G_mat: Path | None = None,
 ) -> dict[str, Any]:
-    """F2: ``spm_faster_structure_learning_optim(Q,[Nx,Ny,Nz],[1,64])`` + dump-once ``G``.
+    """F2: ``spm_faster_structure_learning(Q,[Nx,Ny,Nz],[1,64])`` + dump-once ``G``.
 
     Call contract matches MATLAB ``DEM_drone_vi.m`` / spine. Day-to-day parity uses
     dump-once MATLAB ``spm_rgm_group`` ``G`` inject (``rgm_group_override_fn``) —
     **no** live Entry4 per-cell Engine MI push. OPTIM1FULL callers never pass the
     override (default ``None``).
 
-    Requires ``DEM_drone_VI_optim2full_F2_rgm_G.mat`` from
+    Requires ``DEM_drone_VI2full_F2_rgm_G.mat`` from
     ``optim2full_capture_fsl_rgm_G`` (same-session F2 ``Q``).
     """
     import time
 
     from scipy.io import loadmat
 
-    from python_src.optimized.toolbox.DEM.spm_faster_structure_learning_optim import (
-        spm_faster_structure_learning_optim,
+    from python_src.toolbox.DEM.spm_faster_structure_learning import (
+        spm_faster_structure_learning,
     )
     from tests.demo1.optim2full.optim2full_fsl_g_dump import (
         load_f2_rgm_G_dump,
@@ -1262,10 +1262,10 @@ def run_fence_f2(
         t0 = time.perf_counter()
         timing_log(
             "run_fence_f2",
-            "spm_faster_structure_learning_optim START "
+            "spm_faster_structure_learning START "
             "(G override; no Engine MI/eig; see [fsl_timing] if env on)",
         )
-        MDP = spm_faster_structure_learning_optim(
+        MDP = spm_faster_structure_learning(
             Q,
             S,
             dx,
@@ -1275,7 +1275,7 @@ def run_fence_f2(
         elapsed = float(time.perf_counter() - t0)
         timing_log(
             "run_fence_f2",
-            f"spm_faster_structure_learning_optim END elapsed_s={elapsed:.3f}",
+            f"spm_faster_structure_learning END elapsed_s={elapsed:.3f}",
         )
 
     timing_log(
@@ -1292,7 +1292,7 @@ def run_fence_f2(
         "dx": dx,
         "capture": capture,
         "fence": "F2",
-        "generate_entry": "spm_faster_structure_learning_optim",
+        "generate_entry": "spm_faster_structure_learning",
         "fsl_hooks": hooks_meta,
         "fsl_elapsed_s": elapsed,
         "nonscalar_policy": "same_session_F2_Q_plus_dump_once_rgm_G",
@@ -1472,7 +1472,7 @@ def _is_matlab_function(x: Any) -> bool:
 def _restore_matlab_logical_array(x: Any) -> Any:
     """Restore MATLAB ``logical`` after scipy ``loadmat`` (uint8 0/1) / binary float.
 
-    Mirrors spine ``DEM_drone_vi.m`` / ``DEM_drone_VI_optim2full_spine.m``::
+    Mirrors spine ``DEM_drone_vi.m`` / ``DEM_drone_VI2full_spine.m``::
 
         if isnumeric(GA{g}), GA{g} = logical(GA{g}); end
 
@@ -1614,7 +1614,7 @@ def load_f1_mdp_for_packing(f1_mat: Path) -> dict[str, Any]:
     F1 pkl does not export ``mdp``; F4 must load F1.mat. ``spm_mdp2rdp`` keeps
     callable ``A`` cells; scipy ``MatlabFunction`` is not callable and would be
     treated as numeric — rebind like the live spine
-    (``DEM_drone_VI_optim2full_spine.m`` L558–570):
+    (``DEM_drone_VI2full_spine.m`` L558–570):
 
     - ``mdp.A`` → ``@A_depth`` / ``@A_state`` (VB / VBX dual-use model likelihood)
     - ``mdp.GA`` → ``@spm_depth`` / ``@spm_state`` (process generate)
@@ -1942,7 +1942,7 @@ def export_fence_f4_pkl(
 
 
 # ---------------------------------------------------------------------------
-# F5 — first surveillance VB (``spm_MDP_VB_XXX_optim`` under ``vb_1``) + ``spm_Q2mdp``
+# F5 — first surveillance VB (``spm_MDP_VB_XXX`` under ``vb_1``) + ``spm_Q2mdp``
 # ---------------------------------------------------------------------------
 
 
@@ -2081,13 +2081,13 @@ def run_fence_f6(
     T: int = 4,
 ) -> dict[str, Any]:
     """F6: pack → ``pdp`` (MAP + ``id.hid``) → ``mdp2rdp`` → ``T=4`` →
-    ``spm_MDP_VB_XXX_optim`` under ledger ``vb_2`` → ``spm_Q2mdp`` →
+    ``spm_MDP_VB_XXX`` under ledger ``vb_2`` → ``spm_Q2mdp`` →
     ``QDP.id = pdp.id``.
     """
     import time
 
-    from python_src.optimized.toolbox.DEM.spm_MDP_VB_XXX_optim import (
-        spm_MDP_VB_XXX_optim,
+    from python_src.toolbox.DEM.spm_MDP_VB_XXX import (
+        spm_MDP_VB_XXX,
     )
     from python_src.toolbox.DEM.spm_mdp2rdp import spm_mdp2rdp
     from python_src.toolbox.DEM.spm_Q2mdp import spm_Q2mdp
@@ -2123,8 +2123,8 @@ def run_fence_f6(
 
     with optim2full_signoff_env():
         t0 = time.perf_counter()
-        timing_log("run_fence_f6", "spm_MDP_VB_XXX_optim START")
-        RDP_out = spm_MDP_VB_XXX_optim(
+        timing_log("run_fence_f6", "spm_MDP_VB_XXX START")
+        RDP_out = spm_MDP_VB_XXX(
             RDP,
             reuse_matlab_draws_drone=True,
             matlab_rand_buf=vb_slice,
@@ -2132,7 +2132,7 @@ def run_fence_f6(
         vb_elapsed = float(time.perf_counter() - t0)
         timing_log(
             "run_fence_f6",
-            f"spm_MDP_VB_XXX_optim END elapsed_s={vb_elapsed:.3f}",
+            f"spm_MDP_VB_XXX END elapsed_s={vb_elapsed:.3f}",
         )
 
         t0 = time.perf_counter()
@@ -2156,7 +2156,7 @@ def run_fence_f6(
         "sT": sT,
         "capture": capture,
         "fence": "F6",
-        "generate_entry": "pdp_MAP_hid+spm_mdp2rdp+spm_MDP_VB_XXX_optim+spm_Q2mdp",
+        "generate_entry": "pdp_MAP_hid+spm_mdp2rdp+spm_MDP_VB_XXX+spm_Q2mdp",
         "pack_meta": pack_meta,
         "vb_2_k": int(vb_seg.k),
         "vb_elapsed_s": vb_elapsed,
@@ -2271,14 +2271,14 @@ def run_dem_drone_vi_native(
     import time
     from datetime import datetime
 
-    from python_src.optimized.toolbox.DEM.spm_faster_structure_learning_optim import (
-        spm_faster_structure_learning_optim,
+    from python_src.toolbox.DEM.spm_faster_structure_learning import (
+        spm_faster_structure_learning,
     )
-    from python_src.optimized.toolbox.DEM.spm_MDP_generate_optim import (
-        spm_MDP_generate_optim,
+    from python_src.toolbox.DEM.spm_MDP_generate import (
+        spm_MDP_generate,
     )
-    from python_src.optimized.toolbox.DEM.spm_MDP_VB_XXX_optim import (
-        spm_MDP_VB_XXX_optim,
+    from python_src.toolbox.DEM.spm_MDP_VB_XXX import (
+        spm_MDP_VB_XXX,
     )
     from python_src.toolbox.DEM.optim2full_native_plot import (
         NativePlotSession,
@@ -2382,8 +2382,8 @@ def run_dem_drone_vi_native(
     Np = int(built["Np"])
     _seg_end("assemble", t0, f"Np={Np}")
 
-    t0 = _seg_start("generate", "spm_MDP_generate_optim (no ledger)")
-    PDP = spm_MDP_generate_optim(GDP)
+    t0 = _seg_start("generate", "spm_MDP_generate (no ledger)")
+    PDP = spm_MDP_generate(GDP)
     _seg_end("generate", t0, f"T={int(PDP['T'])}")
 
     t0 = _seg_start("assemble_Q", f"from PDP.s Nu={Nu} No={No} Np={Np}")
@@ -2397,12 +2397,12 @@ def run_dem_drone_vi_native(
 
     t0 = _seg_start(
         "fsl",
-        "spm_faster_structure_learning_optim (no G override; may be tens of min)",
+        "spm_faster_structure_learning (no G override; may be tens of min)",
     )
     S = np.asarray([Nx, Ny, Nz], dtype=np.float64)
     dx = np.asarray([1.0, 64.0], dtype=np.float64)
     # Native: no rgm_group_override_fn (parity F2 uses dump-once G)
-    MDP_fsl = spm_faster_structure_learning_optim(
+    MDP_fsl = spm_faster_structure_learning(
         Q, S, dx, rgm_time_segments=bool(rgm_time_segments)
     )
     n_lev = (
@@ -2439,11 +2439,11 @@ def run_dem_drone_vi_native(
 
     t0 = _seg_start(
         "vb_surveillance",
-        f"spm_MDP_VB_XXX_optim T={int(T_surveillance)} (no ledger)",
+        f"spm_MDP_VB_XXX T={int(T_surveillance)} (no ledger)",
     )
     RDP["T"] = float(T_surveillance)
     # Native VB: defaults (reuse_matlab_draws_drone=False)
-    RDP_s = spm_MDP_VB_XXX_optim(RDP)
+    RDP_s = spm_MDP_VB_XXX(RDP)
     _seg_end("vb_surveillance", t0)
     if plot_sess is not None:
         plot_sess.write("rgm", {"RDP": RDP_s})
@@ -2472,10 +2472,10 @@ def run_dem_drone_vi_native(
 
     t0 = _seg_start(
         "vb_wayfinding",
-        f"spm_MDP_VB_XXX_optim T={int(T_wayfinding)} (no ledger)",
+        f"spm_MDP_VB_XXX T={int(T_wayfinding)} (no ledger)",
     )
     RDP_w["T"] = float(T_wayfinding)
-    RDP_w = spm_MDP_VB_XXX_optim(RDP_w)
+    RDP_w = spm_MDP_VB_XXX(RDP_w)
     _seg_end("vb_wayfinding", t0)
 
     t0 = _seg_start("q2mdp_wayfinding", "spm_Q2mdp")
@@ -2526,7 +2526,7 @@ def run_dem_drone_vi_native(
     }
     if plot_sess is not None:
         plot_meta = plot_sess.meta()
-        out["_optim2full_native_plot"] = plot_meta
+        out["2full_native_plot"] = plot_meta
         print(
             f"[native] {_ts()} plots png_count={plot_meta['png_count']} "
             f"out_dir={plot_meta['out_dir']}",
@@ -2548,13 +2548,13 @@ def run_fence_f5(
     Nu: int | None = None,
     T: int = 16,
 ) -> dict[str, Any]:
-    """F5: pack (F4 build) → ``T=16`` → ``spm_MDP_VB_XXX_optim`` under ledger
+    """F5: pack (F4 build) → ``T=16`` → ``spm_MDP_VB_XXX`` under ledger
     ``vb_1`` drone replay → ``spm_Q2mdp`` → attach ``QDP.id = mdp_p.id``.
     """
     import time
 
-    from python_src.optimized.toolbox.DEM.spm_MDP_VB_XXX_optim import (
-        spm_MDP_VB_XXX_optim,
+    from python_src.toolbox.DEM.spm_MDP_VB_XXX import (
+        spm_MDP_VB_XXX,
     )
     from python_src.toolbox.DEM.spm_Q2mdp import spm_Q2mdp
     from tests.demo1.optim2full.optim2full_rand_ledger import (
@@ -2584,8 +2584,8 @@ def run_fence_f5(
 
     with optim2full_signoff_env():
         t0 = time.perf_counter()
-        timing_log("run_fence_f5", "spm_MDP_VB_XXX_optim START")
-        RDP_out = spm_MDP_VB_XXX_optim(
+        timing_log("run_fence_f5", "spm_MDP_VB_XXX START")
+        RDP_out = spm_MDP_VB_XXX(
             RDP,
             reuse_matlab_draws_drone=True,
             matlab_rand_buf=vb_slice,
@@ -2593,7 +2593,7 @@ def run_fence_f5(
         vb_elapsed = float(time.perf_counter() - t0)
         timing_log(
             "run_fence_f5",
-            f"spm_MDP_VB_XXX_optim END elapsed_s={vb_elapsed:.3f}",
+            f"spm_MDP_VB_XXX END elapsed_s={vb_elapsed:.3f}",
         )
 
         t0 = time.perf_counter()
@@ -2616,7 +2616,7 @@ def run_fence_f5(
         "QDP": QDP,
         "capture": capture,
         "fence": "F5",
-        "generate_entry": "spm_MDP_VB_XXX_optim+spm_Q2mdp",
+        "generate_entry": "spm_MDP_VB_XXX+spm_Q2mdp",
         "pack_meta": pack_meta,
         "vb_1_k": int(vb_seg.k),
         "vb_elapsed_s": vb_elapsed,

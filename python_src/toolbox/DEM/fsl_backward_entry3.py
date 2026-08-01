@@ -1,23 +1,16 @@
-"""FSL backward — Entry 3 only (``spm_MDP_generate``; not Entry 12).
+"""OPTIM1 FSL backward — Entry 3 (``spm_MDP_generate``; not Entry 12).
 
-Ledger: ``prepare_gdp_for_generate`` → ``generate_mdp_rollout``.
+Ledger: ``prepare_gdp_for_generate`` → ``generate_mdp_rollout`` (optim).
 
-**Split validation (default sign-off):** MATLAB ``spm_MDP_generate`` on the ``rng(2)``
-ledger vs ``PDP_o`` / ``PDP_O`` in ``DEMAtariIII_fsl_backward_MDP_pre_entry10.mat``.
-
-**Native ledger lane:** ``run_entry3_driver_ledger_replay`` — ``run_dem_atariiii(entry_stop=3)``
-with ``dem_atari_rand_buf`` replay through ``K_3`` (preflight
-``fsl_backward_preflight_rand_k_entry3.py``). Compare uses the same authority vars.
-
-See ``Atari_example.md`` § FSL backward validation (Entry 11 → 1).
+Authority: DEMO1 ``PDP_o`` / ``PDP_O`` in ``tests/demo1/fixtures/`` (read-only).
 """
 
 from __future__ import annotations
 
+import pickle
+import time
 from pathlib import Path
 from typing import Any
-
-import numpy as np
 
 from python_src.toolbox.DEM.dem_atariiii_entry3 import (
     ATARI_TRAINING_T_LEDGER,
@@ -25,126 +18,125 @@ from python_src.toolbox.DEM.dem_atariiii_entry3 import (
     prepare_gdp_for_generate,
 )
 from python_src.toolbox.DEM.dem_atariiii_entry4 import ENTRY4_O_COLS
-
-
-def entry3_boundary_from_driver_ctx(ctx: dict[str, Any]) -> dict[str, Any]:
-    """Build boundary dict from ``run_dem_atariiii`` context (post–Entry 2, pre–Entry 4)."""
-    from python_src.toolbox.DEM.DEM_AtariIII import _training_horizon
-
-    # MATLAB sets ``GDP.T = 10000`` after pong; do not use pong's small default ``GDP.T``.
-    return {
-        "gdp": ctx["GDP"],
-        "training_t": int(_training_horizon()),
-    }
+from tests.demo1.demo1_paths import demo1_fixtures_dir
+from tests.demo1.optim1.optim1_paths import optim1_fixtures_dir
 
 
 def run_entry3_from_boundary(boundary: dict[str, Any]) -> dict[str, Any]:
     """
-    Run Entry **3** ledger from materialized boundary.
+    Run Entry **3** optim ledger from materialized boundary.
 
     Required keys: ``gdp``. Optional: ``training_t`` (default ``10000``).
     """
     tt = int(boundary.get("training_t", ATARI_TRAINING_T_LEDGER))
     gdp = prepare_gdp_for_generate(boundary["gdp"], training_t=tt)
+    t0 = time.perf_counter()
     pdp = generate_mdp_rollout(gdp)
+    elapsed_s = time.perf_counter() - t0
     return {
         "gdp": gdp,
         "pdp": pdp,
         "training_t": tt,
+        "entry3_generate_s": elapsed_s,
     }
 
 
-def pull_pdp_from_matlab_engine(
-    eng: Any,
+def run_entry3_from_entry2_post_pkl(
     *,
-    expr: str = "PDP",
-    o_cols: int | None = ENTRY4_O_COLS,
-) -> dict[str, Any]:
-    """Pull ``PDP`` from Engine; default ``O`` slice is ``(:,1:1000)`` (Entry **4** input)."""
-    pdp: dict[str, Any] = {}
-    pdp["o"] = np.asarray(eng.eval(f"{expr}.o"), dtype=np.float64)
-    pdp["s"] = np.asarray(eng.eval(f"{expr}.s"), dtype=np.float64)
-    pdp["u"] = np.asarray(eng.eval(f"{expr}.u"), dtype=np.float64)
-    pdp["T"] = float(np.asarray(eng.eval(f"{expr}.T"), dtype=np.float64).reshape(-1)[0])
-    ng = int(np.asarray(eng.eval(f"numel({expr}.A)"), dtype=np.int64).reshape(-1)[0])
-    ncol = int(o_cols) if o_cols is not None else int(pdp["T"])
-    o_cells: list[list[np.ndarray]] = []
-    for g in range(1, ng + 1):
-        row: list[np.ndarray] = []
-        for tt in range(1, ncol + 1):
-            eng.eval(f"rgms_oc = full({expr}.O{{{g},{tt}}});", nargout=0)
-            col = np.asarray(eng.eval("rgms_oc"), dtype=np.float64)
-            if col.ndim == 1:
-                col = col.reshape((-1, 1), order="F")
-            row.append(col)
-        o_cells.append(row)
-    pdp["O"] = o_cells
-    pdp["O_cols_pulled"] = ncol
-    return pdp
-
-
-def run_entry3_driver_ledger_replay(
-    *,
+    entry2_post_pkl: Path | None = None,
     k_use: int | None = None,
+    deadline_minutes: str = "60",
 ) -> dict[str, Any]:
     """
-    Native FSL lane: full driver Entries 1–3 with ``dem_atari_rand_buf`` replay.
+    Run Entry **3** at ``T=10000`` from DEMO1 Entry **2** post ``gdp`` with ``dem_atari_rand_buf`` replay.
 
-    Requires ``fsl_backward_preflight_rand_k_entry3.py`` (writes ``K_py``) and FSL backward **1b**
-    fixture ``dem_atari_rand_buf_through_entry11.mat``.
+    Requires DEMO1 fixtures: ``DEMAtariIII_fsl_backward_entry2_post.pkl``,
+    ``dem_atari_rand_buf_through_entry11.mat``, ``fsl_backward_entry3_K_py.mat``.
     """
-    from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+    from tests.demo1.optim1.optim1_replay_rand import (
+        optim1_entry3_driver_env,
+        optim1_replay_matlab_draws,
+    )
     from tests.oracle.toolbox.DEM.fsl_backward_rand import (
-        fsl_backward_replay_matlab_draws,
-        fsl_entry3_driver_env,
         load_dem_atari_rand_buf,
         load_entry3_k_py,
     )
 
+    pkl = entry2_post_pkl or (demo1_fixtures_dir() / "DEMAtariIII_fsl_backward_entry2_post.pkl")
+    if not pkl.is_file():
+        raise FileNotFoundError(f"missing DEMO1 Entry 2 post PKL: {pkl}")
+    with pkl.open("rb") as f:
+        blob = pickle.load(f)
+    if not isinstance(blob, dict) or "gdp" not in blob:
+        raise KeyError(f"expected dict with gdp in {pkl}")
     k_3 = int(k_use) if k_use is not None else load_entry3_k_py()
     buf, _k_11 = load_dem_atari_rand_buf()
-    with fsl_entry3_driver_env(deadline_minutes="45"):
-        with fsl_backward_replay_matlab_draws(k_3, buf) as ctr:
-            ctx = run_dem_atariiii(entry_stop=3)
+    boundary = {"gdp": blob["gdp"], "training_t": ATARI_TRAINING_T_LEDGER}
+    with optim1_entry3_driver_env(deadline_minutes=deadline_minutes):
+        with optim1_replay_matlab_draws(k_3, buf) as ctr:
+            out = run_entry3_from_boundary(boundary)
         used = int(ctr[0])
     if used != k_3:
         raise RuntimeError(
-            f"Entry 3 driver replay: used {used} draws, expected K_3={k_3} (unused_draws={k_3 - used})"
+            f"OPTIM1 Entry 3 replay: used {used} draws, expected K_3={k_3} "
+            f"(unused_draws={k_3 - used})"
         )
-    pdp = dict(ctx["PDP"])
+    pdp = dict(out["pdp"])
     pdp["O_cols_pulled"] = ENTRY4_O_COLS
     return {
-        "gdp": ctx["GDP"],
+        "gdp": out["gdp"],
         "pdp": pdp,
         "training_t": ATARI_TRAINING_T_LEDGER,
-        "validation_lane": "driver_ledger_replay",
+        "validation_lane": "optim_entry2_post_replay",
         "k_3": k_3,
         "draws_used": used,
+        "entry3_generate_s": out["entry3_generate_s"],
+        "entry2_post_pkl": str(pkl),
     }
 
 
-def run_entry3_matlab_generate(
-    eng: Any,
+def write_entry3_post_pkl(payload: dict[str, Any], path: Path | None = None) -> Path:
+    """Persist OPTIM1 Entry **3** post blob under ``tests/demo1/optim1/fixtures/``."""
+    out = path or (optim1_fixtures_dir() / "DEMAtariIII1_entry3_post.pkl")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    blob = {
+        "pdp": payload["pdp"],
+        "gdp": payload.get("gdp"),
+        "training_t": payload.get("training_t"),
+        "validation_lane": payload.get("validation_lane"),
+        "k_3": payload.get("k_3"),
+        "draws_used": payload.get("draws_used"),
+        "entry3_generate_s": payload.get("entry3_generate_s"),
+    }
+    with out.open("wb") as f:
+        pickle.dump(blob, f, protocol=pickle.HIGHEST_PROTOCOL)
+    return out
+
+
+def compare_entry3_pdp_to_demo1_authority(
+    pdp: dict[str, Any],
     *,
-    authority_mat_path: str | Path | None = None,
-) -> dict[str, Any]:
-    """
-    FSL split-validation: MATLAB ``rng(2)`` pong + ``spm_MDP_generate`` (``T=10000``, ``tau=1``).
-    """
-    nr, nc, nd = 12, 9, 4
-    eng.eval(
-        "rng(2); "
-        f"[GDP, hid, cid, con, RGB] = spm_MDP_pong({nr}, {nc}, {nd}, true, 0); "
-        "GDP.tau = 1; "
-        f"GDP.T = {ATARI_TRAINING_T_LEDGER}; "
-        "PDP = spm_MDP_generate(GDP);",
-        nargout=0,
+    authority_mat: Path | None = None,
+) -> None:
+    """Assert ``PDP.o`` and ``PDP.O(:,1:1000)`` match DEMO1 MATLAB authority."""
+    from scipy.io import loadmat
+
+    from tests.oracle.toolbox.DEM.fsl_backward_compare_entry3_pkl_to_mat import (
+        _assert_pdp_O_equal,
+        _assert_pdp_o_equal,
+        _pdp_o_from_loadmat,
     )
-    pdp = pull_pdp_from_matlab_engine(eng, expr="PDP")
-    eng.eval("clear GDP PDP rgms_oc", nargout=0)
-    return {
-        "pdp": pdp,
-        "training_t": ATARI_TRAINING_T_LEDGER,
-        "validation_lane": "matlab_generate",
-        "authority_mat": str(authority_mat_path) if authority_mat_path else None,
-    }
+
+    mat_path = authority_mat or (
+        demo1_fixtures_dir() / "DEMAtariIII_fsl_backward_MDP_pre_entry10.mat"
+    )
+    if not mat_path.is_file():
+        raise FileNotFoundError(f"missing DEMO1 authority mat: {mat_path}")
+    raw = loadmat(str(mat_path), simplify_cells=True)
+    for key in ("PDP_o", "PDP_O"):
+        if key not in raw:
+            raise KeyError(f"{mat_path} missing {key}")
+    _assert_pdp_o_equal(pdp["o"], raw["PDP_o"])
+    mat_O = _pdp_o_from_loadmat(raw["PDP_O"])
+    o_cols = int(pdp.get("O_cols_pulled", ENTRY4_O_COLS))
+    _assert_pdp_O_equal(pdp["O"], mat_O, max_cols=o_cols)

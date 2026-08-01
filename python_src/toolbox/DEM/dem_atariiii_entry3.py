@@ -1,4 +1,4 @@
-"""DEM_AtariIII Entry 3 — ``PDP = spm_MDP_generate(GDP)`` with ``tau=1``, ``T=10000`` ledger."""
+"""OPTIM1 Entry 3 — ``PDP = spm_MDP_generate(GDP)`` with ``tau=1``, ``T=10000``."""
 
 from __future__ import annotations
 
@@ -6,8 +6,13 @@ import copy
 from typing import Any
 
 from python_src.toolbox.DEM.spm_MDP_generate import spm_MDP_generate
+from python_src.toolbox.DEM.dem_atariiii_entry3 import ATARI_TRAINING_T_LEDGER
 
-ATARI_TRAINING_T_LEDGER = 10000
+__all__ = [
+    "ATARI_TRAINING_T_LEDGER",
+    "prepare_gdp_for_generate",
+    "generate_mdp_rollout",
+]
 
 
 def prepare_gdp_for_generate(

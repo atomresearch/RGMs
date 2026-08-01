@@ -1,11 +1,10 @@
-"""Pass 1 transliteration of spm_RDP_basin.m."""
+"""OPTIM1 — ``spm_RDP_basin`` (Cv0/Ca/Cc compress + Cb ``spm_set_goals``)."""
 
 from __future__ import annotations
 
 import numpy as np
-from scipy import sparse
 
-from python_src.toolbox.DEM.spm_RDP_compress import spm_RDP_compress
+from python_src.toolbox.DEM.spm_RDP_compress import spm_RDP_compress_columns_first
 from python_src.toolbox.DEM.spm_set_goals import spm_set_goals
 
 
@@ -52,9 +51,8 @@ def spm_RDP_basin(MDP, S, chi, L=None):
         r_keep[c - 1] = False
     r_keep = r_keep & (np.any(p, axis=0) | np.any(c_paths, axis=0))
 
-    j = np.flatnonzero(r_keep)
-    r_eye = sparse.eye(ns, ns, dtype=np.float64, format="csr")
-    mdp = spm_RDP_compress(mdp, r_eye[:, j], "first")
+    j = np.flatnonzero(r_keep).astype(np.int64, copy=False)
+    mdp = spm_RDP_compress_columns_first(mdp, j)
 
     mdp = spm_set_goals(mdp, S, chi)
     b_post = np.sum(np.asarray(_unwrap_cell(mdp[-1]["b"][0]), dtype=np.float64), axis=2)

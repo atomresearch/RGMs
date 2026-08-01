@@ -1,33 +1,18 @@
-"""FSL backward — Entry 10 only (not Entry 12, not full ``run_dem_atariiii``).
-
-Ledger: ``spm_RDP_sort`` → ``spm_set_goals`` → paths-to-hits ``P``.
-
-**Split validation:** FSL sign-off injects MATLAB ``eig(B,'nobalance')`` (see
-``fsl_backward_run_entry10_isolated.py``, default ``RGMS_FSL_RDP_SORT_MATLAB_EIG=1``) so sorting
-uses MATLAB's eigen determination while prune / compress / goals / ``P`` stay in Python. Native eig
-alone is not authority-aligned at full Atari scale — ``Atari_example.md`` § Entry 10 eigen limitation.
-"""
+"""OPTIM1 FSL backward — Entry 10 (``spm_RDP_sort`` + ``spm_set_goals``)."""
 
 from __future__ import annotations
 
 import copy
-import os
+import pickle
+import time
+from pathlib import Path
 from typing import Any, Callable
 
 import numpy as np
 
-from python_src.toolbox.DEM.dem_atariiii_paths import dem_atariiii_paths_to_hits_P
 from python_src.toolbox.DEM.spm_RDP_sort import spm_RDP_sort
 from python_src.toolbox.DEM.spm_set_goals import spm_set_goals
-
-
-def _env_matlab_eig_for_fsl_backward() -> bool:
-    return str(os.getenv("RGMS_FSL_RDP_SORT_MATLAB_EIG", "")).strip().lower() in (
-        "1",
-        "true",
-        "yes",
-        "on",
-    )
+from python_src.toolbox.DEM.dem_atariiii_paths import dem_atariiii_paths_to_hits_P
 
 
 def run_entry10_from_mdp(
@@ -37,19 +22,8 @@ def run_entry10_from_mdp(
     nt_p: int = 32,
     eig: Callable[[np.ndarray], tuple[np.ndarray, np.ndarray]] | None = None,
 ) -> dict[str, Any]:
-    """
-    Ledger Entry 10 only: ``spm_RDP_sort`` → ``spm_set_goals`` → paths-to-hits ``P``.
-
-    Output ``mdp`` matches MATLAB ``MDP_pre_entry11`` when ``eig`` is MATLAB-injected (FSL sign-off).
-
-    Pass ``eig=`` from Engine (``_make_matlab_spm_RDP_sort_eig``) or rely on
-    ``RGMS_FSL_RDP_SORT_MATLAB_EIG`` in the isolated runner. Omitting MATLAB ``eig`` exercises native
-    ``spm_RDP_sort`` only (diagnostic; not FSL backward sign-off on full-scale ``B``).
-    """
+    """Entry **10** optim ledger — native ``eig`` default (holistic OPTIM1 / W3 native)."""
     mdp_in = copy.deepcopy(mdp)
-    # Default: ``spm_RDP_sort`` → ``eig_matlab_nobalance`` (geevx if linked, else numpy) + ``min_tie`` principal.
-    # MATLAB-paired FSL lane: pass ``eig=`` from Engine or set ``RGMS_FSL_RDP_SORT_MATLAB_EIG=1``
-    # in ``fsl_backward_run_entry10_isolated.py``.
     mdp10, j10 = spm_RDP_sort(mdp_in, eig=eig)
     mdp10 = spm_set_goals(
         mdp10,
@@ -73,3 +47,142 @@ def run_entry10_from_mdp(
         "entry10_j": j10,
         "entry10_Nt": nt_p,
     }
+
+
+def run_entry10_from_pre_entry10_pkl(
+    *,
+    pre_entry10_pkl: Path | None = None,
+    eig: Callable[[np.ndarray], tuple[np.ndarray, np.ndarray]] | None = None,
+) -> dict[str, Any]:
+    """Run Entry **10** optim from DEMO1 ``MDP_pre_entry10`` boundary PKL."""
+    from tests.demo1.demo1_paths import demo1_fixtures_dir
+
+    pkl = pre_entry10_pkl or (
+        demo1_fixtures_dir() / "DEMAtariIII_fsl_backward_MDP_pre_entry10.pkl"
+    )
+    if not pkl.is_file():
+        raise FileNotFoundError(f"missing DEMO1 pre_entry10 PKL: {pkl}")
+    with pkl.open("rb") as f:
+        blob = pickle.load(f)
+    if not isinstance(blob, dict) or "mdp" not in blob:
+        raise TypeError(f"expected dict with mdp in {pkl}")
+    c_val = float(blob.get("C", 32.0))
+    t0 = time.perf_counter()
+    out = run_entry10_from_mdp(blob["mdp"], c_val=c_val, eig=eig)
+    wall_s = time.perf_counter() - t0
+    return {
+        **out,
+        "C": c_val,
+        "validation_lane": "optim_pre_entry10",
+        "source_pre10_pkl": str(pkl),
+        "entry10_wall_s": wall_s,
+    }
+
+
+def write_entry10_post_pkl(
+    payload: dict[str, Any],
+    path: Path | None = None,
+    *,
+    eig_source: str = "native",
+) -> Path:
+    from tests.demo1.optim1.optim1_paths import optim1_fixtures_dir
+
+    out = path or (optim1_fixtures_dir() / "DEMAtariIII1_entry10_post.pkl")
+    if eig_source == "matlab_engine":
+        out = path or (
+            optim1_fixtures_dir() / "DEMAtariIII1_entry10_matlab_eig_post.pkl"
+        )
+    out.parent.mkdir(parents=True, exist_ok=True)
+    blob = {
+        "mdp": payload["mdp"],
+        "P": payload.get("P"),
+        "hid": payload.get("hid"),
+        "entry10_j": payload.get("entry10_j"),
+        "entry10_Nt": payload.get("entry10_Nt"),
+        "entry10_wall_s": payload.get("entry10_wall_s"),
+        "C": payload.get("C"),
+        "validation_lane": payload.get("validation_lane"),
+        "source_pre10_pkl": payload.get("source_pre10_pkl"),
+        "validation": {
+            "lane": "optim1_entry10",
+            "eig_source": eig_source,
+            "matlab_eig_injected": eig_source == "matlab_engine",
+            "authority_var": (
+                "MDP_pre_entry11" if eig_source == "matlab_engine" else None
+            ),
+        },
+    }
+    with out.open("wb") as f:
+        pickle.dump(blob, f, protocol=pickle.HIGHEST_PROTOCOL)
+    return out
+
+
+def compare_entry10_mdp_to_demo_matlab_authority(
+    mdp: list[dict[str, Any]],
+    *,
+    authority_mat: Path | None = None,
+) -> None:
+    """Assert optim Entry **10** ``MDP`` matches DEMO1 ``MDP_pre_entry11`` (MATLAB FSL)."""
+    import matlab.engine
+
+    from tests.demo1.demo1_matlab_engine import configure_dem_matlab_engine
+    from tests.demo1.demo1_paths import demo1_fixtures_dir, demo1_repo_root
+    from tests.oracle.toolbox.DEM.test_DEM_AtariIII_entry8 import (
+        _assert_mdp_full_equal,
+        _pull_mdp_from_matlab,
+    )
+
+    mat_path = authority_mat or (
+        demo1_fixtures_dir() / "DEMAtariIII_fsl_backward_MDP_pre_entry11.mat"
+    )
+    if not mat_path.is_file():
+        raise FileNotFoundError(f"missing DEMO1 authority mat: {mat_path}")
+    repo = demo1_repo_root()
+    eng = matlab.engine.start_matlab()
+    try:
+        configure_dem_matlab_engine(eng, repo)
+        eng.eval(f"load('{str(mat_path.resolve()).replace(chr(92), '/')}');", nargout=0)
+        mat_mdp = _pull_mdp_from_matlab(eng, "MDP_pre_entry11")
+    finally:
+        eng.quit()
+    _assert_mdp_full_equal(mdp, mat_mdp, k=10)
+
+
+def compare_entry10_to_fidelity_native(
+    optim_out: dict[str, Any],
+    *,
+    pre_entry10_pkl: Path | None = None,
+    eig: Callable[[np.ndarray], tuple[np.ndarray, np.ndarray]] | None = None,
+) -> None:
+    """Assert optim Entry **10** ≡ fidelity Entry **10** on same input (native ``eig``)."""
+    from python_src.toolbox.DEM.fsl_backward_entry10 import run_entry10_from_mdp
+    from tests.demo1.demo1_paths import demo1_fixtures_dir
+    from tests.oracle.toolbox.DEM.test_DEM_AtariIII_entry8 import _assert_mdp_full_equal
+
+    pkl = pre_entry10_pkl or (
+        demo1_fixtures_dir() / "DEMAtariIII_fsl_backward_MDP_pre_entry10.pkl"
+    )
+    with pkl.open("rb") as f:
+        blob = pickle.load(f)
+    c_val = float(blob.get("C", 32.0))
+    fid = run_entry10_from_mdp(blob["mdp"], c_val=c_val, eig=eig)
+    _assert_mdp_full_equal(optim_out["mdp"], fid["mdp"], k=10)
+    np.testing.assert_array_equal(
+        np.asarray(optim_out["entry10_j"], dtype=np.int64).ravel(order="F"),
+        np.asarray(fid["entry10_j"], dtype=np.int64).ravel(order="F"),
+    )
+    np.testing.assert_allclose(
+        np.asarray(optim_out["P"], dtype=np.float64),
+        np.asarray(fid["P"], dtype=np.float64),
+        rtol=0.0,
+        atol=1e-12,
+    )
+
+
+__all__ = [
+    "run_entry10_from_mdp",
+    "run_entry10_from_pre_entry10_pkl",
+    "write_entry10_post_pkl",
+    "compare_entry10_to_fidelity_native",
+    "compare_entry10_mdp_to_demo_matlab_authority",
+]

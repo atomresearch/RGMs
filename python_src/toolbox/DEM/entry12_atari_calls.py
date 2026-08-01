@@ -43,9 +43,9 @@ ENTRY12_ATARI_CALL4_TAG = "rgms_atari_call4"
 ENTRY12_ATARI_CALL4_RDP_MAT = "DEMAtariIII_XXX_12_rgms_atari_call4_rdp.mat"
 
 # OPTIM1FULL Product B — VB calls **2** / **3** / **4** (lane tags; fixtures under ``optim1full/fixtures/``).
-ENTRY12_OPTIM1FULL_PRODUCT_B_CALL2_TAG = "rgms_atari_optim1full_call2"
-ENTRY12_OPTIM1FULL_PRODUCT_B_CALL3_TAG = "rgms_atari_optim1full_call3"
-ENTRY12_OPTIM1FULL_PRODUCT_B_CALL4_TAG = "rgms_atari_optim1full_call4"
+ENTRY12_OPTIM1FULL_PRODUCT_B_CALL2_TAG = "rgms_atari1full_call2"
+ENTRY12_OPTIM1FULL_PRODUCT_B_CALL3_TAG = "rgms_atari1full_call3"
+ENTRY12_OPTIM1FULL_PRODUCT_B_CALL4_TAG = "rgms_atari1full_call4"
 ENTRY12_OPTIM1FULL_PRODUCT_B_VB_TAGS: tuple[str, ...] = (
     ENTRY12_OPTIM1FULL_PRODUCT_B_CALL2_TAG,
     ENTRY12_OPTIM1FULL_PRODUCT_B_CALL3_TAG,
@@ -53,9 +53,9 @@ ENTRY12_OPTIM1FULL_PRODUCT_B_VB_TAGS: tuple[str, ...] = (
 )
 
 # OPTIM1FULL Phase C — ledger ``MDP_pre`` NR game **1** (~``DEM_AtariIII.m`` 254–268, § **11.7.4**).
-ENTRY12_OPTIM1FULL_NR_G01_TAG = "rgms_atari_optim1full_nr_g01"
-ENTRY12_OPTIM1FULL_NR_G01_RDP_MAT = "DEMAtariIII_XXX_12_rgms_atari_optim1full_nr_g01_rdp.mat"
-ENTRY12_OPTIM1FULL_NR_G01_TAG_LEGACY = "rgms_optim1full_nr_g01"
+ENTRY12_OPTIM1FULL_NR_G01_TAG = "rgms_atari1full_nr_g01"
+ENTRY12_OPTIM1FULL_NR_G01_RDP_MAT = "DEMAtariIII_XXX_12_rgms_atari1full_nr_g01_rdp.mat"
+ENTRY12_OPTIM1FULL_NR_G01_TAG_LEGACY = "rgms1full_nr_g01"
 
 # OPTIM1FULL NR loop call-2 games **2–32** (§ **11.7.1**).
 ENTRY12_ATARI_CALL2_GAME_TAG_RE = re.compile(r"^rgms_atari_call2_g(\d{2})$")
@@ -102,7 +102,7 @@ def entry12_is_call2_game_tag(tag: str) -> bool:
     return entry12_parse_call2_game_index(tag) is not None
 
 
-def entry12_is_optim1full_product_b_vb_tag(tag: str) -> bool:
+def entry12_is1full_product_b_vb_tag(tag: str) -> bool:
     return str(tag).strip() in ENTRY12_OPTIM1FULL_PRODUCT_B_VB_TAGS
 
 
@@ -114,7 +114,7 @@ def entry12_normalize_tag(tag: str) -> str:
     return t
 
 
-def entry12_is_optim1full_nr_g01_tag(tag: str) -> bool:
+def entry12_is1full_nr_g01_tag(tag: str) -> bool:
     return entry12_normalize_tag(tag) == ENTRY12_OPTIM1FULL_NR_G01_TAG
 
 
@@ -145,7 +145,7 @@ def entry12_atari_call_rdp_mat_path(tag: str) -> Path:
         name = ENTRY12_ATARI_CALL4_RDP_MAT
     elif tag == ENTRY12_OPTIM1FULL_NR_G01_TAG:
         name = ENTRY12_OPTIM1FULL_NR_G01_RDP_MAT
-    elif entry12_is_optim1full_product_b_vb_tag(tag):
+    elif entry12_is1full_product_b_vb_tag(tag):
         name = f"DEMAtariIII_XXX_12_{tag}_rdp.mat"
     else:
         raise KeyError(f"unknown Entry 12 Atari call tag: {tag!r}")
@@ -169,7 +169,7 @@ def entry12_atari_call_pdp_artifact_paths(tag: str) -> dict[str, Path]:
         ENTRY12_ATARI_CALL3_TAG,
         ENTRY12_ATARI_CALL4_TAG,
         ENTRY12_OPTIM1FULL_NR_G01_TAG,
-    ) or entry12_is_call2_game_tag(tag) or entry12_is_optim1full_product_b_vb_tag(tag):
+    ) or entry12_is_call2_game_tag(tag) or entry12_is1full_product_b_vb_tag(tag):
         return {
             "rdp_mat": fix / entry12_atari_call_rdp_mat_path(tag).name,
             "rdp_pkl": fix / f"DEMAtariIII_XXX_12_{tag}_rdp.pkl",

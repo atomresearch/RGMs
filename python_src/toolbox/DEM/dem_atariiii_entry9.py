@@ -1,4 +1,4 @@
-"""DEM_AtariIII Entry 8+9 — merge outer loop with ``spm_RDP_basin`` and break."""
+"""OPTIM1 Entry 8+9 — merge + ``spm_RDP_basin`` outer loop."""
 
 from __future__ import annotations
 
@@ -8,9 +8,12 @@ from typing import Any
 
 import numpy as np
 
-from python_src.toolbox.DEM.dem_atariiii_ledger_hooks import DemAtariLedgerHooks
-from python_src.toolbox.DEM.spm_merge_structure_learning import spm_merge_structure_learning
+from python_src.toolbox.DEM.dem_atariiii_entry8 import _build_o_seg
+from python_src.toolbox.DEM.spm_merge_structure_learning import (
+    spm_merge_structure_learning,
+)
 from python_src.toolbox.DEM.spm_RDP_basin import spm_RDP_basin
+from python_src.toolbox.DEM.dem_atariiii_ledger_hooks import DemAtariLedgerHooks
 
 
 def basin_training_loop(
@@ -23,10 +26,9 @@ def basin_training_loop(
     *,
     hooks: DemAtariLedgerHooks | None = None,
 ) -> dict[str, Any]:
-    """MATLAB combined Entry 8+9 outer loop (merges then basin until ``all(d)``)."""
+    """ENTRY 8+9 optim ledger — merge optim then ``spm_RDP_basin`` until ``all(d)``."""
     h = hooks or DemAtariLedgerHooks.noop()
     mdp_out = copy.deepcopy(mdp)
-    ng = len(pdp_o_cells)
     ne_i = int(ne)
     nt_i = int(nt)
 
@@ -39,19 +41,19 @@ def basin_training_loop(
     entry9_loop_s = 0.0
 
     for i in range(1, int(n_outer) + 1):
-        h.set_label(f"ENTRY9: outer i={i}/{int(n_outer)}")
+        h.set_label(f"ENTRY9 optim: outer i={i}/{int(n_outer)}")
         h.deadline_check()
         offset = int(np.remainder(i, 100 - 1)) * nt_i
         t = np.arange(0, nt_i + ne_i + 1, dtype=np.int64) + int(offset)
         t_merge = time.perf_counter()
         for s in range(1, ne_i + 1):
             cols = (t + int(s)).astype(np.int64)
-            o_seg = [[pdp_o_cells[g][int(c) - 1] for c in cols.tolist()] for g in range(ng)]
+            o_seg = _build_o_seg(pdp_o_cells, cols)
             mdp_out = spm_merge_structure_learning(o_seg, mdp_out)
             h.deadline_check()
         entry8_loop_s += time.perf_counter() - t_merge
 
-        h.set_label(f"ENTRY9: spm_RDP_basin outer i={i}/{int(n_outer)}")
+        h.set_label(f"ENTRY9 optim: spm_RDP_basin outer i={i}/{int(n_outer)}")
         h.deadline_check()
         t_basin = time.perf_counter()
         mdp_out, d, o, hids, _ = spm_RDP_basin(

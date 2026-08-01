@@ -1,4 +1,4 @@
-"""DEM_AtariIII Entry 8 — training-window merge loop (no basin step)."""
+"""OPTIM1 Entry 8 — training-window merge loop (``spm_merge_structure_learning``)."""
 
 from __future__ import annotations
 
@@ -10,12 +10,13 @@ from typing import Any
 
 import numpy as np
 
+from python_src.toolbox.DEM.spm_merge_structure_learning import (
+    spm_merge_structure_learning,
+)
 from python_src.toolbox.DEM.dem_atariiii_ledger_hooks import DemAtariLedgerHooks
-from python_src.toolbox.DEM.spm_merge_structure_learning import spm_merge_structure_learning
 
 
 def entry8_outer_loop_count() -> int:
-    """MATLAB ``for i = 1:128``; env ``RGMS_ATARI_ENTRY8_OUTER`` for harness speed only."""
     raw = str(os.getenv("RGMS_ATARI_ENTRY8_OUTER", "128")).strip()
     try:
         n = int(raw)
@@ -33,6 +34,13 @@ def _entry8_timing_enabled() -> bool:
     )
 
 
+def _build_o_seg(pdp_o_cells: list[list[Any]], cols: np.ndarray) -> list[list[Any]]:
+    """Build ``O`` segment for merge; hoist column index list once per call."""
+    cols_list = np.asarray(cols, dtype=np.int64).ravel().tolist()
+    ng = len(pdp_o_cells)
+    return [[pdp_o_cells[g][int(c) - 1] for c in cols_list] for g in range(ng)]
+
+
 def training_window_assimilations(
     pdp_o_cells: list[list[Any]],
     mdp: list[dict[str, Any]],
@@ -42,14 +50,9 @@ def training_window_assimilations(
     *,
     hooks: DemAtariLedgerHooks | None = None,
 ) -> tuple[list[dict[str, Any]], float]:
-    """
-    ENTRY 8 ledger: repeated ``spm_merge_structure_learning`` on scheduled columns.
-
-    Returns ``(mdp_out, total_merge_loop_s)``.
-    """
+    """ENTRY 8 optim ledger — repeated ``spm_merge_structure_learning``."""
     h = hooks or DemAtariLedgerHooks.noop()
     mdp_out = copy.deepcopy(mdp)
-    ng = len(pdp_o_cells)
     ne_i = int(ne)
     nt_i = int(nt)
     timing = _entry8_timing_enabled()
@@ -63,13 +66,14 @@ def training_window_assimilations(
         t_merge = time.perf_counter()
         for s in range(1, ne_i + 1):
             cols = (t + int(s)).astype(np.int64)
-            o_seg = [[pdp_o_cells[g][int(c) - 1] for c in cols.tolist()] for g in range(ng)]
+            o_seg = _build_o_seg(pdp_o_cells, cols)
             mdp_out = spm_merge_structure_learning(o_seg, mdp_out)
             h.deadline_check()
         total_merge_loop_s += time.perf_counter() - t_merge
         if timing:
             print(
-                f"[DEM_AtariIII entry8] outer {i}/{int(n_outer)} wall_s={time.perf_counter() - t_outer:.6f}",
+                f"[DEM_AtariIII entry8 optim] outer {i}/{int(n_outer)} "
+                f"wall_s={time.perf_counter() - t_outer:.6f}",
                 file=sys.stderr,
                 flush=True,
             )

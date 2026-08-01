@@ -1,10 +1,22 @@
 """
-Compression of a (Dirichlet) probability tensor — spectral grouping of outcomes.
+OPTIM2FULL native FSL speed twin of ``spm_rgm_group``.
 
-Translated from spm_rgm_group.m (Pass 1). Uses `spm_cat`, `spm_MDP_MI`, and
-`numpy.kron` in the same order as MATLAB `kron` inside the multimodal loop.
+Pass-1 spectral loop plus:
+
+- **Zero-tail:** when no MI-support indices remain in ``active``, emit ascending
+  singletons without ``eig``.
+- **Weak-B (library default on for native):** while support indices remain, run
+  ``eig`` on the **support∩active** block only (not the full padded active
+  matrix). Same group *membership* on drone ``dx=1``; peel *order* among
+  near-tied support ids may differ from full-matrix Tax. Disable with
+  ``RGMS_RGM_WEAK_B=0``. **Off automatically when ``eig_pair`` is set** so
+  OPTIM1FULL/OPTIM2FULL **parity** MATLAB injects still see the full active
+  block (Product B unchanged).
+
+Historical note: classic FSL1-B closed “support-only ≡ full peel **order**”;
+Weak-B accepts that order difference under an explicit native contract (see
+``FSL.md`` § Memory: Tax vs Weak-B).
 """
-
 from __future__ import annotations
 
 import os
@@ -19,6 +31,11 @@ from scipy.linalg import lapack
 from python_src.spm_cat import spm_cat
 from python_src.spm_MDP_MI import spm_MDP_MI
 
+
+def _weak_b_enabled() -> bool:
+    """``RGMS_RGM_WEAK_B`` — default **on** for Weak-B test implementation."""
+    raw = str(os.getenv("RGMS_RGM_WEAK_B", "1")).strip().lower()
+    return raw not in ("0", "false", "no", "off")
 
 def _sort_abs_descend_matlab_like(absv: np.ndarray) -> np.ndarray:
     """MATLAB ``sort(abs(e(:,jmax)),'descend')`` — ``eig_spectral_policy`` (optional tie-band §4.1 B5.3)."""
@@ -586,36 +603,79 @@ def spm_rgm_group(
     n_active_flags = int(np.sum(n_flags)) if "n_flags" in locals() else -1
     support_idx0 = np.flatnonzero(np.any(mi != 0.0, axis=1))
     ts.support_1based = {int(i) + 1 for i in support_idx0.tolist()}
+    # Native Weak-B only. Parity ``eig_pair`` (MATLAB eig on the active MI block)
+    # must keep the full active domain so injects match MATLAB grouping.
+    weak_b = bool(_weak_b_enabled() and eig_pair is None)
     ts.log(
         f"EIG_PARTITION START no={no} dx={dx} U={u_thresh:.6g} "
         f"active0={active.size} n_active_flags={n_active_flags} "
         f"n_mi_nnz_rows={n_mi_nnz_rows} n_mi_nnz={n_mi_nnz} "
         f"support_ids_1based={sorted(ts.support_1based)} "
         f"mi_dtype={mi.dtype} mi_nbytes_mb={int(mi.nbytes) / (1024 * 1024):.2f} "
-        f"NOTE=spectral_loop_uses_full_active0_not_only_flagged_outcomes"
+        f"weak_b={'on' if weak_b else 'off'} "
+        f"eig_pair={'on' if eig_pair is not None else 'off'} "
+        f"NOTE="
+        + (
+            "Weak-B: eig on support∩active only while support remains"
+            if weak_b
+            else (
+                "full_active_spectral (eig_pair forces full block for parity)"
+                if eig_pair is not None
+                else "spectral_loop_uses_full_active0_not_only_flagged_outcomes"
+            )
+        )
     )
     while active.size > 0:
         iter_idx += 1
         t_iter0 = time.perf_counter()
-        active_before = np.asarray(active, dtype=np.int64, copy=True)
+        # FSL4a-Tax: copy active only when diagnostics need a frozen snapshot.
+        need_active_snap = bool(
+            ts.enabled or spectral_probe_fn is not None or eig_pair is not None
+        )
+        active_before = (
+            np.asarray(active, dtype=np.int64, copy=True) if need_active_snap else active
+        )
+
+        # FSL1-B-alt bulk zero-tail: no MI-support indices remain → remaining
+        # groups are singletons in current active order (FSL1-A: ascending).
+        if ts.support_1based and ts.support_1based.isdisjoint(
+            int(i) for i in np.asarray(active, dtype=np.int64).ravel().tolist()
+        ):
+            for i in np.asarray(active, dtype=np.int64).ravel().tolist():
+                groups.append(np.asarray([int(i)], dtype=np.int64))
+            if ts.enabled:
+                ts.log(
+                    f"EIG zero_tail_bulk n_singletons={active.size} "
+                    f"skipped_eigs={active.size}"
+                )
+            active = np.asarray([], dtype=np.int64)
+            iter_elapsed = float(time.perf_counter() - t_iter0)
+            ts.t_eig_running += iter_elapsed
+            break
+
+        # Spectral domain: full active, or Weak-B support∩active.
+        act_full = np.asarray(active, dtype=np.int64).ravel()
+        if weak_b and ts.support_1based:
+            eig_active = np.asarray(
+                [int(i) for i in act_full.tolist() if int(i) in ts.support_1based],
+                dtype=np.int64,
+            )
+        else:
+            eig_active = act_full
 
         t_x0 = time.perf_counter()
-        sub = mi[np.ix_(active - 1, active - 1)]
+        sub = np.asarray(mi[np.ix_(eig_active - 1, eig_active - 1)], dtype=np.float64)
         dt_extract_ix = float(time.perf_counter() - t_x0)
-        t_xa0 = time.perf_counter()
-        sub = np.asarray(sub, dtype=np.float64)
-        dt_extract_arr = float(time.perf_counter() - t_xa0)
-        dt_extract = dt_extract_ix + dt_extract_arr
+        dt_extract_arr = 0.0
+        dt_extract = dt_extract_ix
 
         t_s0 = time.perf_counter()
         # `MI` should be symmetric; enforce exact symmetry to match MATLAB's treatment
         # of the mutual-information matrix as a real symmetric operator in this path.
-        sub_sum = sub + sub.T
-        dt_sym_add = float(time.perf_counter() - t_s0)
-        t_ss0 = time.perf_counter()
-        sub = 0.5 * sub_sum
-        dt_sym_scale = float(time.perf_counter() - t_ss0)
-        dt_sym = dt_sym_add + dt_sym_scale
+        sub = 0.5 * (sub + sub.T)
+        dt_sym = float(time.perf_counter() - t_s0)
+        dt_sym_add = dt_sym
+        dt_sym_scale = 0.0
 
         t_c0 = time.perf_counter()
         sub = _condition_submatrix(sub)
@@ -625,181 +685,227 @@ def spm_rgm_group(
             sub = np.round(sub, decimals=15)
         dt_cond = float(time.perf_counter() - t_c0)
 
-        sub_sym_resid = float(np.max(np.abs(sub - sub.T))) if sub.size else 0.0
+        # FSL4a-Tax: ``sub - sub.T`` resid is diagnostics-only (extra full-matrix tax).
+        sub_sym_resid = (
+            float(np.max(np.abs(sub - sub.T))) if (ts.enabled and sub.size) else 0.0
+        )
         eig_backend = "scipy.linalg.eig"
         use_dgeev = _env_flag("RGMS_RGM_EXPERIMENT_USE_DGEEV")
         if use_dgeev:
             eig_backend = "dgeev_real"
         rss_before = ts._rss_mb() if ts.enabled else float("nan")
 
-        # time_segments-only diagnostic: compare symmetric eigh cost on iter 1.
-        # Result is discarded; production path remains general eig (MATLAB-like).
-        if ts.enabled and iter_idx == 1:
-            t_eh0 = time.perf_counter()
-            try:
-                _vals_eh, _vecs_eh = spla.eigh(sub, check_finite=False, overwrite_a=False)
-                del _vals_eh, _vecs_eh
-                dt_eigh_diag = float(time.perf_counter() - t_eh0)
-            except Exception as exc:  # pragma: no cover - diagnostic only
-                dt_eigh_diag = float("nan")
-                ts.log(f"EIG_DIAG eigh_failed err={type(exc).__name__}:{exc}")
+        # Zero-tail shortcut (FSL1-B-alt): all-zero active block → peel active[:dx]
+        # without eig. Drone FSL1-A: after support peels, remaining are ascending
+        # singletons; full eig on zeros is pure cost.
+        zero_tail = sub.size == 0 or (not np.any(sub))
+        if zero_tail:
+            eig_backend = "zero_tail_skip_eig"
+            eig_source = "zero_tail"
+            t_e0 = time.perf_counter()
+            # Peel from full active (ascending remainder), not eig_active.
+            n_take = min(int(dx), int(act_full.size))
+            j_take = np.arange(n_take, dtype=np.int64)
+            e_top_kept = np.ones(n_take, dtype=np.float64)
+            chosen = act_full[j_take]
+            dt_eig_call = float(time.perf_counter() - t_e0)
+            rss_after = ts._rss_mb() if ts.enabled else float("nan")
+            dt_post = 0.0
+            dt_post_norm = dt_post_argmax = dt_post_abs = dt_post_sort = dt_post_thr = 0.0
+            dt_py_book = 0.0
+            vals_py = vecs_py = vals = vecs = None
+            vals_mat = vecs_mat = None
+            jmax = jmax_py = jmax_mat = None
+            absv = absv_py = absv_mat = None
+            order = order_py = order_mat = None
+            chosen_py = chosen_mat = None
+            # j_take indexes act_full for removal below
+        else:
+            # time_segments-only diagnostic: compare symmetric eigh cost on iter 1.
+            if ts.enabled and iter_idx == 1:
+                t_eh0 = time.perf_counter()
+                try:
+                    _vals_eh, _vecs_eh = spla.eigh(
+                        sub, check_finite=False, overwrite_a=False
+                    )
+                    del _vals_eh, _vecs_eh
+                    dt_eigh_diag = float(time.perf_counter() - t_eh0)
+                except Exception as exc:  # pragma: no cover
+                    dt_eigh_diag = float("nan")
+                    ts.log(f"EIG_DIAG eigh_failed err={type(exc).__name__}:{exc}")
+                else:
+                    ts.log(
+                        f"EIG_DIAG iter=1 eigh_discard_s={dt_eigh_diag:.4f} "
+                        f"(not used for grouping; compares vs general eig below)"
+                    )
+
+            t_e0 = time.perf_counter()
+            if use_dgeev:
+                vals_py, vecs_py = _eig_dgeev_real(sub)
             else:
-                ts.log(
-                    f"EIG_DIAG iter=1 eigh_discard_s={dt_eigh_diag:.4f} "
-                    f"(not used for grouping; compares vs general eig below)"
+                vals_py, vecs_py = spla.eig(
+                    sub, check_finite=False, overwrite_a=False
                 )
+            vals_mat = None
+            vecs_mat = None
+            if eig_pair is None:
+                vals, vecs = vals_py, vecs_py
+                eig_source = "scipy"
+            else:
+                vals_mat, vecs_mat = eig_pair(sub)
+                vals, vecs = vals_mat, vecs_mat
+                eig_source = "eig_pair"
+                eig_backend = "eig_pair"
+            dt_eig_call = float(time.perf_counter() - t_e0)
+            rss_after = ts._rss_mb() if ts.enabled else float("nan")
 
-        # MATLAB: `[e,v] = eig(MI(i,i),'nobalance'); [~,j] = max(diag(v),[],1);`
-        #
-        # `MI(i,i)` is symmetric, but MATLAB still uses the general-real `eig` path.
-        # SciPy's LAPACK-backed `eig` matches MATLAB's returned eigenpairs far more
-        # closely than `numpy.linalg.eigh` for the exhaustive structure-learning
-        # checkpoint (byte-level `sort(abs(e(:,j)),'descend')` parity).
-        t_e0 = time.perf_counter()
-        if use_dgeev:
-            vals_py, vecs_py = _eig_dgeev_real(sub)
-        else:
-            vals_py, vecs_py = spla.eig(sub, check_finite=False, overwrite_a=False)
-        vals_mat = None
-        vecs_mat = None
-        if eig_pair is None:
-            vals, vecs = vals_py, vecs_py
-            eig_source = "scipy"
-        else:
-            vals_mat, vecs_mat = eig_pair(sub)
-            vals, vecs = vals_mat, vecs_mat
-            eig_source = "eig_pair"
-            eig_backend = "eig_pair"
-        dt_eig_call = float(time.perf_counter() - t_e0)
-        rss_after = ts._rss_mb() if ts.enabled else float("nan")
+            # FSL4a-Tax: normalize/reshape the *used* eigenpair once (peel authority).
+            t_p0 = time.perf_counter()
+            vals = _normalize_eig_vals(vals)
+            vecs = np.asarray(vecs, dtype=np.complex128)
+            if vecs.shape != sub.shape:
+                vecs = np.reshape(vecs, sub.shape, order="F")
+            if eig_pair is None:
+                # Same object path as SciPy — keep aliases for optional diagnostics.
+                vals_py, vecs_py = vals, vecs
+            else:
+                vals_py = _normalize_eig_vals(vals_py)
+                vecs_py = np.asarray(vecs_py, dtype=np.complex128)
+                if vecs_py.shape != sub.shape:
+                    vecs_py = np.reshape(vecs_py, sub.shape, order="F")
+            dt_post_norm = float(time.perf_counter() - t_p0)
 
-        t_p0 = time.perf_counter()
-        vals_py = _normalize_eig_vals(vals_py)
-        vecs_py = np.asarray(vecs_py, dtype=np.complex128)
-        if vecs_py.shape != sub.shape:
-            vecs_py = np.reshape(vecs_py, sub.shape, order="F")
-        vals = _normalize_eig_vals(vals)
-        vecs = np.asarray(vecs, dtype=np.complex128)
-        if vecs.shape != sub.shape:
-            vecs = np.reshape(vecs, sub.shape, order="F")
-        dt_post_norm = float(time.perf_counter() - t_p0)
+            t_pa0 = time.perf_counter()
+            jmax = int(np.argmax(np.abs(vals)))
+            col = vecs[:, jmax]
+            dt_post_argmax = float(time.perf_counter() - t_pa0)
 
-        t_pa0 = time.perf_counter()
-        # MATLAB: `[~,j] = max(diag(v),[],1);` on the eigenvalue ordering returned
-        # by `eig`. For complex eigenvalues this is magnitude order; ties pick the
-        # first occurrence (MATLAB `max` behavior on vectors).
-        jmax = int(np.argmax(np.abs(vals)))
-        col = vecs[:, jmax]
-        dt_post_argmax = float(time.perf_counter() - t_pa0)
-
-        t_pb0 = time.perf_counter()
-        # MATLAB: `sort(abs(e(:,j)),'descend')` with `e` complex from `eig`.
-        # Use complex magnitude directly (do not strip imaginary parts before
-        # `abs`), so near-degenerate noise in real/imag parts matches MATLAB's
-        # `abs` pipeline for tie ordering.
-        absv = np.asarray(np.abs(col), dtype=np.float64).ravel()
-        if _env_flag("RGMS_RGM_EXPERIMENT_ABSV_ROUND15"):
-            absv = np.round(absv, decimals=15)
-        dt_post_abs = float(time.perf_counter() - t_pb0)
-
-        t_ps0 = time.perf_counter()
-        order = _sort_abs_descend_matlab_like(absv)
-        dt_post_sort = float(time.perf_counter() - t_ps0)
-
-        t_pt0 = time.perf_counter()
-        j_take = order[: min(len(order), dx)]
-        e_top = absv[j_take]
-        keep = e_top >= u_thresh
-        j_take = j_take[keep]
-        e_top_kept = e_top[keep]
-        chosen = active[j_take]
-        dt_post_thr = float(time.perf_counter() - t_pt0)
-        dt_post = (
-            dt_post_norm
-            + dt_post_argmax
-            + dt_post_abs
-            + dt_post_sort
-            + dt_post_thr
-        )
-
-        t_b0 = time.perf_counter()
-        jmax_py = int(np.argmax(np.abs(vals_py)))
-        col_py = vecs_py[:, jmax_py]
-        absv_py = np.asarray(np.abs(col_py), dtype=np.float64).ravel()
-        if _env_flag("RGMS_RGM_EXPERIMENT_ABSV_ROUND15"):
-            absv_py = np.round(absv_py, decimals=15)
-        order_py = _sort_abs_descend_matlab_like(absv_py)
-        j_take_py = order_py[: min(len(order_py), dx)]
-        e_top_py = absv_py[j_take_py]
-        j_take_py = j_take_py[e_top_py >= u_thresh]
-        chosen_py = active_before[j_take_py]
-        if vals_mat is not None and vecs_mat is not None:
-            vals_mat = _normalize_eig_vals(vals_mat)
-            vecs_mat = np.asarray(vecs_mat, dtype=np.complex128)
-            if vecs_mat.shape != sub.shape:
-                vecs_mat = np.reshape(vecs_mat, sub.shape, order="F")
-            jmax_mat = int(np.argmax(np.abs(vals_mat)))
-            col_mat = vecs_mat[:, jmax_mat]
-            absv_mat = np.asarray(np.abs(col_mat), dtype=np.float64).ravel()
+            t_pb0 = time.perf_counter()
+            absv = np.asarray(np.abs(col), dtype=np.float64).ravel()
             if _env_flag("RGMS_RGM_EXPERIMENT_ABSV_ROUND15"):
-                absv_mat = np.round(absv_mat, decimals=15)
-            order_mat = _sort_abs_descend_matlab_like(absv_mat)
-            j_take_mat = order_mat[: min(len(order_mat), dx)]
-            e_top_mat = absv_mat[j_take_mat]
-            j_take_mat = j_take_mat[e_top_mat >= u_thresh]
-            chosen_mat = active_before[j_take_mat]
-        else:
-            jmax_mat = None
-            absv_mat = None
-            order_mat = None
-            chosen_mat = None
-        if spectral_probe_fn is not None:
-            spectral_probe_fn(
-                {
-                    "iter_idx": int(iter_idx),
-                    "m": int(m),
-                    "dx": int(dx),
-                    "u_thresh": float(u_thresh),
-                    "active_before": np.asarray(active_before, dtype=np.int64, copy=True),
-                    "sub_mi": np.asarray(sub, dtype=np.float64, copy=True),
-                    "eig_source": str(eig_source),
-                    "vals_py": np.asarray(vals_py, dtype=np.complex128, copy=True),
-                    "vecs_py": np.asarray(vecs_py, dtype=np.complex128, copy=True),
-                    "jmax_py": int(jmax_py),
-                    "absv_py": np.asarray(absv_py, dtype=np.float64, copy=True),
-                    "order_py": np.asarray(order_py, dtype=np.int64, copy=True),
-                    "chosen_py": np.asarray(chosen_py, dtype=np.int64, copy=True),
-                    "vals_use": np.asarray(vals, dtype=np.complex128, copy=True),
-                    "vecs_use": np.asarray(vecs, dtype=np.complex128, copy=True),
-                    "jmax_use": int(jmax),
-                    "absv_use": np.asarray(absv, dtype=np.float64, copy=True),
-                    "order_use": np.asarray(order, dtype=np.int64, copy=True),
-                    "chosen_use": np.asarray(chosen, dtype=np.int64, copy=True),
-                    "vals_mat": None
-                    if vals_mat is None
-                    else np.asarray(vals_mat, dtype=np.complex128, copy=True),
-                    "vecs_mat": None
-                    if vecs_mat is None
-                    else np.asarray(vecs_mat, dtype=np.complex128, copy=True),
-                    "jmax_mat": jmax_mat,
-                    "absv_mat": None
-                    if absv_mat is None
-                    else np.asarray(absv_mat, dtype=np.float64, copy=True),
-                    "order_mat": None
-                    if order_mat is None
-                    else np.asarray(order_mat, dtype=np.int64, copy=True),
-                    "chosen_mat": None
-                    if chosen_mat is None
-                    else np.asarray(chosen_mat, dtype=np.int64, copy=True),
-                }
+                absv = np.round(absv, decimals=15)
+            dt_post_abs = float(time.perf_counter() - t_pb0)
+
+            t_ps0 = time.perf_counter()
+            order = _sort_abs_descend_matlab_like(absv)
+            dt_post_sort = float(time.perf_counter() - t_ps0)
+
+            t_pt0 = time.perf_counter()
+            j_take = order[: min(len(order), dx)]
+            e_top = absv[j_take]
+            keep = e_top >= u_thresh
+            j_take = j_take[keep]
+            e_top_kept = e_top[keep]
+            chosen = eig_active[j_take]
+            dt_post_thr = float(time.perf_counter() - t_pt0)
+            dt_post = (
+                dt_post_norm
+                + dt_post_argmax
+                + dt_post_abs
+                + dt_post_sort
+                + dt_post_thr
             )
-        dt_py_book = float(time.perf_counter() - t_b0)
+
+            # FSL4a-Tax: duplicate SciPy-vs-use bookkeeping only when profiling/probe/eig_pair.
+            need_py_book = bool(
+                ts.enabled or spectral_probe_fn is not None or eig_pair is not None
+            )
+            t_b0 = time.perf_counter()
+            if need_py_book:
+                if eig_pair is None:
+                    jmax_py = jmax
+                    absv_py = absv
+                    order_py = order
+                    chosen_py = np.asarray(chosen, dtype=np.int64)
+                else:
+                    jmax_py = int(np.argmax(np.abs(vals_py)))
+                    col_py = vecs_py[:, jmax_py]
+                    absv_py = np.asarray(np.abs(col_py), dtype=np.float64).ravel()
+                    if _env_flag("RGMS_RGM_EXPERIMENT_ABSV_ROUND15"):
+                        absv_py = np.round(absv_py, decimals=15)
+                    order_py = _sort_abs_descend_matlab_like(absv_py)
+                    j_take_py = order_py[: min(len(order_py), dx)]
+                    e_top_py = absv_py[j_take_py]
+                    j_take_py = j_take_py[e_top_py >= u_thresh]
+                    chosen_py = active_before[j_take_py]
+                if vals_mat is not None and vecs_mat is not None:
+                    vals_mat = _normalize_eig_vals(vals_mat)
+                    vecs_mat = np.asarray(vecs_mat, dtype=np.complex128)
+                    if vecs_mat.shape != sub.shape:
+                        vecs_mat = np.reshape(vecs_mat, sub.shape, order="F")
+                    jmax_mat = int(np.argmax(np.abs(vals_mat)))
+                    col_mat = vecs_mat[:, jmax_mat]
+                    absv_mat = np.asarray(np.abs(col_mat), dtype=np.float64).ravel()
+                    if _env_flag("RGMS_RGM_EXPERIMENT_ABSV_ROUND15"):
+                        absv_mat = np.round(absv_mat, decimals=15)
+                    order_mat = _sort_abs_descend_matlab_like(absv_mat)
+                    j_take_mat = order_mat[: min(len(order_mat), dx)]
+                    e_top_mat = absv_mat[j_take_mat]
+                    j_take_mat = j_take_mat[e_top_mat >= u_thresh]
+                    chosen_mat = active_before[j_take_mat]
+                else:
+                    jmax_mat = None
+                    absv_mat = None
+                    order_mat = None
+                    chosen_mat = None
+                if spectral_probe_fn is not None:
+                    spectral_probe_fn(
+                        {
+                            "iter_idx": int(iter_idx),
+                            "m": int(m),
+                            "dx": int(dx),
+                            "u_thresh": float(u_thresh),
+                            "active_before": np.asarray(
+                                active_before, dtype=np.int64, copy=True
+                            ),
+                            "sub_mi": np.asarray(sub, dtype=np.float64, copy=True),
+                            "eig_source": str(eig_source),
+                            "vals_py": np.asarray(vals_py, dtype=np.complex128, copy=True),
+                            "vecs_py": np.asarray(vecs_py, dtype=np.complex128, copy=True),
+                            "jmax_py": int(jmax_py),
+                            "absv_py": np.asarray(absv_py, dtype=np.float64, copy=True),
+                            "order_py": np.asarray(order_py, dtype=np.int64, copy=True),
+                            "chosen_py": np.asarray(chosen_py, dtype=np.int64, copy=True),
+                            "vals_use": np.asarray(vals, dtype=np.complex128, copy=True),
+                            "vecs_use": np.asarray(vecs, dtype=np.complex128, copy=True),
+                            "jmax_use": int(jmax),
+                            "absv_use": np.asarray(absv, dtype=np.float64, copy=True),
+                            "order_use": np.asarray(order, dtype=np.int64, copy=True),
+                            "chosen_use": np.asarray(chosen, dtype=np.int64, copy=True),
+                            "vals_mat": None
+                            if vals_mat is None
+                            else np.asarray(vals_mat, dtype=np.complex128, copy=True),
+                            "vecs_mat": None
+                            if vecs_mat is None
+                            else np.asarray(vecs_mat, dtype=np.complex128, copy=True),
+                            "jmax_mat": jmax_mat,
+                            "absv_mat": None
+                            if absv_mat is None
+                            else np.asarray(absv_mat, dtype=np.float64, copy=True),
+                            "order_mat": None
+                            if order_mat is None
+                            else np.asarray(order_mat, dtype=np.int64, copy=True),
+                            "chosen_mat": None
+                            if chosen_mat is None
+                            else np.asarray(chosen_mat, dtype=np.int64, copy=True),
+                        }
+                    )
+                dt_py_book = float(time.perf_counter() - t_b0)
+            else:
+                jmax_py = jmax_mat = None
+                absv_py = absv_mat = None
+                order_py = order_mat = None
+                chosen_py = chosen_mat = None
+                dt_py_book = 0.0
 
         groups.append(chosen.astype(np.int64))
         t_m0 = time.perf_counter()
-        mask = np.ones(active.shape, dtype=bool)
-        mask[j_take] = False
-        active = active[mask]
+        # Always remove by chosen ids (correct for both full-active and Weak-B domains).
+        chos = {int(x) for x in np.asarray(chosen, dtype=np.int64).ravel().tolist()}
+        active = np.asarray(
+            [int(i) for i in act_full.tolist() if int(i) not in chos],
+            dtype=np.int64,
+        )
         dt_mask = float(time.perf_counter() - t_m0)
 
         iter_elapsed = float(time.perf_counter() - t_iter0)

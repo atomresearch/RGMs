@@ -36,7 +36,7 @@ ENTRY12_CANONICAL_RUN_TAG = (
 ENTRY12_LEAN_BOUNDARY_KEYS = ("in", "out_t1", "out_t2", "out_t3", "out_tT")
 
 # OPTIM1FULL call4 — same causal lane as ``ENTRY12_LEAN_BOUNDARY_KEYS`` plus mid-horizon boundaries.
-ENTRY12_OPTIM1FULL_CALL4_TAG = "rgms_atari_optim1full_call4"
+ENTRY12_OPTIM1FULL_CALL4_TAG = "rgms_atari1full_call4"
 ENTRY12_CALL4_LEAN_BOUNDARY_KEYS: tuple[str, ...] = (
     "in",
     "out_t1",

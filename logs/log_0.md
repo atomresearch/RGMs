@@ -1,4 +1,4 @@
-﻿# RGMs migration log (log_0)
+ï»¿# RGMs migration log (log_0)
 
 ## Iteration - 2026-07-28 - Goal B local MP4 PASS (imageio)
 
@@ -23,7 +23,7 @@
 - Living updated (Goal B / Cell 8 pending).
 - Smoke: wrapper PNG OK from L4 `QDP_wayfinding`. MP4 encode **blocked** locally: no ffmpeg / imageio-ffmpeg in `rgms` (repo forbids silent pip).
 
-**Next:** user approve `pip install imageio imageio-ffmpeg` (or system ffmpeg) → re-smoke MP4 → Cell 8 paste → library push.
+**Next:** user approve `pip install imageio imageio-ffmpeg` (or system ffmpeg) â re-smoke MP4 â Cell 8 paste â library push.
 
 - Files created: spm_behaviour.py; dem_drone_vi_plot_wayfinding_bkp.py; smoke PNG under visualizations/optim2full_native/
 - Files modified: dem_drone_vi_plot_wayfinding.py (thin wrap); OPTIM2FULL.md Living
@@ -162,7 +162,7 @@
 **Doc updates:**
 - Banner Last updated: Phase 2 `--spine-e2e` PASS (~361.7 s) + Phase 2b Wayfinding **user-accepted**
 - Living: compute spine COMPLETE; Wayfinding LANDED; Next = user-directed (do not auto-open)
-- Phase 2 / 2b closed references; plot landed-sites table; inventory � B/G; locked scripts; roadmap 2b; agent contract
+- Phase 2 / 2b closed references; plot landed-sites table; inventory ï¿½ B/G; locked scripts; roadmap 2b; agent contract
 - Fixed corrupted Deferred table under locked scripts; cleared stale ?next = F6? / ?awaiting visual review? language
 
 **Sign-off instruments (unchanged facts):** `--spine-e2e` exit 0; `optim2full_plot_wayfinding_visual.py` ? compare PNG accepted. Not Atari `--plot-parity`.
@@ -276,7 +276,7 @@
 
 **Lane:** OPTIM2FULL. Spine-first after F2 GREEN. F3 authority = post-`spm_mdp_a2A` only (not packing).
 
-**Done:** Pass-1 `spm_mdp_a2A.py` + matlab_src stage; oracle (2 tests); fence export/compare/gate `--fence-f3` (F2 pkl ? peel `[tensor]` ? a2A ? F3.mat). First red harness: collapsed 1�1 `B` scalar vs `(1,1)` ? compare promote. Exit **0**.
+**Done:** Pass-1 `spm_mdp_a2A.py` + matlab_src stage; oracle (2 tests); fence export/compare/gate `--fence-f3` (F2 pkl ? peel `[tensor]` ? a2A ? F3.mat). First red harness: collapsed 1ï¿½1 `B` scalar vs `(1,1)` ? compare promote. Exit **0**.
 
 **Not done / next:** F4 packing / `spm_mdp2rdp` (reuse fidelity; id.A packing policy already locked). No OPTIM1FULL / shared `_optim` edits.
 
@@ -369,7 +369,7 @@
 
 **OPTIM1FULL Entry4:** same `spm_faster_structure_learning_optim` + Engine MI/`eig`/`dir_MI` on **`PDP.O(:,1:1000)`** (isolated + integrated Product B). Wall ~minutes (full-replay Entry4 ~409 s class) ? not hours.
 
-**OPTIM2FULL F2 mistake class:** reused Entry4 **cell-by-cell** MI push on drone **`Q` 8192�64** (~5e5 Engine round-trips / stream). Same fence *class*, wrong *transfer scale* for a deliverable.
+**OPTIM2FULL F2 mistake class:** reused Entry4 **cell-by-cell** MI push on drone **`Q` 8192ï¿½64** (~5e5 Engine round-trips / stream). Same fence *class*, wrong *transfer scale* for a deliverable.
 
 **Edits:** signoff no longer pins `FSL_TIMING`; instrumented MI/eig wrappers in `optim2full_fsl_matlab.py` when `RGMS_OPTIM2FULL_FSL_TIMING=1`. No long fence re-run.
 
@@ -496,7 +496,7 @@
 
 **Lane:** OPTIM2FULL (docs only).
 
-**Change:** Expanded `OPTIM2FULL.md` so re-reads keep the F1.o lesson durable: new **� Float / `linspace` / lattice `ceil` discipline (locked)** under Standing rules; `PG.phi`/`FOV` added as a declared fence class; Living ?Durable lessons?; locked-scripts / roadmap / agent contract / inventory row updated; ceil-snap and blanket float cleanup listed as forbidden.
+**Change:** Expanded `OPTIM2FULL.md` so re-reads keep the F1.o lesson durable: new **ï¿½ Float / `linspace` / lattice `ceil` discipline (locked)** under Standing rules; `PG.phi`/`FOV` added as a declared fence class; Living ?Durable lessons?; locked-scripts / roadmap / agent contract / inventory row updated; ceil-snap and blanket float cleanup listed as forbidden.
 
 **Not doing:** F1.upgrade / F2 / code edits this turn.
 
@@ -606,7 +606,7 @@
 
 **Verdict:** Single coherent track = clear fence **F1** only. Dumps/ledger/F0/generate-handle/optim-first already in place. Implement F1.1 (GDP + drone locals) ? F1.2 (`spm_MDP_generate_optim` + `pre_fsl`) ? F1.3 (Q + `spm_sub2ind`) ? F1.4 (`--fence-f1`). No re-capture; no F2+.
 
-**Doc:** `OPTIM2FULL.md` � Next steps determination (refreshed).
+**Doc:** `OPTIM2FULL.md` ï¿½ Next steps determination (refreshed).
 
 - Files read: Living; Standing rules; `DEM_drone_VI.py`; parity gate
 - Files created: none
@@ -679,7 +679,7 @@
 
 **Verdict:** Not from-scratch. MATLAB 0c dump product already OPTIM1FULL-class and adequate for F1. Next = fence F1 Python only: assemble GDP (drone locals + reuse helpers) ? reuse `spm_MDP_generate` + `pre_fsl` ledger ? Q assembly (`spm_sub2ind`); harness `--fence-f1`. No re-capture; no F2+/plots; no edits to existing `_optim`/fidelity without approval.
 
-**Doc:** `OPTIM2FULL.md` � Next steps determination (locked 2026-07-23).
+**Doc:** `OPTIM2FULL.md` ï¿½ Next steps determination (locked 2026-07-23).
 
 - Files read: `OPTIM2FULL.md`; F1.mat/manifest; spine/save_f1; inventory; F0 gate
 - Files created: none
@@ -697,7 +697,7 @@
 
 **Inspected:** `DEM_drone_vi.m` (main + locals); filesystem under `python_src/` and `python_src/optimized/toolbox/DEM/`; COLAB1 cell import map (user-supplied); first-hop imports of generate / FSL / `mdp2rdp` / VB.
 
-**Changes:** Replaced thin Call-graph inventory with **� DEM_drone_vi library inventory** (tables A?H); hardened Standing rules + agent contract for no-modify / reuse; Living log updated. No compute code changed.
+**Changes:** Replaced thin Call-graph inventory with **ï¿½ DEM_drone_vi library inventory** (tables A?H); hardened Standing rules + agent contract for no-modify / reuse; Living log updated. No compute code changed.
 
 **Next:** Phase 1 fence F1 (no re-capture; no shared kernel edits).
 
@@ -12727,7 +12727,7 @@ With the integrated optim MATLAB witness CLOSED, implemented the user-approved p
 
 **Context / goal.** Close the circular plot-oracle trap: plotting parity must certify the translated Python plotting functions against **MATLAB's** plotting functions on an **independent MATLAB-owned** fence `PDP`, not against an oracle rendered from Python's own re-saved output. Wiring only this iteration ? no compute/optim-kernel edits, no MATLAB re-capture launched (P7 is the gated heavy run).
 
-**What was inspected.** `DEMAtariIII_entry12_dump_all_subentries.m` (ledger-capture mode: `vb_call1`/NR loop/`vb_call3`/`vb_call4` boundaries, subfunction area); `optim1full_paths.py` (site path map); `optim1full_compare_spine_fence_pdp_pkl_to_mat.py` (`_assert_spine_mat_meta`); `optim1full_export_spine_fence_pdp.py` (`refresh_spine_fence_oracle_mat`); `optim1full_capture_plot_fixtures.py` (`_capture_site_paths_oracle`); `optim1full_plot.py` (`PdpSource`, `load_optim1full_pdp_for_site`); `test_optim1full_plot.py` (site JKH + orbits orders); `optim1full_parity_gate.py`; `OPTIM1FULL.md` / `Atari_plotting.md` � 0.
+**What was inspected.** `DEMAtariIII_entry12_dump_all_subentries.m` (ledger-capture mode: `vb_call1`/NR loop/`vb_call3`/`vb_call4` boundaries, subfunction area); `optim1full_paths.py` (site path map); `optim1full_compare_spine_fence_pdp_pkl_to_mat.py` (`_assert_spine_mat_meta`); `optim1full_export_spine_fence_pdp.py` (`refresh_spine_fence_oracle_mat`); `optim1full_capture_plot_fixtures.py` (`_capture_site_paths_oracle`); `optim1full_plot.py` (`PdpSource`, `load_optim1full_pdp_for_site`); `test_optim1full_plot.py` (site JKH + orbits orders); `optim1full_parity_gate.py`; `OPTIM1FULL.md` / `Atari_plotting.md` ï¿½ 0.
 
 **Changes made + why.**
 - **MATLAB authority dump (P1):** env `RGMS_OPTIM1FULL_PLOT_FENCE_TRACE=1` saves the in-flow MATLAB VB output `PDP` at the 4 RGB fences to `DEMAtariIII_optim1full_<site>_matlab_pdp.mat` (`metaPdp.capture=capture_optim1full_plot_fence`) via new subfunction `entry12_save_optim1full_plot_fence_`. Site?boundary: `dem_generative_ai`?`vb_call1`, `dem_active_inference_nr`?NR game 32, `dem_before_compression_rgb`?`vb_call3`, `dem_with_compression_rgb`?`vb_call4`. No extra VB calls; captures the already-computed return; save is post-segment I/O ? no `rand()` perturbation to the ledger.
@@ -12923,7 +12923,7 @@ Aligned Concrete current task / Decisions item 3 / Active agent focus / checkpoi
 
 **Branch.** `andrew` verified (`git branch --show-current`).
 
-**Scope.** Documentation-only prune of `OPTIM1FULL.md` per approved P01?P18 plan. No VB kernels, fixtures, Engine, remint, or commit. Core runner identity unchanged: `optim1full_parity_gate.py --plot-parity`. Locked section **� Current state and the only scripts that matter (locked)** left intact.
+**Scope.** Documentation-only prune of `OPTIM1FULL.md` per approved P01?P18 plan. No VB kernels, fixtures, Engine, remint, or commit. Core runner identity unchanged: `optim1full_parity_gate.py --plot-parity`. Locked section **ï¿½ Current state and the only scripts that matter (locked)** left intact.
 
 **What changed.**
 - P01?P03: WHAT-IS / Active focus / Forward plan rewritten (ops current vs product open; no inventing second plot runner).
@@ -12933,7 +12933,7 @@ Aligned Concrete current task / Decisions item 3 / Active agent focus / checkpoi
 - P15?P17: NR authority trace demoted (rare W2); Call4 novels ? Historical pointer; Row 5 interim Engine ladder removed from Remaining (site COVERED).
 - P18: Living slimmed (newest bullets + chat?authority policy); older digs ? Historical P18 archive.
 - Surgical: fidelity-default / `python_product_b` normative contradictions softened where encountered.
-- `Atari_plotting.md` �13 row 5 ? COVERED; �0.5 paired-objects row aligned.
+- `Atari_plotting.md` ï¿½13 row 5 ? COVERED; ï¿½0.5 paired-objects row aligned.
 - Historical appendix created at bottom of `OPTIM1FULL.md` (P03/P08/P11?P18 origins).
 
 **Not done.** No `dem_gameplay`; no remint; no VB/compute; no commit.
@@ -12955,7 +12955,7 @@ Aligned Concrete current task / Decisions item 3 / Active agent focus / checkpoi
 
 **Ground truth checked.** Locked section in `OPTIM1FULL.md`; `PLOT_PARITY_RGB_SITES` (4 RGB); orbits paths pytest; `dem_atariiii_plot_*.py` glob (4 RGB + shared fence).
 
-**Rewrite.** One coherent replace (~419 lines / ~53 KB to ~94 lines / ~10 KB). Remaining: �0 what-this-is; �1 policy; �13 site map (COVERED x4 / PARTIAL x2 / NOT STARTED x4); �2 `--plot-parity` verify; �3 out-of-scope; short Historical. Pruned competing OPTIM1FULL ops novel, DEMO1 12PLOT registries, forward plans, Axis-2 queues. One-line cross-link fix in `OPTIM1FULL.md` W1 Reference policy (�0/�1/�13) for consistency after section renumber.
+**Rewrite.** One coherent replace (~419 lines / ~53 KB to ~94 lines / ~10 KB). Remaining: ï¿½0 what-this-is; ï¿½1 policy; ï¿½13 site map (COVERED x4 / PARTIAL x2 / NOT STARTED x4); ï¿½2 `--plot-parity` verify; ï¿½3 out-of-scope; short Historical. Pruned competing OPTIM1FULL ops novel, DEMO1 12PLOT registries, forward plans, Axis-2 queues. One-line cross-link fix in `OPTIM1FULL.md` W1 Reference policy (ï¿½0/ï¿½1/ï¿½13) for consistency after section renumber.
 
 **Not done.** No `dem_gameplay`; no remint; no VB; no commit.
 
@@ -12997,9 +12997,9 @@ Aligned Concrete current task / Decisions item 3 / Active agent focus / checkpoi
 
 **Edits.**
 - `OPTIM1FULL.md`: locked Still-open gains Atari numeric-scope pointer; W1 **Plot porting contract (remaining sites)** (hard delimiters + Atari pointer); Sequential Step 4 gameplay numerics pointer; Plot protocol one MOVIE clarifier + one PNG/W1-D clarifier; Goal loop/PNG restates pointing at contract; Living bullet.
-- `Atari_plotting.md`: �0 role row names Plot porting contract as canonical remaining-site detail; contract intro cross-ref names OPTIM1FULL subsection (fixes broken matching-block claim); �13 COVERED generalized beyond `PLOT_PARITY_RGB_SITES`-only (4 RGB COVERED rows unchanged).
+- `Atari_plotting.md`: ï¿½0 role row names Plot porting contract as canonical remaining-site detail; contract intro cross-ref names OPTIM1FULL subsection (fixes broken matching-block claim); ï¿½13 COVERED generalized beyond `PLOT_PARITY_RGB_SITES`-only (4 RGB COVERED rows unchanged).
 
-**Sources of truth (singular).** Porting detail = `Atari_plotting.md` � Plot porting contract + remaining-site table. Queue/commands = `OPTIM1FULL.md` locked + Sequential coverage queue.
+**Sources of truth (singular).** Porting detail = `Atari_plotting.md` ï¿½ Plot porting contract + remaining-site table. Queue/commands = `OPTIM1FULL.md` locked + Sequential coverage queue.
 
 - Files read: `Atari_plotting.md` (entire), `OPTIM1FULL.md` (locked, W1 goal/protocol/plot map, Sequential, Living)
 - Files created: none
@@ -13075,7 +13075,7 @@ Aligned Concrete current task / Decisions item 3 / Active agent focus / checkpoi
 
 **Branch.** `andrew` verified.
 
-**Scope.** OPTIM1FULL W1 Sequential Step 2 only: heavy `--plot-fence-trace` ledger capture for `dem_gameplay` authority. No remint, no spine/port/wire, no �13 tick, no commit.
+**Scope.** OPTIM1FULL W1 Sequential Step 2 only: heavy `--plot-fence-trace` ledger capture for `dem_gameplay` authority. No remint, no spine/port/wire, no ï¿½13 tick, no commit.
 
 **Run.**
 - `python tests/demo1/optim1full/optim1full_capture_rand_ledger.py --plot-fence-trace`
@@ -13086,9 +13086,9 @@ Aligned Concrete current task / Decisions item 3 / Active agent focus / checkpoi
 - `tests/demo1/optim1full/fixtures/DEMAtariIII_optim1full_dem_gameplay_matlab_pdp.mat` (~1.2 MB)
 - `metaPdp.capture=capture_optim1full_plot_fence`, `site_id=dem_gameplay`, timestamp `2026-07-16 06:48:49`
 
-**Docs.** `OPTIM1FULL.md`: Sequential Step 2 ? **done (capture LANDED)**; Living + Product next / locked Still-open point to **Step 3**. `Atari_plotting.md` �13 `[ ] dem_gameplay` **not** ticked.
+**Docs.** `OPTIM1FULL.md`: Sequential Step 2 ? **done (capture LANDED)**; Living + Product next / locked Still-open point to **Step 3**. `Atari_plotting.md` ï¿½13 `[ ] dem_gameplay` **not** ticked.
 
-**Next = Step 3.** Spine export + thin `dem_atariiii_plot_gameplay` (not plot-parity / �13 COVERED yet).
+**Next = Step 3.** Spine export + thin `dem_atariiii_plot_gameplay` (not plot-parity / ï¿½13 COVERED yet).
 
 - Files read: capture log; fixture mat (`metaPdp`); `OPTIM1FULL.md` (Sequential / Living / Active)
 - Files created: `logs/optim1full_capture_plot_fence_dem_gameplay_20260716_0647.log`; fixture `DEMAtariIII_optim1full_dem_gameplay_matlab_pdp.mat` (and co-emitted plot-fence mats / ledger artifacts from full capture)
@@ -13129,9 +13129,9 @@ Aligned Concrete current task / Decisions item 3 / Active agent focus / checkpoi
 
 ## Iteration - dem_gameplay Step 5 COVERED (2026-07-16)
 
-**Branch.** `andrew` verified. No commit. No remint cascade. No other �13 sites.
+**Branch.** `andrew` verified. No commit. No remint cascade. No other ï¿½13 sites.
 
-**Scope.** OPTIM1FULL W1 Sequential Step 5 for `dem_gameplay` only: gameplay-specific Engine oracle (not 12PLOT J/K/h), pytest, `--plot-parity --plot-parity-site dem_gameplay` proof, then �13/Living mark-off.
+**Scope.** OPTIM1FULL W1 Sequential Step 5 for `dem_gameplay` only: gameplay-specific Engine oracle (not 12PLOT J/K/h), pytest, `--plot-parity --plot-parity-site dem_gameplay` proof, then ï¿½13/Living mark-off.
 
 **Oracle path (kind-aware).**
 - New MATLAB `matlab_custom/entry12/DEMAtariIII_optim1full_gameplay_oracle_capture.m`: final `t=128` `frame_rgb = spm_O2rgb(PDP.O(:,t),RGB)` + `control = PDP.O{con,t}'` on authority PDP + plot_ctx RGB.
@@ -13143,11 +13143,11 @@ Aligned Concrete current task / Decisions item 3 / Active agent focus / checkpoi
 - Log: `logs/optim1full_plot_parity_dem_gameplay_20260716_0711.log`.
 - Reuse spine pkl; compare PASS; refresh-oracle (missing) ? `tests/demo1/optim1full/fixtures/DEMAtariIII_optim1full_dem_gameplay_oracle.mat` + meta; pytest 2 passed / 35 deselected.
 
-**Docs.** `Atari_plotting.md` �13 Status **COVERED** + checklist `[x] dem_gameplay` (5/2/3). `OPTIM1FULL.md` Sequential Steps 4?5 done; Living + Active ? Step 6 basin (user-auth).
+**Docs.** `Atari_plotting.md` ï¿½13 Status **COVERED** + checklist `[x] dem_gameplay` (5/2/3). `OPTIM1FULL.md` Sequential Steps 4?5 done; Living + Active ? Step 6 basin (user-auth).
 
-**Next.** Prefer wire remaining MATLAB dump hooks for uncovered �13 sites before next heavy capture; then user-authorized `dem_attractors_basin` capture (Sequential Step 6). Do not remint RGB; do not commit without ask.
+**Next.** Prefer wire remaining MATLAB dump hooks for uncovered ï¿½13 sites before next heavy capture; then user-authorized `dem_attractors_basin` capture (Sequential Step 6). Do not remint RGB; do not commit without ask.
 
-- Files read: `OPTIM1FULL.md` (Sequential / Living / locked); `Atari_plotting.md` �13; RGB oracle refresh path; `dem_atariiii_plot_gameplay.py`; plot-parity / export / test modules
+- Files read: `OPTIM1FULL.md` (Sequential / Living / locked); `Atari_plotting.md` ï¿½13; RGB oracle refresh path; `dem_atariiii_plot_gameplay.py`; plot-parity / export / test modules
 - Files created: `matlab_custom/entry12/DEMAtariIII_optim1full_gameplay_oracle_capture.m`; `tests/demo1/optim1full/fixtures/DEMAtariIII_optim1full_dem_gameplay_oracle.mat`; `?_oracle.mat.meta.json`; `logs/optim1full_plot_parity_dem_gameplay_20260716_0711.log`; `logs/optim1full_export_spine_refresh_oracle_20260716_071303.log`; optional PNG under `visualizations/`
 - Files modified: `tests/demo1/optim1full/optim1full_export_spine_fence_pdp.py`; `optim1full_plot.py`; `optim1full_plot_parity.py`; `optim1full_parity_gate.py`; `test_optim1full_plot.py`; `Atari_plotting.md`; `OPTIM1FULL.md`; `logs/log_0.md`
 - Files deleted: none
@@ -13190,7 +13190,7 @@ python tests/demo1/optim1full/optim1full_capture_plot_fixtures.py --visual-revie
 
 MATLAB ref PNG was present (no `--refresh-oracle`). Manifest kind=`gameplay_o2rgb`, `frame_rgb_shape=[96,72,3]`, `control_shape=[1,9]`.
 
-**Docs:** `Atari_plotting.md` �13 Status ? **COVERED**; checklist visual `[x]`; `OPTIM1FULL.md` Sequential 5b/5c done; Living; Active next = Step 6 basin (user-auth).
+**Docs:** `Atari_plotting.md` ï¿½13 Status ? **COVERED**; checklist visual `[x]`; `OPTIM1FULL.md` Sequential 5b/5c done; Living; Active next = Step 6 basin (user-auth).
 
 **Not done:** commit; basin / other sites; remint RGB; fold visual into `--plot-parity` EXIT.
 
@@ -13209,7 +13209,7 @@ MATLAB ref PNG was present (no `--refresh-oracle`). Manifest kind=`gameplay_o2rg
 - Extended `entry12_save_optim1full_plot_fence_payload_` ? stem `DEMAtariIII_optim1full_<site>_matlab_payload.mat`, `meta.capture = capture_optim1full_plot_fence`.
 - `dem_attractors_basin`: basin loop accumulates `NS`?`NH` like `DEM_AtariIII.m` (was `d`-only break); save after loop.
 - `dem_attractors_mdp_post_sort`: after sort+goals save `b1`/`hid`.
-- `dem_structure_learning`: NR loop accumulates `F` 6�NR (after VB, before merge); save at `i==NR`.
+- `dem_structure_learning`: NR loop accumulates `F` 6ï¿½NR (after VB, before merge); save at `i==NR`.
 - Orbits before/after: no new dumps (reuse call3/call4 `matlab_pdp`).
 
 **Capture:**
@@ -13221,9 +13221,9 @@ python tests/demo1/optim1full/optim1full_capture_rand_ledger.py --plot-fence-tra
 **New fixtures** (`tests/demo1/optim1full/fixtures/`):
 - `DEMAtariIII_optim1full_dem_attractors_basin_matlab_payload.mat` ? `NS`?`NH` (len 128)
 - `DEMAtariIII_optim1full_dem_attractors_mdp_post_sort_matlab_payload.mat` ? `b1`, `hid`
-- `DEMAtariIII_optim1full_dem_structure_learning_matlab_payload.mat` ? `F` (6�32)
+- `DEMAtariIII_optim1full_dem_structure_learning_matlab_payload.mat` ? `F` (6ï¿½32)
 
-**Not done:** �13 basin COVERED; Python basin spine/plot/parity; remint; commit.
+**Not done:** ï¿½13 basin COVERED; Python basin spine/plot/parity; remint; commit.
 
 **Next:** basin spine export + thin `dem_atariiii_plot_attractors_basin`.
 
@@ -13337,24 +13337,24 @@ python tests/demo1/optim1full/optim1full_capture_rand_ledger.py --plot-fence-tra
 - Shared files touched: no
 - No files changed: no
 
-### 2026-07-16 � W1 Step 9: dem_orbits_before + dem_orbits_after COVERED
+### 2026-07-16 ï¿½ W1 Step 9: dem_orbits_before + dem_orbits_after COVERED
 
 **Landing:** kind `orbits_figure`; spine alias call3/call4; policy B; thin plots + MATLAB orbits oracle capture; `PLOT_PARITY_NON_RGB_SITES` += both.
 
 **Proof:**
 - `--plot-parity --plot-parity-site dem_orbits_before` EXIT=0 (log `logs/optim1full_plot_parity_dem_orbits_before_20260716_1141.log`)
 - `--plot-parity --plot-parity-site dem_orbits_after` EXIT=0 (log `logs/optim1full_plot_parity_dem_orbits_after_20260716_1142.log`)
-- visual: `�_dem_orbits_before_python_2026-07-16-11-45-18.png` + compare; `�_dem_orbits_after_python_2026-07-16-11-45-28.png` + compare
+- visual: `ï¿½_dem_orbits_before_python_2026-07-16-11-45-18.png` + compare; `ï¿½_dem_orbits_after_python_2026-07-16-11-45-28.png` + compare
 
 **Next:** Step 10 `dem_structure_learning`. No commit.
 
-### 2026-07-16 � orbits 2nd-dimension axis invert (display-only)
+### 2026-07-16 ï¿½ orbits 2nd-dimension axis invert (display-only)
 
 - `spm_dir_orbits.py`: `ax.invert_xaxis()` after 2nd/1st labels (returned `u` unchanged).
-- Visual regen EXIT=0: `�_dem_orbits_before_python_2026-07-16-12-03-40.png` + compare; `�_dem_orbits_after_python_2026-07-16-12-03-58.png` + compare.
+- Visual regen EXIT=0: `ï¿½_dem_orbits_before_python_2026-07-16-12-03-40.png` + compare; `ï¿½_dem_orbits_after_python_2026-07-16-12-03-58.png` + compare.
 - No plot-parity; no commit.
 
-### 2026-07-16 � W1 Step 10: dem_structure_learning COVERED
+### 2026-07-16 ï¿½ W1 Step 10: dem_structure_learning COVERED
 
 **Landing:** kind `structure_f`; spine `nr_game_32`; thin `dem_atariiii_plot_structure_learning.py`; MATLAB `DEMAtariIII_optim1full_structure_learning_oracle_capture.m`; `PLOT_PARITY_NON_RGB_SITES`.
 
@@ -13362,23 +13362,23 @@ python tests/demo1/optim1full/optim1full_capture_rand_ledger.py --plot-fence-tra
 
 **Proof:**
 - `--plot-parity --plot-parity-site dem_structure_learning` EXIT=0 (log `logs/optim1full_plot_parity_structure_20260716_130455.log`; wall ~1523 s)
-- visual: `�_dem_structure_learning_python_2026-07-16-13-30-49.png` + compare (Tee `logs/optim1full_visual_structure_20260716_133048.log`)
+- visual: `ï¿½_dem_structure_learning_python_2026-07-16-13-30-49.png` + compare (Tee `logs/optim1full_visual_structure_20260716_133048.log`)
 
 **Next:** Step 11 W1-E (deferred). No commit.
 
 - Files read: OPTIM1FULL.md; Atari_plotting.md; DEM_AtariIII_dump.m; structure F / plot / export modules
-- Files created: `�_dem_structure_learning_input.pkl` (+ meta); `�_oracle.mat` (+ meta); visual PNGs; export/parity/visual logs; MATLAB oracle PNG
+- Files created: `ï¿½_dem_structure_learning_input.pkl` (+ meta); `ï¿½_oracle.mat` (+ meta); visual PNGs; export/parity/visual logs; MATLAB oracle PNG
 - Files modified: `optim1full_structure_learning_f.py`; `test_optim1full_plot.py`; `optim1full_plot_parity.py`; `optim1full_paths.py`; `OPTIM1FULL.md`; `Atari_plotting.md`; `logs/log_0.md` (plus prior Step 10 wiring already on disk)
-- Files deleted: stale bad `�_input.pkl` (+ meta) before re-export
+- Files deleted: stale bad `ï¿½_input.pkl` (+ meta) before re-export
 - Shared files touched: no
 - No files changed: no
 
-### 2026-07-16 � W1 Step 11: W1-E hooks realigned; full-replay starting
+### 2026-07-16 ï¿½ W1 Step 11: W1-E hooks realigned; full-replay starting
 
 **Wiring:** `assert_optim1full_live_site_plot_oracles` + driver hooks:
 - `dem_generative_ai` after `vb_call1`
 - `dem_active_inference_nr` at `i=NR`
-- call3 RGB + orbits-before `I`/`HID` (orbits site oracle, not stale `�_paths.mat`)
+- call3 RGB + orbits-before `I`/`HID` (orbits site oracle, not stale `ï¿½_paths.mat`)
 - call4 RGB + orbits-after
 
 **Fixture proof:** `test_optim1full_live_site_plot_oracles_wrapper` 4 passed.
@@ -13388,27 +13388,27 @@ python tests/demo1/optim1full/optim1full_capture_rand_ledger.py --plot-fence-tra
 - Files modified: `optim1full_plot.py`; `run_dem_atariiii_optim1full_parity.py`; `test_optim1full_plot.py`; `OPTIM1FULL.md`; `Atari_plotting.md`; `logs/log_0.md`
 - Shared files touched: no
 
-### 2026-07-16 � W1 Step 11 / W1-E CLOSED (full-replay EXIT=0)
+### 2026-07-16 ï¿½ W1 Step 11 / W1-E CLOSED (full-replay EXIT=0)
 
 **Proof:** `RGMS_OPTIM1FULL_PLOT=1` + `--full-replay --deadline-minutes 240` on optim VB (`vb_dev_optim=1`). Log `logs/optim1full_w1e_full_replay_20260716_153434.log`. Terminal 10170 / PID 46572.
 
 - **EXIT=0**; gate `PASS wall_s=1979.134` (~33.0 min); terminal elapsed ~1996 s (~33.3 min); driver write `wall_s=1962.219`.
 - Live plot asserts (generative_ai / active_inference_nr / before+with compression RGB + orbits paths) held; `MDP_post_nr` compare **PASS**.
 - Timing note: measured optim+plot-witness ~33 min supersedes stale fidelity-era ~71 min (2026-06-27); Engine fences (Entry 4 MI/eig ~409 s) vs MATLAB ~10 min class.
-- Docs: Living + Witness scope + Sequential Step 11 closed in `OPTIM1FULL.md` / `Atari_plotting.md` �13.
+- Docs: Living + Witness scope + Sequential Step 11 closed in `OPTIM1FULL.md` / `Atari_plotting.md` ï¿½13.
 
 - Files modified: `OPTIM1FULL.md`; `Atari_plotting.md`; `logs/log_0.md`
 - Shared files touched: no
 - No files changed: no
 
-### 2026-07-17 � W3 NATIVE + COLAB1 plan section (Phase 0)
+### 2026-07-17 ï¿½ W3 NATIVE + COLAB1 plan section (Phase 0)
 
-Back on track after W1-E derailment. Landed greppable `## W3 NATIVE + COLAB1 � plan and living status` in OPTIM1FULL.md: goal/non-goals, A/B/C native replacement map, ordered checklist, COLAB1 cell map, W1-open criterion. Active focus + banner pointer + Roadmap W3 stub + Atari_plotting Living updated. W1 remains OPEN (nearly fulfilled; W1-E PASS held). Next: Phase 1 switch `run_dem_atariiii_optim_full` VB to `spm_MDP_VB_XXX_optim`.
+Back on track after W1-E derailment. Landed greppable `## W3 NATIVE + COLAB1 ï¿½ plan and living status` in OPTIM1FULL.md: goal/non-goals, A/B/C native replacement map, ordered checklist, COLAB1 cell map, W1-open criterion. Active focus + banner pointer + Roadmap W3 stub + Atari_plotting Living updated. W1 remains OPEN (nearly fulfilled; W1-E PASS held). Next: Phase 1 switch `run_dem_atariiii_optim_full` VB to `spm_MDP_VB_XXX_optim`.
 
 - Files modified: `OPTIM1FULL.md`; `Atari_plotting.md`; `logs/log_0.md`
 - Shared files touched: no
 
-### 2026-07-17 � W3 Phase 2 native plot wiring + proof run started
+### 2026-07-17 ï¿½ W3 Phase 2 native plot wiring + proof run started
 
 Added `optim1full_native_plot.py`; `--plot` / `RGMS_OPTIM1FULL_NATIVE_PLOT=1`; `PDP_generate` snapshot after Entry 3. Library `dem_atariiii_plot_*` only (no MATLAB oracles/injects). Proof: `logs/optim1full_w3_native_plot_smoke_20260717_095214.log` (running).
 
@@ -13416,14 +13416,14 @@ Added `optim1full_native_plot.py`; `--plot` / `RGMS_OPTIM1FULL_NATIVE_PLOT=1`; `
 - Files modified: `run_dem_atariiii_optim_full.py`; `DEM_AtariIII_optim.py`; `DEM_AtariIII_optim1full_python.py`; `OPTIM1FULL.md`; `logs/log_0.md`
 - Shared files touched: no
 
-### 2026-07-17 � W3 Phase 2 DONE + W1 CLOSED (native plot reuse)
+### 2026-07-17 ï¿½ W3 Phase 2 DONE + W1 CLOSED (native plot reuse)
 
 `DEM_AtariIII_optim1full_python.py --plot` EXIT=0. Log `logs/optim1full_w3_native_plot_smoke_20260717_095214.log`. `png_count=10` under `visualizations/optim1full_native/`. Library plot modules only; not MATLAB parity. Living Phase 2 + W1 close updated. Next: Phase 3 hygiene ? COLAB1.
 
 - Files modified: `OPTIM1FULL.md`; `Atari_plotting.md`; `logs/log_0.md`
 - Shared files touched: no
 
-### 2026-07-17 � W3 Phase 3.1 audit + 3.2 harness-bleed (stop before 3.3)
+### 2026-07-17 ï¿½ W3 Phase 3.1 audit + 3.2 harness-bleed (stop before 3.3)
 
 **3.1:** Native path does not call `optim1full_signoff_env` / set Engine inject envs; Entry4/10 hooks default native; ambient Engine envs not auto-applied.
 
@@ -13433,17 +13433,17 @@ Added `optim1full_native_plot.py`; `--plot` / `RGMS_OPTIM1FULL_NATIVE_PLOT=1`; `
 - Files modified: `optim1full_structure_learning_f.py`; `demo1_native_rng.py`; `optim1full_native_plot.py`; `DEM_AtariIII_optim1full_python.py`; `dem_atariiii_post12_optim.py`; `fsl_backward_entry10_optim.py`; `OPTIM1FULL.md`; `logs/log_0.md`
 - Shared files touched: no
 
-### 2026-07-19 �?? COLAB1 plot-layout polish pushed
+### 2026-07-19 ï¿½?? COLAB1 plot-layout polish pushed
 
-Implemented the deferred COLAB1 display-only changes without altering notebook calls, compute, parity, or Product A drivers. `dem_atariiii_plot_orbits_figure.py` now renders before/after orbits and paths in a wide standalone `1�?2` figure; the two thin wrappers retain their public signatures. `spm_show_RGB.py` now scales minimum width with `Nt` and uses an 8-point movie-title font for `Nt >= 8`, fixing the before-compression eight-frame title overlap. Syntax compilation and IDE lints passed; smoke/pytest were intentionally not run under the COLAB1 scope.
+Implemented the deferred COLAB1 display-only changes without altering notebook calls, compute, parity, or Product A drivers. `dem_atariiii_plot_orbits_figure.py` now renders before/after orbits and paths in a wide standalone `1ï¿½?2` figure; the two thin wrappers retain their public signatures. `spm_show_RGB.py` now scales minimum width with `Nt` and uses an 8-point movie-title font for `Nt >= 8`, fixing the before-compression eight-frame title overlap. Syntax compilation and IDE lints passed; smoke/pytest were intentionally not run under the COLAB1 scope.
 
-- Public commit: `f781726` (`andrew` �?? `apashea/RGMs` `main`)
+- Public commit: `f781726` (`andrew` ï¿½?? `apashea/RGMs` `main`)
 - Files modified and committed: `python_src/toolbox/DEM/dem_atariiii_plot_orbits_figure.py`; `python_src/toolbox/DEM/dem_atariiii_plot_orbits_before.py`; `python_src/toolbox/DEM/dem_atariiii_plot_orbits_after.py`; `python_src/toolbox/DEM/spm_show_RGB.py`
 - Local documentation modified (ignored from public repo): `OPTIM1FULL.md`; `logs/log_0.md`
 - Shared files touched: visualization library helpers only; no shared compute files
 - Remaining: fresh Colab runtime/reclone and unchanged notebook rerun; user visual confirmation before marking polish resolved
 
-### 2026-07-19 �?? C4h NR-heavy VB optimization: shared hierarchical Q
+### 2026-07-19 ï¿½?? C4h NR-heavy VB optimization: shared hierarchical Q
 
 Started from the landed C4g Tier-A tree and created the mandatory no-git snapshot `notes/w2_backup/C4h_nr_pre_20260719_0949/` containing all 17 registered Tier-A Python files.
 
@@ -13461,7 +13461,7 @@ Validation:
 - host-qualified call4 wrapper: `11.312 s`, but PRE RAM `2347 MB` plus concurrent-Python flag makes this run inadmissible against the clean C4g reference;
 - post-edit `nr_g01` profile: `30.841 s`, 48.99 million calls, hierarchical `19.756 s`; the parent-Q clone row is absent.
 
-Matched unprofiled `nr_g01` improvement is `17.507 �?? 15.263 s` (`�??2.244 s`, `�??12.8%`) for full VB and `14.899 �?? 13.088 s` (`�??1.811 s`, `�??12.2%`) for 12F. cProfile is used only for rank/call-count decomposition.
+Matched unprofiled `nr_g01` improvement is `17.507 ï¿½?? 15.263 s` (`ï¿½??2.244 s`, `ï¿½??12.8%`) for full VB and `14.899 ï¿½?? 13.088 s` (`ï¿½??1.811 s`, `ï¿½??12.2%`) for 12F. cProfile is used only for rank/call-count decomposition.
 
 - Files created: 17 mirrored snapshot `.py` files under `notes/w2_backup/C4h_nr_pre_20260719_0949/`; C4h gate/profile logs under `logs/`
 - Files modified: `python_src/optimized/toolbox/DEM/vb_hierarchical_optim.py`; `XXX_optim.md`; `OPTIM1FULL.md`; `logs/log_0.md`
@@ -13472,13 +13472,13 @@ Matched unprofiled `nr_g01` improvement is `17.507 �?? 15.263 s` (`�??2.244 
 
 Publication completed:
 
-- Public commit: `92ec7db` (`andrew` �?? `apashea/RGMs` `main`)
+- Public commit: `92ec7db` (`andrew` ï¿½?? `apashea/RGMs` `main`)
 - Landed restore snapshot: `notes/w2_backup/C4h_landed_20260719_1224/` (17 Tier-A `.py` files)
 - Public commit scope: `python_src/optimized/toolbox/DEM/vb_hierarchical_optim.py` only
 - The mandatory snapshots and pre-existing large `logs/log_0.md` worktree change were intentionally not committed
 - Remaining external confirmation: user resets Colab, reclones public `main`, reruns the unchanged notebook, and reports Cell 8 timings
 
-### 2026-07-19 �?? C4i Python-native diagnostics boundary
+### 2026-07-19 ï¿½?? C4i Python-native diagnostics boundary
 
 The user reported that the C4h public build reduced COLAB1 Cell 8 mean VB runtime to `46.202 s/game` (`10.8%` improvement), while correctly emphasizing that COLAB1 is a direct Python-native library consumer and must not run parity probes or internal Entry-12 diagnostics by default.
 
@@ -13500,7 +13500,7 @@ Validation:
 - `XXX_comp --mode optim-wall`: `8.682 s`, but no HOST PRE block means this is not admitted as a speed sign-off result;
 - clean `nr_g01` cProfile: `27.266 s`, 35.66 million calls, hierarchical `18.223 s`, child VB `14.371 s`, policy engine `10.837 s`, VBX `5.720 s`, induction `3.053 s`, Q append `2.431 s`, optimized predictive-Y `1.895 s`. The Entry-12 Y-fill replay row is absent.
 
-Against the prior C4h runs, the provisional unprofiled `nr_g01` result is `15.263 �?? 14.502 s` (`�??0.761 s`, `�??5.0%`). The rank-only cProfile comparison is `30.841 �?? 27.266 s` and `48.99 M �?? 35.66 M` calls. Host effects prevent treating those cross-run walls as final; the unchanged fresh-clone Colab Cell 8 measurement is the next product check.
+Against the prior C4h runs, the provisional unprofiled `nr_g01` result is `15.263 ï¿½?? 14.502 s` (`ï¿½??0.761 s`, `ï¿½??5.0%`). The rank-only cProfile comparison is `30.841 ï¿½?? 27.266 s` and `48.99 M ï¿½?? 35.66 M` calls. Host effects prevent treating those cross-run walls as final; the unchanged fresh-clone Colab Cell 8 measurement is the next product check.
 
 The next compute seam is selected but intentionally not edited before Colab: the numeric VBX contraction/update path in `vb_VBX_optim.py`. Evidence is `spm_VBX_optim` `5.720 s`, `_spm_VBX_update` `4.388 s / 30,976 calls`, and generic NumPy `tensordot` `3.300 s / 75,587 calls`. Any later cut must retain callable-likelihood and general-shape fallbacks and pass the complete four-tag MATLAB ladder.
 
@@ -13513,15 +13513,15 @@ The next compute seam is selected but intentionally not edited before Colab: the
 
 Publication completed:
 
-- Public commit: `5623c9f` (`andrew` �?? `apashea/RGMs` `main`)
+- Public commit: `5623c9f` (`andrew` ï¿½?? `apashea/RGMs` `main`)
 - Landed restore snapshot: `notes/w2_backup/C4i_landed_20260719_1345/` (17 Tier-A `.py` files)
 - Public commit scope: the three optimized VB modules plus `tests/demo1/optim1full/test_vb_instrumentation_optim.py`
 - Local authority docs, logs, and mandatory snapshots remain machine-local under the established COLAB1 publish policy
 - Remaining external confirmation: user resets Colab, reclones public `main`, reruns the unchanged notebook, and reports Cell 8 timings
 
-### 2026-07-19 �?? C4j direct numeric VBX contraction rejected
+### 2026-07-19 ï¿½?? C4j direct numeric VBX contraction rejected
 
-The fresh-clone C4i COLAB1 Cell 8 run confirmed a strong product improvement. Across 32 games, direct VB wall was mean `34.476 s`, median `34.974 s`, range `30.697�??35.691 s`, population standard deviation `1.193 s`; whole-game wall mean was `37.491 s`. Relative to C4h's `46.202 s` mean VB wall, C4i improved `25.4%`.
+The fresh-clone C4i COLAB1 Cell 8 run confirmed a strong product improvement. Across 32 games, direct VB wall was mean `34.476 s`, median `34.974 s`, range `30.697ï¿½??35.691 s`, population standard deviation `1.193 s`; whole-game wall mean was `37.491 s`. Relative to C4h's `46.202 s` mean VB wall, C4i improved `25.4%`.
 
 Created the mandatory 17-file Tier-A pre-edit snapshot `notes/w2_backup/C4j_vbx_contract_pre_20260719_1436/`. The C4j candidate replaced the numeric `_vbx_dot_A_O` generic `_tensorprod` path with a dense `moveaxis`/`matmul` contraction and routed the numeric likelihood-parent contractions through the same helper. Callable likelihoods and generic fallbacks remained unchanged. A temporary focused test file, `tests/demo1/optim1full/test_vb_vbx_contraction_optim.py`, compared scalar and dense contractions across first, middle, last, row-vector, and multi-parent dimensions against `spm_dot`.
 
@@ -13532,8 +13532,8 @@ Authority and performance evidence:
 - call4 `--vb-optim-tier3f`: PASS, 0 MATLAB mismatches, full VB `14.436 s`;
 - `--vb-optim-nr-g01`: PASS, 0 mismatches, full VB `16.915 s`, 12F `16.310 s`;
 - candidate clean profile: full VB `31.193 s`, 35.47 million calls, policy engine `12.196 s`, VBX `6.285 s`, `_spm_VBX_update` `4.826 s`;
-- generic `tensordot` calls fell `75,587 �?? 44,611`, exactly the `30,976` `_vbx_dot_A_O` calls replaced;
-- despite the call-count reduction, C4j failed performance acceptance against C4i: unprofiled `nr_g01` `14.502 �?? 16.915 s`, cProfile `27.266 �?? 31.193 s`, and VBX `5.720 �?? 6.285 s`.
+- generic `tensordot` calls fell `75,587 ï¿½?? 44,611`, exactly the `30,976` `_vbx_dot_A_O` calls replaced;
+- despite the call-count reduction, C4j failed performance acceptance against C4i: unprofiled `nr_g01` `14.502 ï¿½?? 16.915 s`, cProfile `27.266 ï¿½?? 31.193 s`, and VBX `5.720 ï¿½?? 6.285 s`.
 
 Some run-wide slowdown was host-related, but normalized profile shares showed only a small contraction-local shift and no material full-wall recovery. The evidence does not justify publishing the candidate. Restored `vb_VBX_optim.py` exactly to public C4i and deleted the temporary contraction test. `git diff --exit-code -- python_src/optimized/toolbox/DEM/vb_VBX_optim.py` passed; syntax compile, lints, and restored C4i diagnostics contracts passed. No commit or push was made.
 
@@ -13547,13 +13547,13 @@ The next optimization must not retry this direct `matmul` substitution or split 
 - No public/runtime code files changed at completion: yes
 - Remaining: user/agent discussion of the next integrated ENDGAME-1 structural tranche; C4i commit `5623c9f` remains public and current
 
-### 2026-07-19 �?? post-C4j operational-memory and process-evidence pass
+### 2026-07-19 ï¿½?? post-C4j operational-memory and process-evidence pass
 
 The user authorized the evidence-first next sequence identified by the historical audit. This pass deliberately made no Tier-A production compute edit. It first repaired durable W2 operational memory, then made the accepted C4i profile reusable, and finally closed the pending C2/C3 process questions before deciding whether a structural candidate was justified.
 
 Documentation:
 
-- Added `XXX_optim.md` § **Current evidence guardrail**, including the live C4i baseline, an authoritative duplicate-attempt index, closed hypotheses, and the only admissible next sequence.
+- Added `XXX_optim.md` Â§ **Current evidence guardrail**, including the live C4i baseline, an authoritative duplicate-attempt index, closed hypotheses, and the only admissible next sequence.
 - Explicitly recorded that C4j repeated the already rejected C4d direct `_vbx_dot_A_O` direction.
 - Closed C2 by mapping MATLAB's post-VBX `P(m,:,t)=Q` induction boundary to the optimized `ws.Q` path.
 - Closed C3 by decomposing repeated child checked-model, bundle refresh, workspace refill, teardown, and policy-static work.
@@ -13572,7 +13572,7 @@ Fresh accepted-C4i `nr_g01` profile:
 - Saved caller report `logs/optim1full_w2_C4i_nr_g01_persistent_callers_20260719.log`.
 - Saved array-boundary caller report `logs/optim1full_w2_C4i_nr_g01_array_boundary_callers_20260719.log`.
 - This host moment was slower: VB `31.827 s` profiled versus the earlier accepted-C4i profile `27.266 s`; it is used for call structure and counts, not wall acceptance.
-- Stable structural evidence: child pipeline `128�? / 16.780 s`; forwards `384�? / 14.034 s`; policy engine `384�? / 12.456 s`; child check `128�? / 2.012 s`; child bundle acquire/refresh `128�? / 2.251 s`; child teardown `128�? / 2.603 s`; forwards statics `384�? / 1.560 s`; induction statics `384�? / 0.783 s`.
+- Stable structural evidence: child pipeline `128ï¿½? / 16.780 s`; forwards `384ï¿½? / 14.034 s`; policy engine `384ï¿½? / 12.456 s`; child check `128ï¿½? / 2.012 s`; child bundle acquire/refresh `128ï¿½? / 2.251 s`; child teardown `128ï¿½? / 2.603 s`; forwards statics `384ï¿½? / 1.560 s`; induction statics `384ï¿½? / 0.783 s`.
 
 Design conclusion:
 
@@ -13580,7 +13580,7 @@ Design conclusion:
 - Skipping child refresh was rejected: MATLAB and current code require per-call D/E and learned A/B/I refresh.
 - Checked-child-shell reuse remains semantically plausible after the first call, but `checkX` alone has only a `2.012 s` profiled ceiling. It does not meet the documented requirement for a several-second complete-boundary cut.
 - Q-record list-grow/pool tuning remains closed by prior semantic failures and was not retried.
-- Local C4i `nr_g01` already measured `14.502 s` unprofiled. Colab `34.476 s` versus MATLAB `10�??15 s` is cross-host evidence and cannot establish a remaining 3�? algorithmic gap.
+- Local C4i `nr_g01` already measured `14.502 s` unprofiled. Colab `34.476 s` versus MATLAB `10ï¿½??15 s` is cross-host evidence and cannot establish a remaining 3ï¿½? algorithmic gap.
 
 - Files created: `tests/demo1/optim1full/test_optim1full_vb_profile_tag.py`; the four persistent profile/report artifacts listed above
 - Files modified: `tests/demo1/optim1full/optim1full_vb_profile_tag.py`; `XXX_optim.md`; `OPTIM1FULL.md`; `logs/log_0.md`
@@ -13590,15 +13590,15 @@ Design conclusion:
 - Production optimized VB compute changed: no
 - Authority gates this pass: none; no compute changed, so the previously green C4i four-tag MATLAB ladder remains the current authority
 
-### 2026-07-19 �?? local NR legitimacy measurement (corrects Colab-host excuse)
+### 2026-07-19 ï¿½?? local NR legitimacy measurement (corrects Colab-host excuse)
 
 User rejected the speculative claim that Colab Cell 8 `34.476 s` vs local `nr_g01` `14.502 s` was merely a cross-host non-issue. Measured on this machine (`i7-13650HX`, ~16 GB RAM):
 
-1. Unprofiled `nr_g01` �?2 under HOST PRE `ram_avail_mb=596.1` (LOW-RAM): `optim_vb_s=18.866` then `16.079`; both 0 MATLAB mismatches. The prior `14.502 s` citation is not an admissible clean wall under the project's HOST PRE rule.
-2. Native Product A Colab-comparable path: Entries 1�??12 then `RGMS_ATARI_NR=4`, timing only `spm_MDP_VB_XXX_optim`: `17.178, 18.025, 18.804, 18.992` s (mean `18.250`). HOST PRE `476.3 MB` (also LOW-RAM). Runner: `tests/demo1/optim1full/optim1full_local_nr_vb_legitimacy.py`. Log: `logs/optim1full_w2_C4i_local_nr_legitimacy_20260719.log`.
-3. Prior local native smoke `logs/optim1full_w3_native_smoke_20260717_083713.log` (pre-C4h/C4i) already showed NR whole-game ~20�??45 s and call3/call4 VB ~33�??35 s �?? same class as Colab's pre/post C4i Cell 8 numbers.
+1. Unprofiled `nr_g01` ï¿½?2 under HOST PRE `ram_avail_mb=596.1` (LOW-RAM): `optim_vb_s=18.866` then `16.079`; both 0 MATLAB mismatches. The prior `14.502 s` citation is not an admissible clean wall under the project's HOST PRE rule.
+2. Native Product A Colab-comparable path: Entries 1ï¿½??12 then `RGMS_ATARI_NR=4`, timing only `spm_MDP_VB_XXX_optim`: `17.178, 18.025, 18.804, 18.992` s (mean `18.250`). HOST PRE `476.3 MB` (also LOW-RAM). Runner: `tests/demo1/optim1full/optim1full_local_nr_vb_legitimacy.py`. Log: `logs/optim1full_w2_C4i_local_nr_legitimacy_20260719.log`.
+3. Prior local native smoke `logs/optim1full_w3_native_smoke_20260717_083713.log` (pre-C4h/C4i) already showed NR whole-game ~20ï¿½??45 s and call3/call4 VB ~33ï¿½??35 s ï¿½?? same class as Colab's pre/post C4i Cell 8 numbers.
 
-Conclusion recorded in `OPTIM1FULL.md` / `XXX_optim.md`: local C4i native NR VB ~18 s/game; Colab C4i ~34.5 s/game (~1.9�?); MATLAB ~10�??15 s/game still ahead of local Python. Do not use `nr_g01` or host speculation to excuse the Colab gap.
+Conclusion recorded in `OPTIM1FULL.md` / `XXX_optim.md`: local C4i native NR VB ~18 s/game; Colab C4i ~34.5 s/game (~1.9ï¿½?); MATLAB ~10ï¿½??15 s/game still ahead of local Python. Do not use `nr_g01` or host speculation to excuse the Colab gap.
 
 - Files created: `tests/demo1/optim1full/optim1full_local_nr_vb_legitimacy.py`; `logs/optim1full_w2_C4i_local_nr_legitimacy_20260719.log`
 - Files modified: `OPTIM1FULL.md`; `XXX_optim.md`; `logs/log_0.md`
@@ -13606,21 +13606,21 @@ Conclusion recorded in `OPTIM1FULL.md` / `XXX_optim.md`: local C4i native NR VB 
 - Shared files touched: no
 - No files changed: no
 
-### 2026-07-19 �?? full COLAB1 Cells 0�??11 local walk (notebook-equivalent)
+### 2026-07-19 ï¿½?? full COLAB1 Cells 0ï¿½??11 local walk (notebook-equivalent)
 
 User provided the full Colab notebook as `.py` and required a true same-path local run so any remaining Cell 8 gap is isolated to the host, not a different driver/fixture.
 
-Created and ran `tests/demo1/optim1full/optim1full_colab1_local_full_walk.py`: Cells 0�??11 with the same library calls as the notebook; only intentional deltas are local `REPO`, skip clone/pip, and Agg matplotlib. `NR=32`, seed `2`, no Entry-12 probe / segment-timing envs.
+Created and ran `tests/demo1/optim1full/optim1full_colab1_local_full_walk.py`: Cells 0ï¿½??11 with the same library calls as the notebook; only intentional deltas are local `REPO`, skip clone/pip, and Agg matplotlib. `NR=32`, seed `2`, no Entry-12 probe / segment-timing envs.
 
 Results (HOST PRE `ram_avail_mb=487`, LOW-RAM; exit 0; ~19.2 min wall):
 
 - Cell 8 VB-only n=32: mean `22.042 s`, median `22.223 s`, min `18.543 s`, max `23.138 s`
-- Colab C4i Cell 8 VB mean `34.476 s` �?? ratio ~`1.56�?` (Colab slower)
+- Colab C4i Cell 8 VB mean `34.476 s` ï¿½?? ratio ~`1.56ï¿½?` (Colab slower)
 - Cell 9 / 10 VB: `17.008 s` / `16.340 s`
-- `optim1full_np=8530` locally vs Colab�??s reported `8558` (small MDP-size divergence; do not ignore)
+- `optim1full_np=8530` locally vs Colabï¿½??s reported `8558` (small MDP-size divergence; do not ignore)
 - PNGs under `visualizations/colab1_local/`
 
-Conclusion: on the identical notebook compute path, this machine�??s Cell 8 VB is ~22 s/game, not ~14.5 s from `nr_g01`. Colab remains slower (~1.56�?) on the same code path; MATLAB ~10�??15 s/game is still faster than local Python.
+Conclusion: on the identical notebook compute path, this machineï¿½??s Cell 8 VB is ~22 s/game, not ~14.5 s from `nr_g01`. Colab remains slower (~1.56ï¿½?) on the same code path; MATLAB ~10ï¿½??15 s/game is still faster than local Python.
 
 - Files created: `tests/demo1/optim1full/optim1full_colab1_local_full_walk.py`; `logs/optim1full_colab1_local_full_walk_20260719.log`; PNGs under `visualizations/colab1_local/`
 - Files modified: `OPTIM1FULL.md`; `XXX_optim.md`; `logs/log_0.md`
@@ -13628,7 +13628,7 @@ Conclusion: on the identical notebook compute path, this machine�??s Cell 8 VB
 - Shared files touched: no
 - No files changed: no
 
-### 2026-07-19 � C4k next-steps determination (docs only; no Tier-A edit)
+### 2026-07-19 ï¿½ C4k next-steps determination (docs only; no Tier-A edit)
 
 Evidence-grounded next cut after C4i + rejected C4j + COLAB1 local Cell 8 mean 22.042 s / Colab 34.476 s:
 
@@ -13643,7 +13643,7 @@ Evidence-grounded next cut after C4i + rejected C4j + COLAB1 local Cell 8 mean 2
 - Shared files touched: no
 - No files changed: no
 
-### 2026-07-19 � C4k Q.O share-old LANDED (local; not pushed)
+### 2026-07-19 ï¿½ C4k Q.O share-old LANDED (local; not pushed)
 
 Pre-prove GO: nr_g01 recopied ~1.80M historical Q.O cells / ~72 MB; mutation freeze PASS; microbench ~11x.
 Snapshot: notes/w2_backup/C4k_qO_share_pre_20260719_1636/ then edit vb_hierarchical_optim._vb_hierarchical_q_O_ng_t_hstack_optim.
@@ -13658,9 +13658,9 @@ Landed restore: notes/w2_backup/C4k_qO_share_landed_20260719_1645/.
 - Shared files touched: no
 - No files changed: no
 
-### 2026-07-19 �?? C4l PolicyExecutionContext LANDED locally
+### 2026-07-19 ï¿½?? C4l PolicyExecutionContext LANDED locally
 
-After interrupt recovery: Living/guardrail hygiene, then implement locked § C4l coherent tranche (not micro-seam).
+After interrupt recovery: Living/guardrail hygiene, then implement locked Â§ C4l coherent tranche (not micro-seam).
 
 Compute:
 - `PolicyExecutionContext` (alias `_ForwardsRunCtx`) owned for one VB invocation via `bundle['_vb_policy_execution_ctx']`.
@@ -13673,7 +13673,7 @@ Validation:
 - call4/call3/call2/nr_g01: **0 MATLAB mismatch**;
 - walls: call4 **10.676 s**, call3 **11.223 s**, call2 **10.582 s**, nr_g01 **14.267 s**.
 
-Snapshots: pre `notes/w2_backup/C4l_policy_ctx_pre_20260719_1909/`; landed `�?�/C4l_policy_ctx_landed_20260719_2005/`.
+Snapshots: pre `notes/w2_backup/C4l_policy_ctx_pre_20260719_1909/`; landed `ï¿½?ï¿½/C4l_policy_ctx_landed_20260719_2005/`.
 
 - Files created: `tests/demo1/optim1full/test_optim1full_c4l_policy_ctx.py`; landed snapshot; gate logs `logs/optim1full_w2_C4l_*_gate_20260719.log`
 - Files modified: `vb_forwards_optim.py`; `vb_policy_engine_optim.py`; `vb_t_loop_optim.py`; `XXX_optim.md`; `OPTIM1FULL.md`; `logs/log_0.md`
@@ -13682,36 +13682,36 @@ Snapshots: pre `notes/w2_backup/C4l_policy_ctx_pre_20260719_1909/`; landed `�?
 - No files changed: no
 - Remaining: commit+push public COLAB1 loop; user Colab Cell 8 vs 31.487 s
 
-### 2026-07-19 �?? C4l published to apashea/RGMs main
+### 2026-07-19 ï¿½?? C4l published to apashea/RGMs main
 
-Public commit `34f6a2b` (`andrew` �?? `apashea/RGMs` `main`). Scope: `vb_forwards_optim.py`, `vb_policy_engine_optim.py`, `vb_t_loop_optim.py`, `test_optim1full_c4l_policy_ctx.py`. Local docs/logs/snapshots not published. User will reclone and run unchanged COLAB1 notebook; inspect Cell 8 VB walls vs C4k **31.487 s**.
+Public commit `34f6a2b` (`andrew` ï¿½?? `apashea/RGMs` `main`). Scope: `vb_forwards_optim.py`, `vb_policy_engine_optim.py`, `vb_t_loop_optim.py`, `test_optim1full_c4l_policy_ctx.py`. Local docs/logs/snapshots not published. User will reclone and run unchanged COLAB1 notebook; inspect Cell 8 VB walls vs C4k **31.487 s**.
 
 - Files modified: `OPTIM1FULL.md`; `XXX_optim.md`; `logs/log_0.md` (local only)
 - Shared files touched: no
 - Remaining: user Colab Cell 8 timings
 
-### 2026-07-19 �?? C4l Colab Cell 8 evaluation (no product win)
+### 2026-07-19 ï¿½?? C4l Colab Cell 8 evaluation (no product win)
 
-User ran unchanged COLAB1 notebook after reclone of public `34f6a2b`. Cell 8 VB-only n=32: mean **33.271 s**, median **33.399 s**, min **29.509**, max **37.702**, �? **1.468**. Vs C4k **31.487 s**: **+1.784 s (+5.7%)**. Vs C4i **34.476 s**: still better (�??3.5%).
+User ran unchanged COLAB1 notebook after reclone of public `34f6a2b`. Cell 8 VB-only n=32: mean **33.271 s**, median **33.399 s**, min **29.509**, max **37.702**, ï¿½? **1.468**. Vs C4k **31.487 s**: **+1.784 s (+5.7%)**. Vs C4i **34.476 s**: still better (ï¿½??3.5%).
 
 Code audit (live tree):
-- `spm_MDP_VB_XXX_optim.py`: thin wrapper �?? `run_optim_vb` only; MD5 unchanged vs C4l pre (by design �?? C4l edits are in forwards/policy/t-loop).
-- `vb_forwards_optim.py` / `vb_policy_engine_optim.py` / `vb_t_loop_optim.py`: live �?� landed snapshot; contain `PolicyExecutionContext`, dirty gens, deferred `_forwards_ensure_full_static`, `_as_col` / `I_fk_stacked`.
+- `spm_MDP_VB_XXX_optim.py`: thin wrapper ï¿½?? `run_optim_vb` only; MD5 unchanged vs C4l pre (by design ï¿½?? C4l edits are in forwards/policy/t-loop).
+- `vb_forwards_optim.py` / `vb_policy_engine_optim.py` / `vb_t_loop_optim.py`: live ï¿½?ï¿½ landed snapshot; contain `PolicyExecutionContext`, dirty gens, deferred `_forwards_ensure_full_static`, `_as_col` / `I_fk_stacked`.
 - Intended edits were implemented and published; Colab simply did not gain wall time.
 
-Interpretation: pack dirtying every `t` (BP fill + learning) limits cross-`t` reuse; early-exit deferral alone is sub-second class locally and does not move Colab ~31�??15 s. Keep C4l as structural baseline; next optimization needs a new multi-second pre-prove, not C4l polish.
+Interpretation: pack dirtying every `t` (BP fill + learning) limits cross-`t` reuse; early-exit deferral alone is sub-second class locally and does not move Colab ~31ï¿½??15 s. Keep C4l as structural baseline; next optimization needs a new multi-second pre-prove, not C4l polish.
 
 - Files modified: `OPTIM1FULL.md`; `XXX_optim.md`; `logs/log_0.md`
 - Shared files touched: no
 - Remaining: design/pre-prove next cut after C4l NO-WIN
 
-### 2026-07-20 �?? Post-C4l thorough code review (plan lock; no Tier-A edit)
+### 2026-07-20 ï¿½?? Post-C4l thorough code review (plan lock; no Tier-A edit)
 
 User required MATLAB/optim code-first evaluation before any next edit. Reviewed `spm_MDP_VB_XXX_optim` thin wrapper + entry/t-loop/forwards/policy/VBX/induction/hierarchical/child/cold against `spm_MDP_VB_XXX.m` (forwards, hierarchical child, induction) and `spm_VBX.m`.
 
-Findings locked in `XXX_optim.md` § **Post-C4l code review**:
+Findings locked in `XXX_optim.md` Â§ **Post-C4l code review**:
 - C4l structure correct; Colab NO-WIN explained by dead cross-`t` pack reuse under BP/IP-every-`t` + sub-second early-exit savings.
-- Remaining product mass: child nested shell (~7�??9 s) and VBX volume (~6 s), not pack/dirty polish.
+- Remaining product mass: child nested shell (~7ï¿½??9 s) and VBX volume (~6 s), not pack/dirty polish.
 - `child_checkx_done` write-only; 0d FAIL history.
 - **Next admissible:** C4m child nested-lifecycle pre-prove (GO bar several seconds) before any Tier-A edit.
 - Forbidden: C4j matmul, further C4l pack theater, checkX-alone, metrics-first ad-hoc.
@@ -13721,9 +13721,9 @@ Findings locked in `XXX_optim.md` § **Post-C4l code review**:
 - Shared files touched: no
 - Production optimized VB compute changed: no
 
-### 2026-07-20 �?? doc discipline correction (user)
+### 2026-07-20 ï¿½?? doc discipline correction (user)
 
-User corrected: do not proliferate unrequested docs or scratch sidecars; put durable XXX-optim status only in `XXX_optim.md` and `OPTIM1FULL.md`. Post-C4l review now lives in `XXX_optim.md` § Post-C4l code review; Living phase points to C4m pre-prove. Removed accidental Living-row overwrite in XXX_matlab organization table. No new strategy files. No Tier-A compute edit.
+User corrected: do not proliferate unrequested docs or scratch sidecars; put durable XXX-optim status only in `XXX_optim.md` and `OPTIM1FULL.md`. Post-C4l review now lives in `XXX_optim.md` Â§ Post-C4l code review; Living phase points to C4m pre-prove. Removed accidental Living-row overwrite in XXX_matlab organization table. No new strategy files. No Tier-A compute edit.
 
 - Files modified: `XXX_optim.md`; `OPTIM1FULL.md` (earlier Living bullet); `logs/log_0.md`
 - Files created: none (scratch attempt deleted; not used)
@@ -13731,20 +13731,20 @@ User corrected: do not proliferate unrequested docs or scratch sidecars; put dur
 
 ---
 
-## Iteration �?? 2026-07-20 �?? XXX_optim.md front cleanup (approved)
+## Iteration ï¿½?? 2026-07-20 ï¿½?? XXX_optim.md front cleanup (approved)
 
 **Lane:** OPTIM1FULL / W2 COLAB1 doc hygiene only (no Tier-A compute).
 
-**Done:** Rewrote `XXX_optim.md` front (banner, Document map, Guardrail, Living, C4l archive, Snapshot C4l row). Deleted Post-C4l / C4m choreography. Demoted Goal memory / Phase 6 �??ONLY path�?� voice. Aligned `OPTIM1FULL.md` Living (COLAB1) with C4l Colab **33.271 s** and guardrail pointer.
+**Done:** Rewrote `XXX_optim.md` front (banner, Document map, Guardrail, Living, C4l archive, Snapshot C4l row). Deleted Post-C4l / C4m choreography. Demoted Goal memory / Phase 6 ï¿½??ONLY pathï¿½?ï¿½ voice. Aligned `OPTIM1FULL.md` Living (COLAB1) with C4l Colab **33.271 s** and guardrail pointer.
 
 **Not done:** No optim code edits; no Colab/publish.
 
 
 ---
 
-## Iteration �?? 2026-07-20 �?? child-shell + VBX volume preproves (NO Tier-A)
+## Iteration ï¿½?? 2026-07-20 ï¿½?? child-shell + VBX volume preproves (NO Tier-A)
 
-**Lane:** OPTIM1FULL / W2. Goal: Colab Cell 8 toward ~15�??20 s without redoing closed cuts.
+**Lane:** OPTIM1FULL / W2. Goal: Colab Cell 8 toward ~15ï¿½??20 s without redoing closed cuts.
 
 **Child shell (`optim1full_child_shell_preprove.py`):** wall shell ~3.3 s (checkX~1.07, refresh~1.25, Y~0.85); A/B layout stable 127/127, D/E always change; D/E-only refresh delta **no win**. **NO-GO** standalone Tier-A.
 
@@ -13755,14 +13755,14 @@ User corrected: do not proliferate unrequested docs or scratch sidecars; put dur
 
 ---
 
-## Iteration �?? 2026-07-20 �?? policy-stack phase attribution (code-first)
+## Iteration ï¿½?? 2026-07-20 ï¿½?? policy-stack phase attribution (code-first)
 
-Live C4l wall phases on `nr_g01` (`optim1full_policy_stack_phase_preprove.py` �?? `logs/optim1full_w2_policy_stack_phase_20260720.log`):
+Live C4l wall phases on `nr_g01` (`optim1full_policy_stack_phase_preprove.py` ï¿½?? `logs/optim1full_w2_policy_stack_phase_20260720.log`):
 
 `policy_engine_step` **7.98 s** of VB ~17.8 s (384 calls; 256 early-exit / 128 full):
-- VBX 3.39 s (42%) �?? updates 2.34 / outer 1.04
-- induction 1.96 s (25%) �?? backward 1.72
-- ensure_packs 1.37 s (17%) �?? 128�? only (C4l early-exit deferral working)
+- VBX 3.39 s (42%) ï¿½?? updates 2.34 / outer 1.04
+- induction 1.96 s (25%) ï¿½?? backward 1.72
+- ensure_packs 1.37 s (17%) ï¿½?? 128ï¿½? only (C4l early-exit deferral working)
 - G `forwards_dot_A_qj` 0.64 s (8%); step residual 0.61 s
 
 Corrects "dismiss policy engine" framing: the stack *is* VBX+ensure+induction+G in one function.
@@ -13770,14 +13770,14 @@ Corrects "dismiss policy engine" framing: the stack *is* VBX+ensure+induction+G 
 
 ---
 
-## Iteration �?? 2026-07-20 �?? cross-seam ceiling NO-GO (no Tier-A)
+## Iteration ï¿½?? 2026-07-20 ï¿½?? cross-seam ceiling NO-GO (no Tier-A)
 
-**Hypothesis:** multi-phase fuse �?? belief spine VBX�??induction�??G + dual B-build for G stacks and induction_model_static.
+**Hypothesis:** multi-phase fuse ï¿½?? belief spine VBXï¿½??inductionï¿½??G + dual B-build for G stacks and induction_model_static.
 
 **Measured** (`optim1full_cross_seam_preprove.py`, `logs/optim1full_w2_cross_seam_preprove_20260720.log`):
 - belief spine ~0.03 s (in-place VBX write; ind cache-key; pf; as_col)
 - dual B ~0.73 s wall but microbench single-pass save_x128 = 0 (ind_static dominated by kron/Pf)
-- combined reclaimable �?� 2.5 s �?? **NO-GO**; no snapshot/Tier-A
+- combined reclaimable ï¿½?ï¿½ 2.5 s ï¿½?? **NO-GO**; no snapshot/Tier-A
 
 **Docs:** XXX_optim guardrail + OPTIM1FULL Living updated.
 
@@ -13785,9 +13785,9 @@ Corrects "dismiss policy engine" framing: the stack *is* VBX+ensure+induction+G 
 
 ---
 
-## Iteration �?? 2026-07-20 �?? product-path phase attribution NO-GO (no Tier-A)
+## Iteration ï¿½?? 2026-07-20 ï¿½?? product-path phase attribution NO-GO (no Tier-A)
 
-**Lane:** OPTIM1FULL / W2. Agreed next step after cross-seam NO-GO: attribute VBX/induction/ensure/G on Cell 8�??class path and ask whether Python pays extra per-call overhead vs MATLAB M1.
+**Lane:** OPTIM1FULL / W2. Agreed next step after cross-seam NO-GO: attribute VBX/induction/ensure/G on Cell 8ï¿½??class path and ask whether Python pays extra per-call overhead vs MATLAB M1.
 
 **Runner:** `tests/demo1/optim1full/optim1full_product_path_phase_preprove.py --cell8-native`
 **Log:** `logs/optim1full_w2_product_path_phase_20260720.log`
@@ -13797,7 +13797,7 @@ Corrects "dismiss policy engine" framing: the stack *is* VBX+ensure+induction+G 
 | call4 | 14.171 s | 6.671 s | 3.411 s (8.88 ms/call) | 1.767 s (13.8 ms/call) | 384 / 30976 / 128 |
 | nr_g01 (Cell 8 g1) | 15.735 s | 7.684 s | 3.356 s (8.74 ms/call) | 1.808 s (14.1 ms/call) | 384 / 30976 / 128 |
 | cell8-native mdp_pre | 15.016 s | 7.249 s | 3.186 s (8.30 ms/call) | 1.623 s (12.7 ms/call) | 384 / 30976 / 128 |
-| MATLAB M1 call4 (ranks) | �?? | �?? | 3.22 s (8.39 ms/call) | 2.40 s (18.8 ms/call) | 384 / �?? / 128 |
+| MATLAB M1 call4 (ranks) | ï¿½?? | ï¿½?? | 3.22 s (8.39 ms/call) | 2.40 s (18.8 ms/call) | 384 / ï¿½?? / 128 |
 
 **Verdict:** **NO-GO.** Product-scale matches call4 `ncalls`; VBX at M1 rate; induction under M1; projected overhead reclaim **~0.14 s**. No multi-second MATLAB-faithful inside-VBX/induction lever. No Tier-A; no snapshot.
 
@@ -13807,24 +13807,24 @@ Corrects "dismiss policy engine" framing: the stack *is* VBX+ensure+induction+G 
 
 ---
 
-## Iteration �?? 2026-07-20 �?? outside residual attribution + next-steps determination
+## Iteration ï¿½?? 2026-07-20 ï¿½?? outside residual attribution + next-steps determination
 
 **Lane:** OPTIM1FULL / W2. After product-path VBX/ind NO-GO, investigate where the other ~50% of local VB wall goes and determine coherent next steps.
 
-**Runner:** ``optim1full_outside_residual_preprove.py`` �?? ``logs/optim1full_w2_outside_residual_20260720.log``
+**Runner:** ``optim1full_outside_residual_preprove.py`` ï¿½?? ``logs/optim1full_w2_outside_residual_20260720.log``
 
 | Slice (nr_g01) | Wall | Notes |
 |----------------|------|-------|
 | VB total | 13.8 s | |
-| policy_engine_step | 6.6 s | �?? MATLAB M1 ``spm_forwards`` 6.38 s |
-| outside policy | ~7.2 s | �?? MATLAB M1 nested outside-forwards ~7.4 s |
-| generation_paths | 1.75 s | ``.m`` ~794�??893; required |
-| belief_after | 0.90 s | ``.m`` ~1313�??1396; required |
+| policy_engine_step | 6.6 s | ï¿½?? MATLAB M1 ``spm_forwards`` 6.38 s |
+| outside policy | ~7.2 s | ï¿½?? MATLAB M1 nested outside-forwards ~7.4 s |
+| generation_paths | 1.75 s | ``.m`` ~794ï¿½??893; required |
+| belief_after | 0.90 s | ``.m`` ~1313ï¿½??1396; required |
 | gen_outcomes | 0.53 s | ``.m`` ~911+ |
 | q_update | 0.29 s | post-C4k |
 | checkX wrap / Y | 0.74 / 0.68 s | shell pieces; shell-alone CLOSED |
 
-**Determination:** Local single-game VB is already MATLAB-composition class. Remaining product gap is Colab **33.271 s** (host) and NR-loop mean growth �?? not another Tier-A micro-cut on ``nr_g01``. See user report for ordered next steps.
+**Determination:** Local single-game VB is already MATLAB-composition class. Remaining product gap is Colab **33.271 s** (host) and NR-loop mean growth ï¿½?? not another Tier-A micro-cut on ``nr_g01``. See user report for ordered next steps.
 
 **Docs:** XXX_optim guardrail closed row + Open/remaining-mass rewrite; OPTIM1FULL Living bullet.
 
@@ -13832,17 +13832,17 @@ Corrects "dismiss policy engine" framing: the stack *is* VBX+ensure+induction+G 
 
 ---
 
-## Iteration �?? 2026-07-20 �?? paired MATLAB�??Python XXX profile campaign
+## Iteration ï¿½?? 2026-07-20 ï¿½?? paired MATLABï¿½??Python XXX profile campaign
 
-**Choice:** Comprehensive **(a)+(c)** hybrid �?? same-tag fresh pairing on **call4** and **nr_g01**, unprofiled walls + profile ranks + Python phase timers. Not per-call-only (b).
+**Choice:** Comprehensive **(a)+(c)** hybrid ï¿½?? same-tag fresh pairing on **call4** and **nr_g01**, unprofiled walls + profile ranks + Python phase timers. Not per-call-only (b).
 
 **Runner:** ``tests/demo1/optim1full/optim1full_paired_xxx_profile_campaign.py``
 **Out:** ``logs/optim1full_w2_paired_xxx_profile_20260720_0937/``
 **Report:** ``PAIRED_PROFILE_REPORT.md``
 
-### Unprofiled walls (speed �?? same RDP per tag, same day)
+### Unprofiled walls (speed ï¿½?? same RDP per tag, same day)
 
-| Tag | MATLAB | Python optim | �? |
+| Tag | MATLAB | Python optim | ï¿½? |
 |-----|--------|--------------|---|
 | call4 | 10.561 s | 15.006 s | **+4.45 s** |
 | nr_g01 | 9.905 s | 19.435 s | **+9.53 s** |
@@ -13859,14 +13859,14 @@ Earlier local-walls-approx-MATLAB-composition table mixed M1 **profiled call4** 
 
 ---
 
-## Iteration �?? 2026-07-20 �?? campaign v2 path-aligned expansion (executed)
+## Iteration ï¿½?? 2026-07-20 ï¿½?? campaign v2 path-aligned expansion (executed)
 
 **Determined expansions:** (1) MATLAB vb_rand_buf walls/profile (2) fidelity walls (3) outside+shell both tags (4) 3x medians.
 
 **Out:** `logs/optim1full_w2_paired_xxx_profile_v2_20260720_1057/`
 **Report:** `PAIRED_PROFILE_REPORT_V2.md`
 
-| Tag | ML buf median | Py optim median | �? | Fidelity |
+| Tag | ML buf median | Py optim median | ï¿½? | Fidelity |
 |-----|---------------|-----------------|---|----------|
 | call4 | 9.073 | 14.828 | +5.755 | 88.180 |
 | nr_g01 | 9.382 | 15.092 | +5.710 | 78.570 |
@@ -13878,14 +13878,14 @@ Earlier local-walls-approx-MATLAB-composition table mixed M1 **profiled call4** 
 
 ---
 
-## Iteration � 2026-07-20 � gap allocation + gen_paths dive (no Tier-A)
+## Iteration ï¿½ 2026-07-20 ï¿½ gap allocation + gen_paths dive (no Tier-A)
 
 **Lane:** OPTIM1FULL / W2 COLAB1 speed. After campaign v2 path-aligned medians (~+5.7 s both tags).
 
 ### Done
 
-1. **Gap allocation** � `tests/demo1/optim1full/optim1full_gap_allocation_v2.py` ? `logs/optim1full_w2_paired_xxx_profile_v2_20260720_1057/GAP_ALLOCATION_REPORT.md`
-2. **gen_paths dive** � `optim1full_gen_paths_dive.py` ? `GEN_PATHS_DIVE.txt` (level-1 subfunctions + level-2 prior_qp-gated wraps)
+1. **Gap allocation** ï¿½ `tests/demo1/optim1full/optim1full_gap_allocation_v2.py` ? `logs/optim1full_w2_paired_xxx_profile_v2_20260720_1057/GAP_ALLOCATION_REPORT.md`
+2. **gen_paths dive** ï¿½ `optim1full_gen_paths_dive.py` ? `GEN_PATHS_DIVE.txt` (level-1 subfunctions + level-2 prior_qp-gated wraps)
 
 ### Findings
 
@@ -13895,12 +13895,12 @@ Earlier local-walls-approx-MATLAB-composition table mixed M1 **profiled call4** 
 | VBX/ind/checkX do not explain shared gap | matched ncalls; induction often under ML profile |
 | gen_paths nr-call4 is Python-side | ML sample+action cheaper on nr_g01 |
 | 100% of gen_paths ? in `_prior_qp` | dive level 1 |
-| ~98% of prior_qp ? in `spm_dot` | same **1407** ncalls; ~12� ms/call |
+| ~98% of prior_qp ? in `spm_dot` | same **1407** ncalls; ~12ï¿½ ms/call |
 | Thin generic `spm_dot` rewrite | stays **CLOSED** (2g-e2 / 3-F) |
 
 ### Tier-A
 
-**None this iteration.** prior_qp alone ~1.3�2 s ceiling (NO-GO alone vs Colab bar). Shared +5.7 s fused cut still **NOT YET** (no coherent identity boundary chosen). Open for **design only**: shape-aware MATLAB-faithful prior_qp Q-prop, preferably fused.
+**None this iteration.** prior_qp alone ~1.3ï¿½2 s ceiling (NO-GO alone vs Colab bar). Shared +5.7 s fused cut still **NOT YET** (no coherent identity boundary chosen). Open for **design only**: shape-aware MATLAB-faithful prior_qp Q-prop, preferably fused.
 
 **Product wall unchanged:** Colab Cell 8 **33.271 s**.
 
@@ -13909,7 +13909,7 @@ Earlier local-walls-approx-MATLAB-composition table mixed M1 **profiled call4** 
 
 ---
 
-## Iteration � 2026-07-20 � MATLAB deep call-tree (answer to shallow ML side)
+## Iteration ï¿½ 2026-07-20 ï¿½ MATLAB deep call-tree (answer to shallow ML side)
 
 **User ask:** MATLAB comparison lacked depth beyond top-line functions.
 
@@ -13918,18 +13918,18 @@ Earlier local-walls-approx-MATLAB-composition table mixed M1 **profiled call4** 
 - Children of key parents (VB / forwards / VBX / update / induction / checkX / sample / dot)
 - Parents of hot callees (esp. `spm_dot`)
 
-**Re-ran** buf profile call4 + nr_g01. Report: `logs/�_v2_20260720_1057/MATLAB_DEEP_CALLTREE_REPORT.md`
+**Re-ran** buf profile call4 + nr_g01. Report: `logs/ï¿½_v2_20260720_1057/MATLAB_DEEP_CALLTREE_REPORT.md`
 
 **Headline MATLAB depth:**
-- Largest exclusive: outer `spm_MDP_VB_XXX` body **3.6�5.0 s**
-- Induction ~98% self (~1.3�1.8 s)
+- Largest exclusive: outer `spm_MDP_VB_XXX` body **3.6ï¿½5.0 s**
+- Induction ~98% self (~1.3ï¿½1.8 s)
 - `spm_dot` leaf 0.65?1.12 s; parents outer-VB / VBX_update / forwards; nr-call4 **+0.47 s**
 - Outer-VB `spm_dot` edge same **40317** ncalls, **+0.23 s** on nr (MATLAB analogue to prior_qp dots; still << Python +2 s)
 
 
 ---
 
-## Iteration � 2026-07-20 � MATLAB vs optim implementation compare/contrast
+## Iteration ï¿½ 2026-07-20 ï¿½ MATLAB vs optim implementation compare/contrast
 
 **User ask:** carefully compare/contrast MATLAB deep call-tree with current `spm_MDP_VB_XXX_optim` implementation.
 
@@ -13945,22 +13945,22 @@ Earlier local-walls-approx-MATLAB-composition table mixed M1 **profiled call4** 
 
 ---
 
-## Iteration � 2026-07-20 � next-steps determination + Step A1 (unwired)
+## Iteration ï¿½ 2026-07-20 ï¿½ next-steps determination + Step A1 (unwired)
 
 **User ask:** determine most coherent next steps to close gap; go deeper; keep momentum.
 
 ### Determination
-See `logs/�_v2_20260720_1057/NEXT_STEPS_DETERMINATION.md`.
+See `logs/ï¿½_v2_20260720_1057/NEXT_STEPS_DETERMINATION.md`.
 
-**Step A (NOW):** site-local prior_qp F-order GEMM for `(Ns,Ns,Nu)�P` � not thin `spm_dot`.
+**Step A (NOW):** site-local prior_qp F-order GEMM for `(Ns,Ns,Nu)ï¿½P` ï¿½ not thin `spm_dot`.
 **Step B:** nr packs/prop_fill after A.
-**Step C:** fused residual for remaining ~3.5�4.5 s.
+**Step C:** fused residual for remaining ~3.5ï¿½4.5 s.
 **Not next:** VBX/ind micro, shell-alone, tensordot swap, global spm_dot.
 
 ### Deeper evidence this iteration
-- Census: nr ? dominated by one key `B(485,485,6)` �127 (~2.06 s).
+- Census: nr ? dominated by one key `B(485,485,6)` ï¿½127 (~2.06 s).
 - In-situ: F-contiguous float64; cost is contraction.
-- GEMM `reshape(B,(N*N,U),'F')@P` ~10� vs `spm_dot`; tensordot no win.
+- GEMM `reshape(B,(N*N,U),'F')@P` ~10ï¿½ vs `spm_dot`; tensordot no win.
 
 ### Step A1
 - Helper `_prior_qp_transition_from_BP` in `vb_orchestrator_optim.py` (**unwired**).
@@ -13972,7 +13972,7 @@ Step A2 wall preprove (wire + HOST-PRE medians) ? GO/NO-GO land as C4m.
 
 ---
 
-## Iteration � 2026-07-20 � C4m prior_qp GEMM LANDED (local)
+## Iteration ï¿½ 2026-07-20 ï¿½ C4m prior_qp GEMM LANDED (local)
 
 **Lane:** OPTIM1FULL / W2 Step A2. Snapshot policy followed.
 
@@ -13987,26 +13987,26 @@ Step A2 wall preprove (wire + HOST-PRE medians) ? GO/NO-GO land as C4m.
 - Contracts **8 passed**
 - Ladder call4/call3/call2/nr_g01 **0 MATLAB mismatch**
 - nr prior_qp site **~2.5 ? 0.21 s**
-- Same-session nr wall median **14.118 ? 13.114** (-1.00 s); call4 verify median **11.667 � baseline 11.677**
-- HOST PRE ~500�1250 MB � absolute walls not speed-signoff admissible; relative + site timer + ladder = GO to land locally
+- Same-session nr wall median **14.118 ? 13.114** (-1.00 s); call4 verify median **11.667 ï¿½ baseline 11.677**
+- HOST PRE ~500ï¿½1250 MB ï¿½ absolute walls not speed-signoff admissible; relative + site timer + ladder = GO to land locally
 
 ### Not done
 - Public push / Colab Cell 8 remeasure
 - Steps B/C
 
-**Report:** `logs/�_v2_20260720_1057/C4M_LANDING_REPORT.md`
+**Report:** `logs/ï¿½_v2_20260720_1057/C4M_LANDING_REPORT.md`
 
 
 ---
 
-## Iteration � 2026-07-20 � post-C4m next-steps determination
+## Iteration ï¿½ 2026-07-20 ï¿½ post-C4m next-steps determination
 
 **User ask:** determine next steps given current context (C4m landed).
 
-**Deliverable:** `logs/�_v2_20260720_1057/NEXT_STEPS_POST_C4M.md`
+**Deliverable:** `logs/ï¿½_v2_20260720_1057/NEXT_STEPS_POST_C4M.md`
 
 **Order:**
-1. **Step 0 (NOW):** rebaseline residual on C4m (walls + phase/outside/shell) � pre-C4m gen_paths ranks stale
+1. **Step 0 (NOW):** rebaseline residual on C4m (walls + phase/outside/shell) ï¿½ pre-C4m gen_paths ranks stale
 2. **Fork:** publish?Colab (user) vs stay local
 3. **Step 2:** packs attribution on C4m map (C4l freeze still closed)
 4. **Step 3:** fused residual for remaining mass
@@ -14015,18 +14015,18 @@ Step A2 wall preprove (wire + HOST-PRE medians) ? GO/NO-GO land as C4m.
 
 ---
 
-## Iteration � 2026-07-20 � Step 0 post-C4m residual rebaseline (DONE)
+## Iteration ï¿½ 2026-07-20 ï¿½ Step 0 post-C4m residual rebaseline (DONE)
 
 **Remembered findings carried forward:**
 - C4m prior_qp GEMM **holds**: nr prior_qp **0.236 s** (was ~2.5); call4 **0.106 s**
-- gen_paths nr-call4 **+0.14 s** (was **+1.26 s**) � hotspot closed
+- gen_paths nr-call4 **+0.14 s** (was **+1.26 s**) ï¿½ hotspot closed
 - Do not reopen thin spm_dot / VBX matmul / shell-alone / prior_qp micro
 
 **Fresh residual (C4m tree):**
-- packs ensure **0.32?1.17 s** (prop_fill **+0.67**) � largest open nr-specific mid-class
+- packs ensure **0.32?1.17 s** (prop_fill **+0.67**) ï¿½ largest open nr-specific mid-class
 - belief_after **+0.47 s**
 - shell **~3.3 s** (NO-GO alone; bar 3.5)
-- HOST PRE **970 MB** � absolute walls not admissible
+- HOST PRE **970 MB** ï¿½ absolute walls not admissible
 
 **Artifact:** `logs/optim1full_w2_post_c4m_rebaseline_20260720/POST_C4M_RESIDUAL_MAP.md`
 
@@ -14035,7 +14035,7 @@ Step A2 wall preprove (wire + HOST-PRE medians) ? GO/NO-GO land as C4m.
 
 ---
 
-## Iteration � 2026-07-20 � Step 2 packs attribution (NO-GO)
+## Iteration ï¿½ 2026-07-20 ï¿½ Step 2 packs attribution (NO-GO)
 
 **Lane:** OPTIM1FULL / W2 COLAB1.
 **Docs read:** `NEXT_STEPS_POST_C4M.md`, `POST_C4M_RESIDUAL_MAP.md`, `XXX_optim.md` Guardrail/Living, packs path in `vb_forwards_optim` / `vb_t_loop_optim`.
@@ -14043,10 +14043,10 @@ Step A2 wall preprove (wire + HOST-PRE medians) ? GO/NO-GO land as C4m.
 **What was done:**
 - Instrument-only: `tests/demo1/optim1full/optim1full_packs_attribution_preprove.py` (call4 vs nr_g01).
 - Report: `logs/optim1full_w2_post_c4m_rebaseline_20260720/STEP2_PACKS_ATTRIBUTION.md`.
-- Step 3 design stub: `�/STEP3_FUSED_RESIDUAL_DESIGN.md` (F1/F2/F3; no Tier-A).
-- Updated: `XXX_optim.md` (closed row + Open + Living revision), `OPTIM1FULL.md` Living bullet, `NEXT_STEPS_POST_C4M.md`, `POST_C4M_RESIDUAL_MAP.md` �5�6.
+- Step 3 design stub: `ï¿½/STEP3_FUSED_RESIDUAL_DESIGN.md` (F1/F2/F3; no Tier-A).
+- Updated: `XXX_optim.md` (closed row + Open + Living revision), `OPTIM1FULL.md` Living bullet, `NEXT_STEPS_POST_C4M.md`, `POST_C4M_RESIDUAL_MAP.md` ï¿½5ï¿½6.
 
-**Finding:** Packs nr-call4 ensure **+0.93 s** is heavier B/I workload (`(485,485)�6` vs `(183,183)�5`), not dirty thrash (identical 128 rebuilds, 0 cache hits). Blind freeze CLOSED (~0.32 s counterfactual).
+**Finding:** Packs nr-call4 ensure **+0.93 s** is heavier B/I workload (`(485,485)ï¿½6` vs `(183,183)ï¿½5`), not dirty thrash (identical 128 rebuilds, 0 cache hits). Blind freeze CLOSED (~0.32 s counterfactual).
 
 **Verdict:** **NO-GO** for C4n pack-lifetime / dirty-freeze Tier-A.
 
@@ -14056,13 +14056,13 @@ Step A2 wall preprove (wire + HOST-PRE medians) ? GO/NO-GO land as C4m.
 
 ---
 
-## Iteration � 2026-07-20 � Step 3 F3 (after 3a belief_after)
+## Iteration ï¿½ 2026-07-20 ï¿½ Step 3 F3 (after 3a belief_after)
 
 **Lane:** OPTIM1FULL / W2.
 **Done:**
 - Step 2 packs attribution NO-GO (workload; identical 128 rebuilds; B 485 vs 183).
-- Step 3a belief_after attrib: ? +0.58 s � spm_dot +0.54 s; same 2814 dots; B (485,485,6) vs (183,183,5).
-- Step 3 decision **F3**: no fused Tier-A � no second mid-class partner for shell.
+- Step 3a belief_after attrib: ? +0.58 s ï¿½ spm_dot +0.54 s; same 2814 dots; B (485,485,6) vs (183,183,5).
+- Step 3 decision **F3**: no fused Tier-A ï¿½ no second mid-class partner for shell.
 - Artifacts: `STEP2_PACKS_ATTRIBUTION.md`, `STEP3_FUSED_RESIDUAL_DESIGN.md`, `STEP3_FUSED_RESIDUAL_DECISION.md`, instruments under `tests/demo1/optim1full/optim1full_{packs,belief_after}_*_preprove.py`.
 
 **Next (user):** 1A publish C4m?Colab vs 33.271, or 1B new MATLAB-identity hypothesis.
@@ -14070,27 +14070,27 @@ Step A2 wall preprove (wire + HOST-PRE medians) ? GO/NO-GO land as C4m.
 
 ---
 
-## Iteration � 2026-07-20 � C4m Colab Cell 8 confirmed (WIN)
+## Iteration ï¿½ 2026-07-20 ï¿½ C4m Colab Cell 8 confirmed (WIN)
 
 **Public:** `de6ffd8`.
 **VB-only n=32:** mean **29.672 s**, median **29.307**, min **26.880**, max **32.859**, pop s **1.135**.
 **Vs C4l 33.271:** -3.599 s (-10.8%). **Vs C4k 31.487:** -1.815 s (-5.8%).
-**Verdict:** Product WIN at expected site-class scale; not goal closure (~15�20 s still open).
+**Verdict:** Product WIN at expected site-class scale; not goal closure (~15ï¿½20 s still open).
 **1B:** unblocked for new MATLAB-identity only.
 
 ---
 
-## Iteration � 2026-07-20 � post-Colab rebaseline + B-family census
+## Iteration ï¿½ 2026-07-20 ï¿½ post-Colab rebaseline + B-family census
 
 **Lane:** OPTIM1FULL / W2. Public `de6ffd8`. Colab authority 29.672 s.
 **Done:** HOST+walls+phase+outside+shell+prior_qp verify; B-transition census (fill/belief/hier).
 **C4m holds:** nr prior_qp 0.269 s.
-**Census:** remaining B-family 1.03 s on nr (+0.69 vs call4) � NO-GO mid-class Tier-A.
+**Census:** remaining B-family 1.03 s on nr (+0.69 vs call4) ï¿½ NO-GO mid-class Tier-A.
 **Reports:** `POST_C4M_COLAB_RESIDUAL_MAP.md`, `IDENTITY_CENSUS.md`.
 **Next:** structural `.m` identity hunt (C3 / deep call-tree), not another B-GEMM.
 **Not done:** Tier-A.
 
-## 2026-07-20 evening � thorough next-steps determination (post-C4m)
+## 2026-07-20 evening ï¿½ thorough next-steps determination (post-C4m)
 
 **Lane:** OPTIM1FULL / W2 COLAB1. Re-read `OPTIM1FULL.md` Living (COLAB1), `XXX_optim.md` Guardrail/Living/XXX_matlab-13, chat arc through Colab WIN + residual Steps 0-3 + B-census.
 
@@ -14100,7 +14100,7 @@ Step A2 wall preprove (wire + HOST-PRE medians) ? GO/NO-GO land as C4m.
 
 **Docs touched:** `XXX_optim.md` Remaining mass + Open after; `OPTIM1FULL.md` Living (COLAB1).
 
-## 2026-07-20 evening � S1 structural hunt + S2 C3 fuse preprove
+## 2026-07-20 evening ï¿½ S1 structural hunt + S2 C3 fuse preprove
 
 **Proceeded:** Step S1 (read .m hier + C3 + cold/entry/child) then S2 fused ceiling instrument (no Tier-A).
 
@@ -14110,23 +14110,23 @@ Step A2 wall preprove (wire + HOST-PRE medians) ? GO/NO-GO land as C4m.
 
 **Artifacts:** `S1_STRUCTURAL_CANDIDATES.md`, `optim1full_c3_fuse_preprove.py`, `c3_fuse_preprove.log`. Docs: Guardrail closed row + Living updated. No compute edit.
 
-## 2026-07-21 � lowered-bar determination (C4n AB-first)
+## 2026-07-21 ï¿½ lowered-bar determination (C4n AB-first)
 
 User chose hygiene cuts even if reclaim < ~2 s. Determination: land **C4n = C3 AB** (checked-context skip + D/E-only stable refresh); **defer Y** (alone -0.96 s); confirm AB vs ABC before edit if possible; then snapshot ? Tier-A ? ladder ? Colab vs 29.672. Doc: `LOWERED_BAR_C4n_NEXT_STEPS.md`. Living/Guardrail updated. No compute edit this turn.
 
-## 2026-07-22 �?? OPTIM1FULL / W2: profiling-based target determination (read-only)
+## 2026-07-22 ï¿½?? OPTIM1FULL / W2: profiling-based target determination (read-only)
 
 **Lane:** OPTIM1FULL / W2 COLAB1. **Docs read:** `OPTIM1FULL.md` locked scripts + COLAB1 Living; `XXX_optim.md` Guardrail + Living + Snapshot + XXX PROFILING context; paired v2 / post-C4m residual artifacts cited therein.
 
 **Product wall:** Colab Cell 8 C4m mean **29.672 s** (`de6ffd8`); goal **~15 / ~20 s**.
 
-**Authoritative MATLAB�??Python gap (path-aligned v2):** call4/nr_g01 both **~+5.7 s** with matched core ncalls. After C4m prior_qp, remaining local residual class **~3.5�??4.5 s**; Colab still needs **~10�??15 s** (includes host premium).
+**Authoritative MATLABï¿½??Python gap (path-aligned v2):** call4/nr_g01 both **~+5.7 s** with matched core ncalls. After C4m prior_qp, remaining local residual class **~3.5ï¿½??4.5 s**; Colab still needs **~10ï¿½??15 s** (includes host premium).
 
 **Open named cut in docs:** **C4n** = C3 checked-child **AB** fuse. Closed: VBX/ind micro, packs freeze, B-family leftovers, checkX/D/E/Y/X-P alone, thin `spm_dot`, prior_qp reopen.
 
 **No code edits this turn.**
 
-## 2026-07-22 �?? next further-optimization attempt determined (C4n)
+## 2026-07-22 ï¿½?? next further-optimization attempt determined (C4n)
 
 **Determination:** Best next attempt = **C4n AB fuse only** (Guardrail open cut). Not ABC. Not closed rows.
 
@@ -14136,28 +14136,28 @@ User chose hygiene cuts even if reclaim < ~2 s. Determination: land **C4n = C3 A
 
 **No Tier-A code this turn.**
 
-## 2026-07-22 �?? C4n AB fuse LANDED
+## 2026-07-22 ï¿½?? C4n AB fuse LANDED
 
 **Step 0:** AB reconfirm `+0.898 s`; a/b/A/B rate 0; D/E rate 1 (HOST ~1.6 GB).
 **Tier-A:** identity-gated checkX + D/E-only refresh (`vb_entry_optim`, `vb_cold_optim`, `vb_run_arena_optim`, `vb_child_kernel_optim`).
 **Contracts:** 5 passed.
 **Ladder:** call4/call3/call2/nr_g01 all 0 MATLAB mismatch.
 **Snapshots:** pre `C4n_ab_fuse_pre_20260722_1605`; landed `C4n_ab_fuse_landed_20260722_1630`.
-**Next:** publish �?? Colab vs 29.672.
+**Next:** publish ï¿½?? Colab vs 29.672.
 
-## 2026-07-22 �?? C4n Colab Cell 8 WIN evaluated
+## 2026-07-22 ï¿½?? C4n Colab Cell 8 WIN evaluated
 
-**VB-only n=32 on `4e855ff`:** mean **26.543 s**, median **26.465**, min **24.558** (i=1), max **27.901** (i=15), pop �? **0.586**.
-**Vs C4m 29.672:** **�??3.129 s / �??10.55%** �?? product WIN (Colab amplified beyond local AB +0.9 s).
+**VB-only n=32 on `4e855ff`:** mean **26.543 s**, median **26.465**, min **24.558** (i=1), max **27.901** (i=15), pop ï¿½? **0.586**.
+**Vs C4m 29.672:** **ï¿½??3.129 s / ï¿½??10.55%** ï¿½?? product WIN (Colab amplified beyond local AB +0.9 s).
 **Goal:** still need ~6.5 s to ~20 / ~11.5 s to ~15. Next = new mid-class MATLAB-identity hunt; do not reopen closed rows.
 
-## 2026-07-22 �?? post-C4n identity hunt (no Tier-A)
+## 2026-07-22 ï¿½?? post-C4n identity hunt (no Tier-A)
 
 **Outside residual (C4n):** checkX n=1 (~0.02s) confirms AB fuse; pred_Y **1.22s**; belief_after **1.16s**; policy ~59%.
-**Y dive:** t_y=1.47s; t_dot only **0.50s** on small A shapes (5x1, 5x10 dominant) �?? not C4m-class; buffer reuse still closed.
+**Y dive:** t_y=1.47s; t_dot only **0.50s** on small A shapes (5x1, 5x10 dominant) ï¿½?? not C4m-class; buffer reuse still closed.
 **Belief attrib:** nr belief **1.20s** / spm_dot **0.97s**; 1407 Nu>1 factors; max B (485,485,6).
-**Microbench:** F-order outer `flat.T @ (qt*q0).ravel(F)` vs nested `spm_dot(spm_dot(B,Qt),Qtm1)` �?? algebra match (~1e-11); **2.3�??6.3x** faster on (485/183/41).
-**Proposed next (await confirm):** C4o belief_after Nu>1 LL specialization (MATLAB L1342), C4m sibling �?? local reclaim estimate ~0.6�??0.9s of belief dots; Colab maybe ~1.5�??3s. Tension: Guardrail closed belief_after as mid-class headline �?? reopen only as sub-~2s same-algebra with this new F-outer evidence.
+**Microbench:** F-order outer `flat.T @ (qt*q0).ravel(F)` vs nested `spm_dot(spm_dot(B,Qt),Qtm1)` ï¿½?? algebra match (~1e-11); **2.3ï¿½??6.3x** faster on (485/183/41).
+**Proposed next (await confirm):** C4o belief_after Nu>1 LL specialization (MATLAB L1342), C4m sibling ï¿½?? local reclaim estimate ~0.6ï¿½??0.9s of belief dots; Colab maybe ~1.5ï¿½??3s. Tension: Guardrail closed belief_after as mid-class headline ï¿½?? reopen only as sub-~2s same-algebra with this new F-outer evidence.
 
 ## 2026-07-22 ? C4o belief_after LL specialize LANDED
 
@@ -14255,7 +14255,7 @@ User chose hygiene cuts even if reclaim < ~2 s. Determination: land **C4n = C3 A
 
 ## Iteration - 2026-07-23 - OPTIM2FULL Phase 0c recovery 1a/1b/2 then step 3 capture
 
-**Lane:** OPTIM2FULL (drone). Docs: `OPTIM2FULL.md` Living + � Phase 0c recovery order.
+**Lane:** OPTIM2FULL (drone). Docs: `OPTIM2FULL.md` Living + ï¿½ Phase 0c recovery order.
 
 **Done:**
 - **1b packtest GREEN:** `optim2full_packtest_from_f3.py` ? id.A-linked packing 8192/8192 + `spm_mdp2rdp`; diagnostic `DEM_drone_VI_optim2full_F4_packtest.mat`.
@@ -14419,7 +14419,7 @@ User chose hygiene cuts even if reclaim < ~2 s. Determination: land **C4n = C3 A
 - MATLAB VB **supports function-handle `A` as first-class**: `spm_MDP_checkX.m` L75 `isnumeric` guard + L98 `size(@fn,1)==1`; VB compute L964/1651/1948/2112 evaluate `A{g}(...)`; `id.hid`/`id.cid` L2441/2471; `spm_norm` L2702/2734 passthrough.
 - Level-0 `mdp` keeps `@spm_depth`/`@spm_state`/`@spm_fg` into VB (spine L432 a2A hits `MDP` only, not lowercase `mdp`).
 - Python optim VB has **zero** callable-`A` branches (grep=0). `_spm_depth/_spm_state/_spm_fg` are **unverified reconstructions** (no oracle). `spm_state.m`/`spm_fg.m` not standalone (likely `DEM_drone_vi.m` subfunctions); `spm_depth.m` only under `spm-main/Spatial`.
-- Scope + resolution recorded in ``OPTIM2FULL.md`` OPEN-RISK callout (� CONFIRMED at first F5 red).
+- Scope + resolution recorded in ``OPTIM2FULL.md`` OPEN-RISK callout (ï¿½ CONFIRMED at first F5 red).
 
 **Not done / blocked:** actual VB callable-`A` compute fix ? touches **shared Atari-shared VB kernels** + needs faithful `spm_depth/state/fg` translation with oracles ? **awaiting user direction + backup?approve?edit approval** before shared edits. No F6, no ledger re-capture, no assert weakening.
 
@@ -14454,7 +14454,7 @@ User chose hygiene cuts even if reclaim < ~2 s. Determination: land **C4n = C3 A
 
 **Done:**
 - Backup audit of planned edit set. **Created (9):** `spm_dir_norm_bkp.py`, `spm_forwards_bkp.py`, `vb_primitives_optim_bkp.py`, `vb_orchestrator_optim_bkp.py`, `vb_hierarchical_optim_bkp.py`, `vb_policy_engine_optim_bkp.py`, `vb_forwards_optim_bkp.py`, `vb_VBX_optim_bkp.py`, `vb_contract_optim_bkp.py`. **Skipped existing (5):** `spm_MDP_checkX_bkp.py`, `spm_parents_bkp.py`, `vb_entry_optim_bkp.py`, `spm_MDP_VB_XXX_optim_bkp.py`, `spm_MDP_generate_optim_bkp.py`.
-- New durable section **� Drone process-model function handles (callable A / id.fg)** covering: one-sentence summary; likelihood `A` vs `id.fg` roles; why Atari never hits this; authority line defs; F0?F5 spine flow; MATLAB VB contract sites; Python/oracle status; `_PG` contract; F4 handle-skip vs parity; backup inventory.
+- New durable section **ï¿½ Drone process-model function handles (callable A / id.fg)** covering: one-sentence summary; likelihood `A` vs `id.fg` roles; why Atari never hits this; authority line defs; F0?F5 spine flow; MATLAB VB contract sites; Python/oracle status; `_PG` contract; F4 handle-skip vs parity; backup inventory.
 - Banner + Document map + Living next-step + inventory B/C rows updated; OPEN RISK ?unverified reconstruction? row corrected to oracle-green.
 
 **Not done:** live shared VB edits (steps 2?4) ? deferred until after this documentation/backup gate.
@@ -14547,8 +14547,8 @@ User chose hygiene cuts even if reclaim < ~2 s. Determination: land **C4n = C3 A
 - **Parent vs child split.** Walked `RDP` top level and `RDP.MDP` (nested child). Parent VB is **green** for `s`, `u`, `o`, `X`, `P`, `R`, `G`, `F`, `Z`, `v`, `w`, `n`. Every red lives in the **child** (`RDP.MDP`) and in `QDP` (which is `spm_Q2mdp(RDP.Q,1)`, i.e. the child ledger).
 - **First divergent child time step.** Column-wise compare of `QDP`: `u` first bad at **col 1**, `s`/`o`/`j` first bad at **col 2**. `QDP.u(:,1)` rows `[1 2 4]` MATLAB `[2 3 1]` vs Python `[1 2 3]` ? these are `V(k,f)` from the **single** divergent draw at sample-trace **seq 8741** (`k = spm_sample(Pu)`, `.m` L823, child `t=2`). Everything else at child `t=1` (`s`, `o`, `j`) matches. So the whole `QDP.s` red descends from one policy draw.
 - **Why that draw diverges.** Child EFE at the last frame: MATLAB `G{1}` spread **117.4** (`min -97.08`, `max 20.35`) ? `Pu = spm_softmax(G,alpha)` has **4** nonzeros; Python `G{1}` spread **1.47** (`min 15.39`, `max 16.86`) ? **81** nonzeros (near-uniform). Matches the trace (`k_mask` 4 vs 81, `out` 17 vs 67).
-- **Quantitative tell.** Child `F`: MATLAB `[-139.32, -17.41]` vs Python `[-16387.31, -16384.00]`. **16384 = 512 � 32**, i.e. 512 likelihood groups each returning the `spm_log` floor **?32** (no outcome evidence at all).
-- **Census that closes it.** `QDP.O` (516 � 32) ? MATLAB: **all 516** cells are proper distributions (`len>1`, `sum=1`) at every child time step. Python: only **4** cells populated (rows **512?515**, the telemetry modalities); the **512 ray modalities** (256 depth + 256 class) are scalars, **445 exactly zero**. 512 unpopulated ray modalities � (?32) = the observed `F`.
+- **Quantitative tell.** Child `F`: MATLAB `[-139.32, -17.41]` vs Python `[-16387.31, -16384.00]`. **16384 = 512 ï¿½ 32**, i.e. 512 likelihood groups each returning the `spm_log` floor **?32** (no outcome evidence at all).
+- **Census that closes it.** `QDP.O` (516 ï¿½ 32) ? MATLAB: **all 516** cells are proper distributions (`len>1`, `sum=1`) at every child time step. Python: only **4** cells populated (rows **512?515**, the telemetry modalities); the **512 ray modalities** (256 depth + 256 class) are scalars, **445 exactly zero**. 512 unpopulated ray modalities ï¿½ (?32) = the observed `F`.
 
 ### Root cause (named, not guessed)
 
@@ -14650,7 +14650,7 @@ forwards path corrected one part of the prior diagnosis: hot inference reads `O`
 | `RDP.MDP.O` (live child leftover) | 8/17/32/12 | **same** | Hot-path child O storage **OK** |
 | `RDP.O` (parent) | 8/2 | **same** | Parent O sizes OK |
 | `QDP.Y` | 8/17/32/12 | **same sizes** | Predictive `A(Q)` length OK; values later diverge |
-| `QDP.O` / `RDP.Q.O` | 8/17/... | **16384� size-1** | Truncation in **Q assembly**, not child VBX input |
+| `QDP.O` / `RDP.Q.O` | 8/17/... | **16384ï¿½ size-1** | Truncation in **Q assembly**, not child VBX input |
 
 **Mechanism:** `_vb_no_list_from_mdp` returns `1` for callables (`size(A,1)` / except?1). `_vb_o_cell_to_column(part, n_g=1)` then **truncates** full 17/8 cells. MATLAB `No=1` for handles but **never truncates** cell `mdp.O` when building `Q.O` (~1238). Same class as Entry 12 ragged-`No` / cell policy.
 
@@ -14680,7 +14680,7 @@ the strict `optim2full_parity_gate.py --fence-f5` result remains authoritative.
    `No(g)=size(A{g},1)` controls construction of missing outcomes; it does not pad or truncate an
    already populated cell. Focused hierarchical Q/O regressions passed **9/9**. The resulting
    Python `QDP.O` has exactly the same **16,512** leaf sizes as MATLAB:
-   `8�8224`, `17�8192`, `32�64`, `12�32`. `QDP.s` was bit-identically unchanged.
+   `8ï¿½8224`, `17ï¿½8192`, `32ï¿½64`, `12ï¿½32`. `QDP.s` was bit-identically unchanged.
 2. Recursive EFE top-four selection now uses stable `np.argsort(..., kind="stable")`, matching
    MATLAB stable `sort(q(:),'descend')` after F-order flattening. This was bit-neutral on F5 and is
    not claimed as causal.
@@ -14847,7 +14847,7 @@ No ledger recapture, seed, hard-coded draw count, compare weakening, SPM-tree ed
 
 - **Lane:** OPTIM2FULL. Docs only this iteration (no compute / no gate re-run).
 - **User request:** concisely document all F5-relevant details in `OPTIM2FULL.md`, especially distinctions from OPTIM1FULL, for memory refresh and for translating/pairing the **second** `spm_MDP_VB_XXX` call (F6 / wayfinding).
-- **Added:** durable **� F5 closed reference ? memory refresh + F6 handoff** covering: what F5 is; OPTIM1FULL/Atari vs drone distinction table (RNG API, process model, `A`/`GA`, LE `E` vs `gp.E`, `Q2mdp`+`mdp.id`, compare instrument, soft atol); MATLAB spine sequence; Python file map; shared/optim edits to carry into F6; compare/tolerance lock; F6 spine preview (`vb_2` `k=12463`, `T=4`, `pdp`+`MAP`+`id.hid`, rebuild `mdp2rdp`, `QDP.id=pdp.id`); carry-forward checklist; rejects.
+- **Added:** durable **ï¿½ F5 closed reference ? memory refresh + F6 handoff** covering: what F5 is; OPTIM1FULL/Atari vs drone distinction table (RNG API, process model, `A`/`GA`, LE `E` vs `gp.E`, `Q2mdp`+`mdp.id`, compare instrument, soft atol); MATLAB spine sequence; Python file map; shared/optim edits to carry into F6; compare/tolerance lock; F6 spine preview (`vb_2` `k=12463`, `T=4`, `pdp`+`MAP`+`id.hid`, rebuild `mdp2rdp`, `QDP.id=pdp.id`); carry-forward checklist; rejects.
 - **Also:** banner + Living Next step point at that section; historical F5 determinations marked superseded; F5.0?F5.5 track marked DONE; ledger segment map updated with locked `vb_1`/`vb_2` k; stale ?still red? audit lines corrected.
 - **Shared files touched:** no.
 
@@ -14855,8 +14855,8 @@ No ledger recapture, seed, hard-coded draw count, compare weakening, SPM-tree ed
 
 - **Lane:** OPTIM2FULL. Determination from spine + F6.mat + F5 closed reference (not chat alone).
 - **Contract locked:** pack F3+F1 ? `pdp` with `MAP` into `D(Nu+(1:Np))` + `id.hid=sT=[28,12,3]` ? `mdp2rdp` ? `T=4` ? `spm_MDP_VB_XXX_optim` under `vb_2` (`k=12463`) ? `spm_Q2mdp` / `QDP.id=pdp.id`; compare includes `sT`.
-- **Harness landed:** `run_fence_f6` / `_build_pdp_wayfinding_from_packed` / `_pack_mdp_levels_from_f3_f1`; `optim2full_export_fence_f6.py`; `optim2full_compare_fence_f6.py`; `--fence-f6` gate; paths helpers; � F6 living tracker in `OPTIM2FULL.md`.
-- **`--fence-f6` first red:** `ValueError: spm_induction: D size mismatch with Bf` in `vb_induction_optim._ind_bf_prop_from_bool`. MAP inject OK (D?B Ns match). Cause: MATLAB `Bf=and(Bf,D(:))` with callable `spm_cid` `D` length `l_dim`; Python requires `l_dim�`. F5 never hit this (no `hid` ? empty_hid early return).
+- **Harness landed:** `run_fence_f6` / `_build_pdp_wayfinding_from_packed` / `_pack_mdp_levels_from_f3_f1`; `optim2full_export_fence_f6.py`; `optim2full_compare_fence_f6.py`; `--fence-f6` gate; paths helpers; ï¿½ F6 living tracker in `OPTIM2FULL.md`.
+- **`--fence-f6` first red:** `ValueError: spm_induction: D size mismatch with Bf` in `vb_induction_optim._ind_bf_prop_from_bool`. MAP inject OK (D?B Ns match). Cause: MATLAB `Bf=and(Bf,D(:))` with callable `spm_cid` `D` length `l_dim`; Python requires `l_dimï¿½`. F5 never hit this (no `hid` ? empty_hid early return).
 - **Next:** user approve shared edit of `vb_induction_optim.py` (backup?broadcast row-mask when `d.size==nrows`); then `--fence-f6`. No fidelity edit.
 - **Shared files touched:** no (awaiting approve).
 
@@ -14884,7 +14884,7 @@ No ledger recapture, seed, hard-coded draw count, compare weakening, SPM-tree ed
 **Determination:** Fence-local F0?F6 GREEN is Phase 1 complete. Coherent next step is Phase 2 ? fresh ordered F0?F6 export+compare with per-fence and total timing (--spine-e2e). That evidence answers fresh-run correctness, whether an OPTIM1FULL-class speed campaign is warranted, and whether native/COLAB2/extensibility work can open. Do **not** leap to COLAB2, native, plots, or shared-kernel redesign before the E2E tee + post-E2E checkpoint.
 
 **Landed this turn:**
-- Durable **� Phase 2 ? Parity spine end-to-end witness** in OPTIM2FULL.md; Living Next = run --spine-e2e.
+- Durable **ï¿½ Phase 2 ? Parity spine end-to-end witness** in OPTIM2FULL.md; Living Next = run --spine-e2e.
 - optim2full_parity_gate.py --spine-e2e (authority ? F0?F6; stop at first red; SUMMARY tee).
 - optim2full_paths.optim2full_spine_e2e_report() ? matlab_custom/optim2full_spine_e2e_output.txt.
 
@@ -15160,7 +15160,7 @@ PNG stem pattern: `visualizations/optim2full/DEM_drone_VI_optim2full_<stem>_{mat
 
 **Agenda locked:** (A) full parity-with-plots E2E = `--spine-e2e` then six Ord visual runners; (B) COLAB2 after A + user COLAB1 paste; (C) optional library optim after COLAB2 timings.
 
-**Doc:** `OPTIM2FULL.md` Living, site map, new � Phase 2c, COLAB2 gate. No compute this turn. Next = Step A when user says proceed.
+**Doc:** `OPTIM2FULL.md` Living, site map, new ï¿½ Phase 2c, COLAB2 gate. No compute this turn. Next = Step A when user says proceed.
 
 
 ## Iteration ? 2026-07-26 ? Step A PASS (parity-with-plots E2E)
@@ -15177,7 +15177,7 @@ PNG stem pattern: `visualizations/optim2full/DEM_drone_VI_optim2full_<stem>_{mat
 
 **Lane:** OPTIM2FULL Step B. User pasted full COLAB1 Python as template.
 
-**Locked:** `OPTIM2FULL.md` � COLAB2 cell map ? Cells 0-13 in `DEM_drone_VI.m` script order; plots interleaved; native (no ledger); rng(1); _optim first.
+**Locked:** `OPTIM2FULL.md` ï¿½ COLAB2 cell map ? Cells 0-13 in `DEM_drone_VI.m` script order; plots interleaved; native (no ledger); rng(1); _optim first.
 
 **Prerequisite:** Pass-1 `spm_drone_unity` before honest Cell 1.
 
@@ -15185,18 +15185,18 @@ PNG stem pattern: `visualizations/optim2full/DEM_drone_VI_optim2full_<stem>_{mat
 
 ## Iteration ? 2026-07-26 ? COLAB2 section: durable cell map only
 
-Rewrote Standing-rules **� COLAB2 (durable)** + **� COLAB2 cell map (locked)** in `OPTIM2FULL.md`: full Cells 0-13 table; removed transient status / next-send / inventory-status prerequisite table. Plot convention points at cell map.
+Rewrote Standing-rules **ï¿½ COLAB2 (durable)** + **ï¿½ COLAB2 cell map (locked)** in `OPTIM2FULL.md`: full Cells 0-13 table; removed transient status / next-send / inventory-status prerequisite table. Plot convention points at cell map.
 
 
 ## Iteration ? 2026-07-26 ? OPTIM2FULL native/COLAB2 gap determination
 
-**Lane:** OPTIM2FULL / COLAB2 (Step B). Docs-only determination after thorough read of DEM_drone_VI.m, DEM_drone_VI.py F0?F6 inject path, and OPTIM1FULL � W3 native replacement map. No compute / shared _optim edits.
+**Lane:** OPTIM2FULL / COLAB2 (Step B). Docs-only determination after thorough read of DEM_drone_VI.m, DEM_drone_VI.py F0?F6 inject path, and OPTIM1FULL ï¿½ W3 native replacement map. No compute / shared _optim edits.
 
 **Verdict:** COLAB2 = same library spine as parity with MATLAB injects dropped (OPTIM1FULL parity?native pattern). Unique OPTIM2FULL parity artifact was largely non-scalar scene RNG (
 andperm / array 
 and) handled via F0 inject. Additional gap on thorough read: generative-model `mdp` is never assembled in Python (packing loads F1.mat).
 
-**Locked in OPTIM2FULL.md:** � Native / COLAB2 replacement map (Class A reuse + Class B1?B6). Living: Cell 0 PASS; next B1 then Cell 1; B5 before Cell 3/8.
+**Locked in OPTIM2FULL.md:** ï¿½ Native / COLAB2 replacement map (Class A reuse + Class B1?B6). Living: Cell 0 PASS; next B1 then Cell 1; B5 before Cell 3/8.
 
 - Files modified: OPTIM2FULL.md; logs/log_0.md
 - Shared files touched: no
@@ -15205,7 +15205,7 @@ and) handled via F0 inject. Additional gap on thorough read: generative-model `m
 
 ## Iteration ? 2026-07-26 ? COLAB2 durable docs expanded
 
-**Lane:** OPTIM2FULL / COLAB2. Docs-only. Expanded `OPTIM2FULL.md` � **COLAB2 (durable)** into the Step B memory-refresh home: two-lane table, why each parity inject existed, Class A/B/C, cell?dependency map, ordered work, cell map. Banner + document map updated. No compute / shared edits.
+**Lane:** OPTIM2FULL / COLAB2. Docs-only. Expanded `OPTIM2FULL.md` ï¿½ **COLAB2 (durable)** into the Step B memory-refresh home: two-lane table, why each parity inject existed, Class A/B/C, cell?dependency map, ordered work, cell map. Banner + document map updated. No compute / shared edits.
 
 - Files modified: `OPTIM2FULL.md`; `logs/log_0.md`
 - Shared files touched: no
@@ -15214,7 +15214,7 @@ and) handled via F0 inject. Additional gap on thorough read: generative-model `m
 
 ## Iteration ? 2026-07-26 ? COLAB2 two-lane next-steps locked
 
-**Lane:** OPTIM2FULL / COLAB2. Docs-only. Locked under `OPTIM2FULL.md` � COLAB2 (durable): **two-lane coexistence** (additive native; preserve parity inject/fence paths) + **native build order N0?N10**. Immediate next = N1 `spm_drone_unity`. Parity must still `--spine-e2e` at N9. No compute edits.
+**Lane:** OPTIM2FULL / COLAB2. Docs-only. Locked under `OPTIM2FULL.md` ï¿½ COLAB2 (durable): **two-lane coexistence** (additive native; preserve parity inject/fence paths) + **native build order N0?N10**. Immediate next = N1 `spm_drone_unity`. Parity must still `--spine-e2e` at N9. No compute edits.
 
 - Files modified: `OPTIM2FULL.md`; `logs/log_0.md`
 - Shared files touched: no
@@ -15406,7 +15406,7 @@ and) handled via F0 inject. Additional gap on thorough read: generative-model `m
 - MI exactly 12x12 nnz in 8k (off-support 0). Full peel == FSL1-A. Support-only / ARPACK eigs / CSR eigs FAIL peel order.
 - Root cause: near-tied |v| among support ids; cheaper solvers pick different representatives (not mass leakage).
 - Cost: full eig ~7.6-10s/peel; eigs fast but wrong; KxK ~0.001s but wrong; eigh worse (~33s).
-- Decision fork in `FSL_optim.md` � FSL4a research: Tax (~<=30s Class A) / Weak-B (minutes if contract waived) / Hold-RGM.
+- Decision fork in `FSL_optim.md` ï¿½ FSL4a research: Tax (~<=30s Class A) / Weak-B (minutes if contract waived) / Hold-RGM.
 - No Tier A code edit; Restore remains FSL4b landed.
 
 ### 2026-07-27 15:10 - FSL4a-Tax LANDED + Tax/Weak-B memory docs
@@ -15414,13 +15414,13 @@ and) handled via F0 inject. Additional gap on thorough read: generative-model `m
 - Edit: `spm_rgm_group_optim.py` quiet-path tax only (skip sym-resid diagnostic; skip duplicate post-eig bookkeeping; keep full `scipy.linalg.eig`).
 - Wall: FSL **~154?~129 s**; RGM **~149?~124 s**; SF/compress unchanged. Class A MATCH vs classA_ref. EXIT=0.
 - Log: `logs/optim2full_fsl4a_tax_*.log`.
-- Docs: `FSL_optim.md` � Memory: Tax vs Weak-B; `OPTIM2FULL.md` Living + concise FSL memory card. Weak-B still open (policy).
+- Docs: `FSL_optim.md` ï¿½ Memory: Tax vs Weak-B; `OPTIM2FULL.md` Living + concise FSL memory card. Weak-B still open (policy).
 
 ### 2026-07-27 15:30 - Weak-B worthwhileness evaluation (no wire)
 - Probe: `tests/demo1/optim2full/fsl4a_weakB_worth_probe.py` / `logs/optim2full_fsl4a_weakB_worth_*.log`
 - Drone dx=1: full vs support-only peels ? same L1 singleton membership; same outcome-keyed `a` (12/12); same L2; only factor-index permutation among 12 active outcomes.
 - Verdict: conceptually aligned with FSL MI?group?structure?hierarchy for this drone case; worthwhile if contract drops peel-order bit-identity. Not MATLAB-numeric-identical. Atari multi-group dx not covered.
-- Docs: `FSL_optim.md` � Memory Weak-B updated; `OPTIM2FULL.md` Living memory row updated.
+- Docs: `FSL_optim.md` ï¿½ Memory Weak-B updated; `OPTIM2FULL.md` Living memory row updated.
 
 ### 2026-07-27 15:46 - FSL4a-Weak-B TEST (backup + wire + gate; not landed)
 - Backup policy: sidecar `spm_rgm_group_optim_bkp_20260727_1542_preWeakB_TaxFullEig.py`; Tier A snap `notes/fsl_backup/FSL4a_weakB_pre_20260727_1542/` (= Tax state; snap hash == bkp).
@@ -15455,3 +15455,33 @@ and) handled via F0 inject. Additional gap on thorough read: generative-model `m
 - Reviewed `OPTIM2FULL.md` COLAB2 local-native order + Living. FSL crisis closed (Weak-B kept).
 - Status: L0?L3 DONE; L4 `--plot` not wired (driver docstring). Coherent next: **L4 ? L5 ? G1 ? COLAB2 C1**.
 - Updated Living / Immediate next / L4 status row; Living log. No code this iteration.
+
+### 2026-07-30 - OPTIMCLEANUP.md Phase 0 complete (document only)
+- Lane: library canonicalization plan (post COLAB1/COLAB2 audits).
+- Created `OPTIMCLEANUP.md` (~51 KB): end goal/rationale, keep `python_src/optimized/` intact, archive fidelity under `python_src/fidelity/`, promote optim bodies to live `python_src/toolbox/DEM/` under MATLAB names, ZIP last-resort recovery, Phases 0-5 with hard gates, waves A-D, full inventory of 46 `*_optim.py` (25 with fidelity twin / 21 optim-only), caller checklist, approval PENDING.
+- **No** archive/promote/caller file edits. User evaluates document before Phase 1.
+
+### 2026-07-30 - OPTIMCLEANUP.md zero-deletion clarification (doc only)
+- Updated `OPTIMCLEANUP.md`: locked copy → in-place overwrite → edit-only procedure; explicit ban on Delete/rm/move; Phase 1 = copy all fidelity twins to `python_src/fidelity/` before any Phase 2a overwrite; Phase 2a = copy optim onto canonical live names; Phase 2b = edit imports/symbols to canonical; `optimized/` retained; non-twin live modules untouched.
+- No library file copies/overwrites/edits. Phase 1 execution still PENDING user approval.
+
+### 2026-08-01 - OPTIMCLEANUP Phase 1 complete
+- Copied 25 fidelity twins live `python_src/toolbox/DEM/*.py` -> `python_src/fidelity/toolbox/DEM/*.py` (`shutil.copy2`; sources left in place).
+- SHA256+size verify OK for all 25; `optimized/` still 46 `*_optim.py`; live twins still present.
+- Docs: `OPTIMCLEANUP.md` A1/A2 marked; Phase 2a PENDING. No Phase 2a/2b/live overwrite.
+
+### 2026-08-01 - OPTIMCLEANUP Phase 2a complete
+- Copied 46 `*_optim.py` from `python_src/optimized/toolbox/DEM/` to live `python_src/toolbox/DEM/<stem with all _optim removed>.py` via `shutil.copy2`.
+- 25 overwrites (twins) + 21 creates (optim-only); size+SHA256 verify OK; `optimized/` still 46; `fidelity/` still 25.
+- No import/symbol edits (Phase 2b PENDING). No deletes.
+
+### 2026-08-01 - OPTIMCLEANUP Phase 2a complete
+- Copied 46 `*_optim.py` from `python_src/optimized/toolbox/DEM/` to live `python_src/toolbox/DEM/<stem with all _optim removed>.py` via `shutil.copy2`.
+- 25 overwrites (twins) + 21 creates (optim-only); size+SHA256 verify OK; `optimized/` still 46; `fidelity/` still 25.
+- No import/symbol edits (Phase 2b PENDING). No deletes.
+
+### 2026-08-01 - OPTIMCLEANUP Phase 2b complete
+- Edited live `python_src/**/*.py` excluding `fidelity/` and `optimized/` (52 files changed).
+- Replaced `python_src.optimized.toolbox.DEM` -> `python_src.toolbox.DEM`; removed all `_optim` substrings (imports, defs, calls).
+- Verify: 0 remaining `python_src.optimized` / `_optim` in live tree; syntax compile OK on changed files; archives untouched.
+- Phase 3 (COLAB/harness outside this pass if any) PENDING.

@@ -1,4 +1,4 @@
-"""Pass 1 transliteration of spm_merge_structure_learning.m (with local spm_merge_fast)."""
+"""OPTIM1 — ``spm_merge_structure_learning`` (Tier B1 structural + B2v0 ``spm_unique``)."""
 
 from __future__ import annotations
 
@@ -21,9 +21,10 @@ def spm_merge_structure_learning(O, MDP):
         sg: dict[int, np.ndarray] = {}
         n_cells: dict[tuple[int, int], Any] = {}
         ng = np.zeros(_numel_streams(mdp_n), dtype=np.int64)
+        t_step = int(np.asarray(mdp_n["T"]).reshape(-1)[0])
+        t_idx = _time_index(o_cur, t_step)
 
         for s in range(1, _numel_streams(mdp_n) + 1):
-            t_idx = _time_index(o_cur, int(np.asarray(mdp_n["T"]).reshape(-1)[0]))
             g_stream = _stream_groups(mdp_n, s)
             ng[s - 1] = len(g_stream)
 
@@ -37,16 +38,17 @@ def spm_merge_structure_learning(O, MDP):
                 )
                 sg[s] = _sg_assign_row(sg.get(s), g, np.asarray(j, dtype=np.int64).ravel(order="F"))
 
-                for k, r in enumerate(gg.tolist(), start=1):
-                    _cell_set(mdp_n["a"], int(r), [mdp_loc["a"][k - 1]])
+                for k in range(gg.size):
+                    _cell_set(mdp_n["a"], int(gg[k]), [mdp_loc["a"][k]])
                 _cell_set(mdp_n["b"], int(fg), [mdp_loc["b"][0]])
 
                 i_d = _id_parent_scalar(mdp_n["id"]["D"], int(fg))
                 i_e = _id_parent_scalar(mdp_n["id"]["E"], int(fg))
                 if i_d is not None:
-                    for col_k, tk in enumerate(t_idx.tolist(), start=1):
-                        n_cells[(int(i_d), int(col_k))] = mdp_loc["X"][int(tk) - 1]
-                        n_cells[(int(i_e), int(col_k))] = mdp_loc["P"][int(tk) - 1]
+                    for col_k, tk in enumerate(t_idx, start=1):
+                        tk_i = int(tk)
+                        n_cells[(int(i_d), int(col_k))] = mdp_loc["X"][tk_i - 1]
+                        n_cells[(int(i_e), int(col_k))] = mdp_loc["P"][tk_i - 1]
 
         if n > 1:
             _link_streams_merge(mdp_h[n - 1], mdp_h[n - 2], ng, sg)
@@ -167,6 +169,12 @@ def _spm_merge_fast(O, A, B):
 
 
 def _as_o_cells(O):
+    """Reuse list-of-lists ``O`` when already cell-shaped (OPTIM1 low-risk)."""
+    if isinstance(O, list):
+        if not O:
+            return []
+        if isinstance(O[0], list):
+            return O
     return [list(row) for row in O]
 
 
@@ -192,14 +200,13 @@ def _stream_groups(mdp_n: dict, s: int):
 
 
 def _slice_o_rows(O, rows_1based: np.ndarray):
-    out = []
-    for r in rows_1based.tolist():
-        out.append(list(O[int(r) - 1]))
-    return out
+    rows = np.asarray(rows_1based, dtype=np.int64).ravel(order="F")
+    return [list(O[int(r) - 1]) for r in rows]
 
 
 def _slice_cell_rows(cells: list, rows_1based: np.ndarray):
-    return [_cell_entry(cells, int(r)) for r in rows_1based.tolist()]
+    rows = np.asarray(rows_1based, dtype=np.int64).ravel(order="F")
+    return [_cell_entry(cells, int(r)) for r in rows]
 
 
 def _cell_entry(cells: list, idx_1based: int):
@@ -281,6 +288,8 @@ def _link_streams_merge(mdp_n: dict, mdp_prev: dict, ng: np.ndarray, sg: dict[in
     for sj in st[1:]:
         fsi = [i + 1 for i, v in enumerate(mdp_n["sB"]) if v is not None and int(v) == int(si)]
         fsj = [i + 1 for i, v in enumerate(mdp_prev["sB"]) if v is not None and int(v) == int(sj)]
+        fsi_col = {fi: idx for idx, fi in enumerate(fsi)}
+        fsj_col = {fj: idx for idx, fj in enumerate(fsj)}
         t_cols = int(sg[si].shape[1])
 
         for fi in fsi:
@@ -310,9 +319,11 @@ def _link_streams_merge(mdp_n: dict, mdp_prev: dict, ng: np.ndarray, sg: dict[in
                 if a_old.size:
                     x, y = a_old.shape[:2]
                     a[:x, :y] = a_old
+                fi_row = fsi_col[fi]
+                fj_row = fsj_col[fj]
                 for f in range(t_cols):
-                    ii = int(sg[si][fsi.index(fi), f])
-                    ij = int(sg[sj][fsj.index(fj), f])
+                    ii = int(sg[si][fi_row, f])
+                    ij = int(sg[sj][fj_row, f])
                     a[:, ii - 1] = a[:, ii - 1] + a_norm[:, ij - 1]
                 _cell_set(mdp_n["a"], gi, [a])
 
@@ -329,8 +340,8 @@ def _link_streams_merge(mdp_n: dict, mdp_prev: dict, ng: np.ndarray, sg: dict[in
                     x, y = a_old.shape[:2]
                     a[:x, :y] = a_old
                 for f in range(t_cols):
-                    ii = int(sg[si][fsi.index(fi), f])
-                    ij = int(sg[sj][fsj.index(fj), f])
+                    ii = int(sg[si][fi_row, f])
+                    ij = int(sg[sj][fj_row, f])
                     a[:, ii - 1] = a[:, ii - 1] + a_norm[:, ij - 1]
                 _cell_set(mdp_n["a"], gi, [a])
 

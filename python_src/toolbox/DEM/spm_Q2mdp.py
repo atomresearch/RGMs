@@ -1,6 +1,6 @@
 """Pass-1 translation of ``spm_Q2mdp.m`` (VB ``Q`` record → MDP-like struct).
 
-No ``_optim`` twin — OPTIM2FULL F5 calls this fidelity module after VB.
+No ```` twin — OPTIM2FULL F5 calls this fidelity module after VB.
 """
 
 from __future__ import annotations

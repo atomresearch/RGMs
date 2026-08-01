@@ -1,12 +1,8 @@
 """
-Driver-lane transliteration scaffold for DEM_AtariIII.m (non-visual path).
+OPTIM1 driver fork for DEM_AtariIII.m (non-visual path).
 
-This module is intentionally entry-aligned with `Atari_example.md`. It orchestrates
-already-translated `spm_*` functions and keeps per-entry checkpoint/capture hooks so
-later entries can be isolated against MATLAB boundary states. `entry_stop` returns for
-**1..12** (Entry 11: ``spm_set_goals`` → ``spm_set_costs`` → nested ``RDP`` / ``T``; Entry 12: ``PDP = spm_MDP_VB_XXX(RDP)`` in partial
-MATLAB-faithful mode until the global VB stub is removed). MATLAB capture artifacts live in
-``tests/oracle/toolbox/DEM/test_DEM_AtariIII_entry12.py``.
+Same staged fence as ``DEM_AtariIII.py``; Entries **3, 4, 7, 8, 9, 10** use ``*`` ledgers.
+All other entries delegate to fidelity ``python_src`` ledgers unchanged.
 """
 
 from __future__ import annotations
@@ -23,7 +19,7 @@ import numpy as np
 
 from python_src.toolbox.DEM.dem_atariiii_entry5 import forget_parameters as _entry5_forget_parameters
 from python_src.toolbox.DEM.dem_atariiii_entry6 import find_events_and_windows as _entry6_find_events_and_windows
-from python_src.toolbox.DEM.dem_atariiii_entry7 import assimilate_hit_miss_sequences as _entry7_assimilate_sequences
+from python_src.toolbox.DEM.dem_atariiii_entry7 import assimilate_hit_miss_sequences as _entry7_assimilate_sequences  # noqa: F401 — fidelity ref
 from python_src.toolbox.DEM.dem_atariiii_entry8 import (
     entry8_outer_loop_count as _entry8_outer_loop_count,
     training_window_assimilations as _entry8_training_assimilations_impl,
@@ -33,13 +29,13 @@ from python_src.toolbox.DEM.dem_atariiii_ledger_hooks import DemAtariLedgerHooks
 from python_src.toolbox.DEM.spm_mdp2rdp import spm_mdp2rdp
 from python_src.toolbox.DEM.spm_MDP_VB_XXX import spm_MDP_VB_XXX
 from python_src.toolbox.DEM.dem_atariiii_paths import dem_atariiii_paths_to_hits_P
-from python_src.toolbox.DEM.fsl_backward_entry10 import run_entry10_from_mdp
 from python_src.toolbox.DEM.fsl_backward_entry11 import run_entry11_assembly_from_mdp
 from python_src.toolbox.DEM.spm_set_costs import spm_set_costs
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    # Repo root is RGMs/, while this file lives in python_src/optimized/toolbox/DEM/.
+    return Path(__file__).resolve().parents[4]
 
 
 def _checkpoint_dir() -> Path:
@@ -240,21 +236,23 @@ def _entry9_basin_training_loop(
     )
 
 
-def run_dem_atariiii(entry_stop: int = 5) -> dict[str, Any]:
+def run_dem_atariiii(
+    entry_stop: int = 5,
+    *,
+    entry4_rgm_eig_pair=None,
+    entry4_rgm_mi_override_fn=None,
+    entry4_link_dir_mi_fn=None,
+) -> dict[str, Any]:
     """
-    Run DEM_AtariIII driver entries up to `entry_stop` (implemented through Entry 12).
+    Run OPTIM1 DEM_AtariIII driver entries up to `entry_stop` (implemented through Entry 12).
 
-    Entry 12 calls ``spm_MDP_VB_XXX(RDP)`` with ``_rgms_partial_ok`` until the full MATLAB time loop
-    is ported. MATLAB-only artifact capture: ``tests/oracle/toolbox/DEM/test_DEM_AtariIII_entry12.py``.
+    Same contract as ``run_dem_atariiii``; Entries **3, 4, 7, 8, 9, 10** use optimized kernels.
 
-    **Wall time limit (optional):** set ``RGMS_ATARI_RUN_DEADLINE_MINUTES`` (minutes as a string) to
-    enable a ``time.perf_counter()`` ceiling from the first deadline check; the same value appears
-    in the timeout ``RuntimeError``. Optionally set ``RGMS_ATARI_RUN_DEADLINE_MONO`` instead for an
-    explicit absolute cutoff (see module comment block and ``Atari_example.md`` § **ENTRY 1-11**).
-
-    **Per-entry wall timing:** each completed Entry ``n`` prints one stderr line
-    ``[DEM_AtariIII entry timing] ENTRYn total_s=...``; Entries **8** and **9** use summed inner-loop
-    times (merge vs basin slices) as documented in the implementation.
+    ``entry4_*`` hooks (keyword-only, default ``None``) are forwarded to Entry **4**
+    ``spm_faster_structure_learning`` → ``spm_rgm_group``. ``None`` keeps
+    native compute (Weak-B grouping default on; see ``FSL.md``). OPTIM1FULL
+    Product B parity passes MATLAB MI + ``eig(...,'nobalance')`` + link ``spm_dir_MI``
+    callables (see ``optim1full_entry4_matlab.py``); ``eig_pair`` forces Weak-B off.
     """
     if entry_stop < 1:
         raise ValueError("entry_stop must be >= 1")
@@ -326,14 +324,16 @@ def run_dem_atariiii(entry_stop: int = 5) -> dict[str, Any]:
         _save_context(3, "pre", ctx)
     _rgms_run_set_last_label("ENTRY3: run_entry3_from_boundary")
     _rgms_run_deadline_check()
+    from python_src.toolbox.DEM.fsl_backward_entry3 import entry3_boundary_from_driver_ctx
     from python_src.toolbox.DEM.fsl_backward_entry3 import (
-        entry3_boundary_from_driver_ctx,
         run_entry3_from_boundary,
     )
 
     out3 = run_entry3_from_boundary(entry3_boundary_from_driver_ctx(ctx))
     ctx["GDP"] = out3["gdp"]
     ctx["PDP"] = out3["pdp"]
+    # Keep generate PDP for native/COLAB1 gameplay fence (entry12 overwrites ctx['PDP']).
+    ctx["PDP_generate"] = copy.deepcopy(out3["pdp"])
     if _capture_enabled(3, "post"):
         _save_context(3, "post", ctx)
     _rgms_entry_timing_print(3, time.perf_counter() - _t_entry_wall)
@@ -356,7 +356,12 @@ def run_dem_atariiii(entry_stop: int = 5) -> dict[str, Any]:
         run_entry4_from_boundary,
     )
 
-    out4 = run_entry4_from_boundary(entry4_boundary_from_driver_ctx(ctx))
+    out4 = run_entry4_from_boundary(
+        entry4_boundary_from_driver_ctx(ctx),
+        rgm_eig_pair=entry4_rgm_eig_pair,
+        rgm_mi_override_fn=entry4_rgm_mi_override_fn,
+        link_dir_mi_fn=entry4_link_dir_mi_fn,
+    )
     ctx["MDP"] = out4["mdp"]
     if _capture_enabled(4, "post"):
         _save_context(4, "post", ctx)
@@ -508,6 +513,10 @@ def run_dem_atariiii(entry_stop: int = 5) -> dict[str, Any]:
         _save_context(10, "pre", ctx)
     _rgms_run_set_last_label("ENTRY10: run_entry10_from_mdp")
     _rgms_run_deadline_check()
+    from python_src.toolbox.DEM.fsl_backward_entry10 import (
+        run_entry10_from_mdp,
+    )
+
     out10 = run_entry10_from_mdp(ctx["MDP"], c_val=float(ctx["C"]))
     ctx["MDP"] = out10["mdp"]
     ctx["entry10_j"] = out10["entry10_j"]
@@ -548,6 +557,7 @@ def run_dem_atariiii(entry_stop: int = 5) -> dict[str, Any]:
     elif _capture_enabled(12, "pre"):
         _save_context(12, "pre", ctx)
 
+    # W3 / OPTIM1FULL native: same optim VB as parity (not fidelity).
     _rgms_run_set_last_label("ENTRY12: spm_MDP_VB_XXX")
     _rgms_run_deadline_check()
     ctx["PDP"] = spm_MDP_VB_XXX(ctx["RDP"])
