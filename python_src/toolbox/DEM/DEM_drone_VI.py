@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""DEM_drone_vi — native Python script walk matching ``DEM_drone_vi.m``.
+"""DEM_drone_VI — native Python script walk matching ``DEM_drone_VI.m``.
 
 Adapted from ``tests/demo1/optim2full/COLAB2.py`` (COLAB2 cell markers retained
 for notebook lineage). Library imports/calls use only live
@@ -12,7 +12,7 @@ Shared drone library / fence-export / native-entry APIs:
 
 Run (conda ``rgms``)::
 
-    python python_src/toolbox/DEM/DEM_drone_vi.py
+    python python_src/toolbox/DEM/DEM_drone_VI.py
 """
 from __future__ import annotations
 
