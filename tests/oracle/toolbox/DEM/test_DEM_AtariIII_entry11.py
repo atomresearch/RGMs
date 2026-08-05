@@ -8,7 +8,7 @@ import time
 import numpy as np
 import pytest
 
-from python_src.toolbox.DEM.DEM_AtariIII import get_dem_atariiii_run_last_label, run_dem_atariiii
+from python_src.toolbox.DEM.run_dem_atariiii import get_dem_atariiii_run_last_label, run_dem_atariiii
 
 
 def test_DEM_AtariIII_entry11_driver_smoke():

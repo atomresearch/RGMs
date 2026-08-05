@@ -85,7 +85,7 @@ def _run_optim_driver() -> tuple[dict[str, Any], float, dict[int, float], dict[s
 
 
 def _run_fidelity_driver() -> tuple[dict[str, Any], float, dict[int, float], dict[str, float]]:
-    from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+    from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 
     buf = io.StringIO()
     t0 = time.perf_counter()

@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 from python_src.toolbox.DEM.spm_RDP_basin import spm_RDP_basin
 from python_src.toolbox.DEM.spm_merge_structure_learning import spm_merge_structure_learning
 from tests.oracle.toolbox.DEM.test_DEM_AtariIII_entry8 import (

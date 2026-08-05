@@ -18,7 +18,7 @@ import os
 import numpy as np
 import pytest
 
-from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 from python_src.toolbox.DEM.spm_MDP_VB_XXX import spm_MDP_VB_XXX
 from tests.oracle.toolbox.DEM.test_DEM_AtariIII_entry12_handoff_capture import (
     entry12_handoff_capture_driver_params,

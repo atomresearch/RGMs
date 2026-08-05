@@ -9,11 +9,21 @@ import numpy as np
 from python_src.toolbox.DEM.spm_faster_structure_learning import (
     spm_faster_structure_learning,
 )
-from python_src.toolbox.DEM.dem_atariiii_entry4 import (
-    ENTRY4_O_COLS,
-    atari_S_and_Sc,
-    slice_pdp_o_for_entry4,
-)
+
+ENTRY4_O_COLS = 1000
+
+
+def atari_S_and_Sc() -> tuple[np.ndarray, int]:
+    """MATLAB snippet constants for ``S`` and ``Sc`` (``Nr=12``, ``Nc=9``)."""
+    s = np.ones((4, 3), dtype=np.float64)
+    s[0, :] = [12.0, 9.0, 1.0]
+    return s, 9
+
+
+def slice_pdp_o_for_entry4(pdp_o_cells: list[list[Any]]) -> list[list[Any]]:
+    """``PDP.O(:,1:1000)`` as nested Python lists (1-based column count)."""
+    ncol = ENTRY4_O_COLS
+    return [[row[t] for t in range(ncol)] for row in pdp_o_cells]
 
 
 def faster_structure_learning(
@@ -25,7 +35,7 @@ def faster_structure_learning(
     rgm_mi_override_fn: Optional[Callable[[list[Any], int], np.ndarray]] = None,
     link_dir_mi_fn: Optional[Callable[[np.ndarray], float]] = None,
 ) -> list[dict[str, Any]]:
-    """Same ledger as fidelity Entry **4**; structure kernel = optim."""
+    """Same ledger as fidelity Entry **4**; structure kernel = live optim body."""
     return spm_faster_structure_learning(
         pdp_o_sl,
         s,

@@ -22,6 +22,17 @@ from tests.demo1.demo1_paths import demo1_fixtures_dir
 from tests.demo1.optim1.optim1_paths import optim1_fixtures_dir
 
 
+def entry3_boundary_from_driver_ctx(ctx: dict[str, Any]) -> dict[str, Any]:
+    """Build boundary dict from ``run_dem_atariiii`` context (post–Entry 2, pre–Entry 4)."""
+    from python_src.toolbox.DEM.run_dem_atariiii import _training_horizon
+
+    # MATLAB sets ``GDP.T = 10000`` after pong; do not use pong's small default ``GDP.T``.
+    return {
+        "gdp": ctx["GDP"],
+        "training_t": int(_training_horizon()),
+    }
+
+
 def run_entry3_from_boundary(boundary: dict[str, Any]) -> dict[str, Any]:
     """
     Run Entry **3** optim ledger from materialized boundary.

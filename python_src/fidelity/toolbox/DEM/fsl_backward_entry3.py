@@ -29,7 +29,7 @@ from python_src.toolbox.DEM.dem_atariiii_entry4 import ENTRY4_O_COLS
 
 def entry3_boundary_from_driver_ctx(ctx: dict[str, Any]) -> dict[str, Any]:
     """Build boundary dict from ``run_dem_atariiii`` context (post–Entry 2, pre–Entry 4)."""
-    from python_src.toolbox.DEM.DEM_AtariIII import _training_horizon
+    from python_src.toolbox.DEM.run_dem_atariiii import _training_horizon
 
     # MATLAB sets ``GDP.T = 10000`` after pong; do not use pong's small default ``GDP.T``.
     return {
@@ -93,7 +93,7 @@ def run_entry3_driver_ledger_replay(
     Requires ``fsl_backward_preflight_rand_k_entry3.py`` (writes ``K_py``) and FSL backward **1b**
     fixture ``dem_atari_rand_buf_through_entry11.mat``.
     """
-    from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+    from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
     from tests.oracle.toolbox.DEM.fsl_backward_rand import (
         fsl_backward_replay_matlab_draws,
         fsl_entry3_driver_env,

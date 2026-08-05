@@ -119,7 +119,7 @@ def _run_tier3(*, paired: bool = False, entry_stop: int = 12) -> float:
         print(stderr, file=sys.stderr, end="")
 
     if paired:
-        from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+        from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 
         _seed_and_log("fidelity run")
         buf2 = io.StringIO()

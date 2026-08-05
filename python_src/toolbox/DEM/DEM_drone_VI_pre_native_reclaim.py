@@ -1035,15 +1035,15 @@ def run_fence_f1(
 
     from tests.demo1.optim1.optim1_replay_rand import optim1_replay_matlab_draws
     from tests.demo1.optim2full.optim2full_rand_ledger import (
-        load2full_rand_buf,
-        load2full_rand_manifest,
+        load_optim2full_rand_buf,
+        load_optim2full_rand_manifest,
     )
     from python_src.toolbox.DEM.spm_MDP_generate import (
         spm_MDP_generate,
     )
 
-    buf, _ = load2full_rand_buf()
-    seg = load2full_rand_manifest().segment("pre_fsl")
+    buf, _ = load_optim2full_rand_buf()
+    seg = load_optim2full_rand_manifest().segment("pre_fsl")
     pre_fsl_k = int(seg.k)
     slice_ = buf[int(seg.start) : int(seg.start) + pre_fsl_k]
     t0 = time.perf_counter()

@@ -51,7 +51,7 @@ from typing import Any
 
 import pytest
 
-from python_src.toolbox.DEM.DEM_AtariIII import (
+from python_src.toolbox.DEM.run_dem_atariiii import (
     _rgms_deadline_reset_for_run,
     _rgms_run_deadline_check,
     _rgms_run_set_last_label,

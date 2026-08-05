@@ -589,7 +589,7 @@ def test_entry12_driver_full_pdp_contract_matches_ledger():
     os.environ["RGMS_ATARI_ENTRY8_OUTER"] = "1"
     os.environ["RGMS_ATARI_TRAINING_T"] = "1000"
     try:
-        from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+        from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 
         ctx = run_dem_atariiii(12)
     finally:

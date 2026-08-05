@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from python_src.toolbox.DEM.DEM_AtariIII import (
+from python_src.toolbox.DEM.run_dem_atariiii import (
     _dem_atari_ledger_hooks,
     _rgms_run_deadline_check,
     _rgms_run_set_last_label,

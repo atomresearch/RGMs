@@ -13,7 +13,7 @@ import os
 
 import numpy as np
 
-from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 from python_src.toolbox.DEM.spm_MDP_VB_XXX import spm_MDP_VB_XXX
 
 

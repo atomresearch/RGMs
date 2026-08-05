@@ -155,7 +155,6 @@ def compare_entry10_to_fidelity_native(
     eig: Callable[[np.ndarray], tuple[np.ndarray, np.ndarray]] | None = None,
 ) -> None:
     """Assert optim Entry **10** ≡ fidelity Entry **10** on same input (native ``eig``)."""
-    from python_src.toolbox.DEM.fsl_backward_entry10 import run_entry10_from_mdp
     from tests.demo1.demo1_paths import demo1_fixtures_dir
     from tests.oracle.toolbox.DEM.test_DEM_AtariIII_entry8 import _assert_mdp_full_equal
 

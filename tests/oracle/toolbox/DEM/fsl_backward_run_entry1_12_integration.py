@@ -47,7 +47,7 @@ def _replay_dem_atari_enabled() -> bool:
 
 
 def main() -> int:
-    from python_src.toolbox.DEM.DEM_AtariIII import get_dem_atariiii_run_last_label
+    from python_src.toolbox.DEM.run_dem_atariiii import get_dem_atariiii_run_last_label
     from python_src.toolbox.DEM.fsl_backward_entry1_12_integration import (
         integration_vb_out_dir,
         run_track_a_integration,

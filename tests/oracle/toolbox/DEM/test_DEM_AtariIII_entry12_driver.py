@@ -9,8 +9,8 @@ import os
 
 import numpy as np
 
-import python_src.toolbox.DEM.DEM_AtariIII as dem_atari_mod
-from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+import python_src.toolbox.DEM.run_dem_atariiii as dem_atari_mod
+from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 
 
 def test_DEM_AtariIII_entry12_driver_wires_vb_full_mode(monkeypatch) -> None:

@@ -17,9 +17,25 @@ from python_src.toolbox.DEM.dem_atariiii_entry8 import (
     training_window_assimilations,
 )
 from python_src.toolbox.DEM.dem_atariiii_pdp_o import assert_pdp_o_columns_sufficient
-from python_src.toolbox.DEM.fsl_backward_entry8 import entry8_boundary_from_driver_ctx
 from tests.demo1.demo1_paths import demo1_fixtures_dir, demo1_repo_root
 from tests.demo1.optim1.optim1_paths import optim1_fixtures_dir
+
+
+def entry8_boundary_from_driver_ctx(
+    ctx: dict[str, Any],
+    *,
+    n_outer: int | None = None,
+) -> dict[str, Any]:
+    """Build the FSL backward boundary dict from a ``run_dem_atariiii`` context (Entry 8/9 input)."""
+    outer = n_outer if n_outer is not None else int(ctx.get("entry8_outer", 128))
+    return {
+        "mdp": ctx["MDP"],
+        "pdp_o": ctx["PDP"]["O"],
+        "Ne": ctx["Ne"],
+        "C": ctx["C"],
+        "NT": ctx.get("entry8_NT", 100),
+        "n_outer": outer,
+    }
 
 
 def run_entry8_from_boundary(boundary: dict[str, Any]) -> dict[str, Any]:

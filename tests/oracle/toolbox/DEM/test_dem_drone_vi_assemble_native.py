@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from python_src.toolbox.DEM.DEM_drone_VI import (
+from python_src.toolbox.DEM.dem_drone_vi_lib import (
     assemble_gdp_from_f0,
     assemble_mdp_and_gdp_from_scene,
     load_f0_scene_inject,

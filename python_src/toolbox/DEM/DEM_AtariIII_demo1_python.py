@@ -20,7 +20,7 @@ if str(_repo) not in sys.path:
 
 from typing import Any
 
-from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 from python_src.toolbox.DEM.entry12_plot import entry12plot_timestamp, run_entry12plot
 from tests.demo1.demo1_native_fixtures import (
     DEMO1_NATIVE_LADDER_ENTRY_STOPS,

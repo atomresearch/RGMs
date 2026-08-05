@@ -233,7 +233,7 @@ def _run_replay_trace() -> tuple[dict[str, Any], list[dict[str, Any]], SoftExhau
     from python_src.optimized.toolbox.DEM.spm_MDP_VB_XXX_optim import (
         spm_MDP_VB_XXX_optim,
     )
-    from python_src.toolbox.DEM.DEM_drone_VI import _build_packed_rdp_from_f3_f1
+    from python_src.toolbox.DEM.dem_drone_vi_lib import _build_packed_rdp_from_f3_f1
     from tests.demo1.optim2full.optim2full_authority import (
         assert_optim2full_full_ledger_ok,
     )

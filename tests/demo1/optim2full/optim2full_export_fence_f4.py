@@ -24,7 +24,7 @@ def main() -> int:
         optim2full_f4_pkl,
     )
     from tests.demo1.optim2full.optim2full_timing import timed_site, timing_log
-    from python_src.toolbox.DEM.DEM_drone_VI import export_fence_f4_pkl
+    from python_src.toolbox.DEM.dem_drone_vi_lib import export_fence_f4_pkl
 
     with timed_site("export_fence_f4"):
         assert_optim2full_full_ledger_ok()

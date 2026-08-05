@@ -185,7 +185,7 @@ def main(argv: list[str] | None = None) -> int:
             flush=True,
         )
 
-    from python_src.toolbox.DEM.DEM_drone_VI import run_dem_drone_vi_native
+    from python_src.toolbox.DEM.dem_drone_vi_lib import run_dem_drone_vi_native
 
     print(
         f"[OPTIM2FULL native L3] START seed={args.seed} "

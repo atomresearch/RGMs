@@ -372,7 +372,7 @@ def build_demo2_preamble_blob(ctx: dict[str, Any], *, source: str) -> dict[str, 
         "entry_stop": DEMO2_PREAMBLE_ENTRY_STOP,
         "source": str(source),
         "created_utc": datetime.now(timezone.utc).isoformat(),
-        "driver_module": "python_src.toolbox.DEM.DEM_AtariIII.run_dem_atariiii",
+        "driver_module": "python_src.toolbox.DEM.run_dem_atariiii.run_dem_atariiii",
         "matlab_boundary": "DEM_AtariIII.m after first illustrate VB; before Active inference (GDP attach)",
         "env": _env_snapshot_for_meta(),
         "ctx_top_level_keys": sorted(ctx_copy.keys(), key=str),
@@ -458,7 +458,7 @@ def acquire_demo2_preamble_ctx(*, source: str) -> tuple[dict[str, Any], bool]:
         run_demo2_preflight(mode="resume")
         return load_demo2_preamble_ctx(), True
 
-    from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+    from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 
     capture_buf: list[float] | None = None
     if demo2_preamble_ctx_dump_enabled():

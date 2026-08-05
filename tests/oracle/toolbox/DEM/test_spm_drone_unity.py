@@ -13,7 +13,7 @@ from pathlib import Path
 
 import numpy as np
 
-from python_src.toolbox.DEM.DEM_drone_VI import map_from_drone_D, spm_drone_unity
+from python_src.toolbox.DEM.dem_drone_vi_lib import map_from_drone_D, spm_drone_unity
 
 _REPO = Path(__file__).resolve().parents[4]
 _CUSTOM = _REPO / "matlab_custom" / "optim2full"

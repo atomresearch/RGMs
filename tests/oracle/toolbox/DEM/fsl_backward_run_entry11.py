@@ -47,7 +47,7 @@ def _replay_enabled() -> bool:
 
 
 def main() -> int:
-    from python_src.toolbox.DEM.DEM_AtariIII import (
+    from python_src.toolbox.DEM.run_dem_atariiii import (
         get_dem_atariiii_run_last_label,
         run_dem_atariiii,
     )

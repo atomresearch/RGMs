@@ -25,7 +25,7 @@ if str(_REPO) not in sys.path:
 def main() -> int:
     from scipy.io import savemat
 
-    from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+    from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
     from tests.oracle.toolbox.DEM.fsl_backward_rand import (
         fsl_backward_count_native_draws,
         fsl_entry11_driver_env,

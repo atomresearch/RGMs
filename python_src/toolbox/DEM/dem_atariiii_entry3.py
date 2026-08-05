@@ -6,7 +6,8 @@ import copy
 from typing import Any
 
 from python_src.toolbox.DEM.spm_MDP_generate import spm_MDP_generate
-from python_src.toolbox.DEM.dem_atariiii_entry3 import ATARI_TRAINING_T_LEDGER
+
+ATARI_TRAINING_T_LEDGER = 10000
 
 __all__ = [
     "ATARI_TRAINING_T_LEDGER",

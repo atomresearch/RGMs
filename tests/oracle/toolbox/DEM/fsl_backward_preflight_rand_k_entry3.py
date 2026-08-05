@@ -33,7 +33,7 @@ def _assert_k_matlab_enabled() -> bool:
 def main() -> int:
     from scipy.io import loadmat, savemat
 
-    from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+    from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
     from tests.oracle.toolbox.DEM.fsl_backward_rand import (
         default_rand_buf_mat,
         entry3_k_py_mat,

@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-import python_src.toolbox.DEM.DEM_drone_VI as drone
+import python_src.toolbox.DEM.dem_drone_vi_lib as drone
 from tests.demo1.optim2full.optim2full_paths import optim2full_f1_mat
 
 _REPO = Path(__file__).resolve().parents[4]

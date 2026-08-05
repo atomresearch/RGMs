@@ -16,11 +16,24 @@ from typing import Any, Callable, Tuple
 import numpy as np
 
 from python_src.toolbox.DEM.dem_atariiii_entry4 import (
+    ENTRY4_O_COLS,
+    atari_S_and_Sc,
     faster_structure_learning,
+    slice_pdp_o_for_entry4,
 )
-from python_src.toolbox.DEM.fsl_backward_entry4 import entry4_boundary_from_driver_ctx
 from tests.demo1.demo1_paths import demo1_fixtures_dir
 from tests.demo1.optim1.optim1_paths import optim1_fixtures_dir
+
+
+def entry4_boundary_from_driver_ctx(ctx: dict[str, Any]) -> dict[str, Any]:
+    """Build boundary dict from ``run_dem_atariiii`` context (post–Entry 3, pre–Entry 5)."""
+    s, sc = atari_S_and_Sc()
+    return {
+        "pdp_o_sl": slice_pdp_o_for_entry4(ctx["PDP"]["O"]),
+        "S": s,
+        "Sc": sc,
+        "entry4_o_cols": ENTRY4_O_COLS,
+    }
 
 
 def run_entry4_from_boundary(
@@ -109,8 +122,6 @@ def compare_entry4_to_fidelity_native(
     pre_entry4_pkl: Path | None = None,
 ) -> None:
     """Assert optim Entry **4** ≡ fidelity Entry **4** on same boundary (native Python)."""
-    from python_src.toolbox.DEM.fsl_backward_entry4 import run_entry4_from_boundary
-
     pkl = pre_entry4_pkl or (
         demo1_fixtures_dir() / "DEMAtariIII_fsl_backward_MDP_pre_entry4.pkl"
     )

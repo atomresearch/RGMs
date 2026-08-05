@@ -34,7 +34,7 @@ def run_entry1_driver_ledger_replay(
     k_use: int | None = None,
 ) -> dict[str, Any]:
     """Native FSL lane: ``run_dem_atariiii(entry_stop=1)`` with optional ``dem_atari_rand_buf`` replay."""
-    from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+    from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
     from tests.oracle.toolbox.DEM.fsl_backward_rand import (
         fsl_backward_replay_matlab_draws,
         fsl_entry1_driver_env,

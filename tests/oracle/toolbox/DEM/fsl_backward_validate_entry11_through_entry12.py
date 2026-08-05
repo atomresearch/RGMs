@@ -106,7 +106,7 @@ def _preflight_entry11_vb_input_vs_entry12(*, tag: str, pkl_path: Path) -> None:
 
 
 def _run_vb_on_entry11_rdp(*, tag: str, out_dir: Path) -> Any:
-    from python_src.toolbox.DEM.DEM_AtariIII import (
+    from python_src.toolbox.DEM.run_dem_atariiii import (
         _rgms_deadline_reset_for_run,
         _rgms_run_deadline_check,
         _rgms_run_set_last_label,

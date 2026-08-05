@@ -6,7 +6,7 @@ import matlab
 import numpy as np
 import pytest
 
-from python_src.toolbox.DEM.DEM_AtariIII import _entry6_find_events_and_windows, run_dem_atariiii
+from python_src.toolbox.DEM.run_dem_atariiii import _entry6_find_events_and_windows, run_dem_atariiii
 
 
 @pytest.fixture

@@ -58,7 +58,7 @@ def assemble_rdp_vb_call1_preamble(
     mdp: list[dict[str, Any]],
     c_val: float,
 ) -> dict[str, Any]:
-    """MATLAB ``capture1full_rand_ledger`` — ``vb_call1`` RDP (lines 254–257)."""
+    """MATLAB ``capture_optim1full_rand_ledger`` — ``vb_call1`` RDP (lines 254–257)."""
     from python_src.toolbox.DEM.spm_mdp2rdp import spm_mdp2rdp
     from python_src.toolbox.DEM.spm_set_costs import spm_set_costs
     from python_src.toolbox.DEM.spm_set_goals import spm_set_goals
@@ -175,12 +175,12 @@ def active_inference_nr_loop(
         rdp = spm_mdp2rdp(rdp, 0, 1.0 / ns_f)
         rdp["T"] = float(int(nt_i / ne_i))
 
-        if vb_kw and "1full_ledger_segment" in vb_kw:
-            from tests.demo1.optim1full.optim1full_rand_ledger import (
+        if vb_kw and "_optim1full_ledger_segment" in vb_kw:
+            from tests.dem_atariiii.dem_atariiii_rand_ledger import (
                 spm_mdp_vb_xxx_with_ledger_segment_reuse,
             )
 
-            seg_info = vb_kw["1full_ledger_segment"]
+            seg_info = vb_kw["_optim1full_ledger_segment"]
             pdp = spm_mdp_vb_xxx_with_ledger_segment_reuse(
                 rdp,
                 seg_info["buf"],
@@ -189,7 +189,7 @@ def active_inference_nr_loop(
             )
         elif vb_kw:
             # Parity / diagnostic kwargs without ledger segment — keep dispatch.
-            from tests.demo1.optim1full.optim1full_vb_dispatch import (
+            from tests.dem_atariiii.dem_atariiii_vb_dispatch import (
                 spm_mdp_vb_xxx_callable,
             )
 

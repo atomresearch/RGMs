@@ -40,7 +40,7 @@ from tests.demo1.demo1_native_rng import seed_native_driver_rng
 
 def dump_demo1_native_authority_fixtures() -> dict[int, Path]:
     """One seeded fidelity run → ladder fixtures on disk."""
-    from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+    from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 
     seed = seed_native_driver_rng()
     print(

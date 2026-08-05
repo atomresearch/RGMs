@@ -7,7 +7,7 @@ import pytest
 from scipy import sparse
 
 from python_src.toolbox.DEM.spm_merge_structure_learning import spm_merge_structure_learning
-from python_src.toolbox.DEM.DEM_AtariIII import _entry7_assimilate_sequences, run_dem_atariiii
+from python_src.toolbox.DEM.run_dem_atariiii import _entry7_assimilate_sequences, run_dem_atariiii
 
 
 @pytest.fixture

@@ -25,7 +25,7 @@ _repo = Path(__file__).resolve().parents[3]
 if str(_repo) not in sys.path:
     sys.path.insert(0, str(_repo))
 
-from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
 from python_src_demo2.toolbox.DEM.demo2_preamble_ctx import (
     DEMO2_PREAMBLE_ENTRY_STOP,
     capture_native_scalar_rand,

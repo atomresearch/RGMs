@@ -20,9 +20,19 @@ from python_src.toolbox.DEM.dem_atariiii_entry7 import (
     assimilate_hit_miss_sequences,
 )
 from python_src.toolbox.DEM.dem_atariiii_pdp_o import assert_pdp_o_columns_sufficient
-from python_src.toolbox.DEM.fsl_backward_entry7 import entry7_boundary_from_driver_ctx
 from tests.demo1.demo1_paths import demo1_fixtures_dir, demo1_repo_root
 from tests.demo1.optim1.optim1_paths import optim1_fixtures_dir
+
+
+def entry7_boundary_from_driver_ctx(ctx: dict[str, Any]) -> dict[str, Any]:
+    """Build the FSL backward boundary dict from a ``run_dem_atariiii`` context."""
+    return {
+        "mdp": ctx["MDP"],
+        "pdp_o": ctx["PDP"]["O"],
+        "pdp_o_obs": ctx["PDP"]["o"],
+        "gdp_id": ctx["GDP"]["id"],
+        "Ne": ctx["Ne"],
+    }
 
 
 def run_entry7_from_boundary(boundary: dict[str, Any]) -> dict[str, Any]:

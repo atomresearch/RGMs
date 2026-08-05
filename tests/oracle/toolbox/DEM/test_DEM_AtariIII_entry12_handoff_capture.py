@@ -12,7 +12,7 @@ the first VB call in ``test_DEM_AtariIII_entry12.py``. **12B–12I:** MATLAB che
 **Non-authoritative:** ``legacy_python_handoffs`` — optional Python-run snapshots for debugging
 only; **do not** use as parity truth.
 
-Training/outer: :mod:`python_src.toolbox.DEM.DEM_AtariIII` via :func:`entry12_handoff_capture_driver_params`.
+Training/outer: :mod:`python_src.toolbox.DEM.run_dem_atariiii` via :func:`entry12_handoff_capture_driver_params`.
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ import numpy as np
 import pytest
 
 import python_src.toolbox.DEM.spm_MDP_VB_XXX as vbxxx
-from python_src.toolbox.DEM.DEM_AtariIII import _entry8_outer_loop_count, _training_horizon
+from python_src.toolbox.DEM.run_dem_atariiii import _entry8_outer_loop_count, _training_horizon
 from python_src.toolbox.DEM.spm_MDP_checkX import spm_MDP_checkX
 from tests.oracle.toolbox.DEM import test_DEM_AtariIII_entry10 as _matlab_dem_lane_oracle
 from tests.oracle.toolbox.DEM.test_DEM_AtariIII_entry10 import (

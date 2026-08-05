@@ -47,7 +47,7 @@ def run_entries_1_11_with_dem_atari_replay(
 
     Returns ``(ctx, k_11, draws_used)``.
     """
-    from python_src.toolbox.DEM.DEM_AtariIII import run_dem_atariiii
+    from python_src.toolbox.DEM.run_dem_atariiii import run_dem_atariiii
     from tests.oracle.toolbox.DEM.fsl_backward_rand import (
         fsl_backward_replay_matlab_draws,
         fsl_entry11_driver_env,
@@ -95,7 +95,7 @@ def run_entry12_vb_on_integration_ctx(
     """
     Entry **12** on ``ctx['RDP']`` from integrated 1–11 (VB-input prep + ``vb_rand_buf`` replay).
     """
-    from python_src.toolbox.DEM.DEM_AtariIII import (
+    from python_src.toolbox.DEM.run_dem_atariiii import (
         _rgms_deadline_reset_for_run,
         _rgms_run_deadline_check,
         _rgms_run_set_last_label,

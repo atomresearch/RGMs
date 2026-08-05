@@ -47,7 +47,7 @@ from typing import Any
 import numpy as np
 import pytest
 
-from python_src.toolbox.DEM.DEM_AtariIII import get_dem_atariiii_run_last_label, run_dem_atariiii
+from python_src.toolbox.DEM.run_dem_atariiii import get_dem_atariiii_run_last_label, run_dem_atariiii
 
 _FSL_FULL_STAGED_REPO_ROOT = Path(__file__).resolve().parents[4]
 
