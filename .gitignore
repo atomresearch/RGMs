@@ -45,6 +45,9 @@ main_combined.txt
 *.tif
 *.tiff
 *.bmp
+# Exception: public root docs (all other *.md stay local-only)
+!README.md
+!LICENCE
 # Exception: DEM_AtariIII / spm_MDP_pong sprite assets (required for Colab library use)
 !matlab_src/toolbox/DEM/baseball.png
 !matlab_src/toolbox/DEM/bat.png
