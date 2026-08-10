@@ -21,6 +21,9 @@ misc/
 notes/
 tools/
 
+# DEMO2 isolation tree (Atari full-driver experiment only; not native/parity Atari or Drone)
+python_src_demo2/
+
 # Top-level local-only files (must not appear on github.com/apashea/RGMs)
 RGMs Paper&Appendix Notes.txt
 _diag_entry12_gp_e.py
