@@ -11,8 +11,27 @@ htmlcov/
 *.pkl
 *.mat
 
+# ---------------------------------------------------------------------------
+# Public GitHub tree — never publish these local-only paths / files
+# (stop-tracking cleanup 2026-08-10; history retained, current tree only)
+# ---------------------------------------------------------------------------
+.cursor/
+logs/
+misc/
+notes/
+tools/
+
+# Top-level local-only files (must not appear on github.com/apashea/RGMs)
+RGMs Paper&Appendix Notes.txt
+_diag_entry12_gp_e.py
+lev1_s1_2_k1_58_g21_B2_diag_pull_70eb08afc10f.json
+lev1_s1_2_k1_58_g21_B2_diag_pull_70eb08afc10f.npy
+rgms-atari.yml
+
 # COLAB1 / public GitHub — do not publish local docs, figures, or runtime trees
 # (see OPTIM1FULL.md § COLAB1 — What is published vs ignored)
+*.tex
+main_combined.txt
 *.md
 *.png
 *.jpg
@@ -26,10 +45,6 @@ htmlcov/
 # Exception: DEM_AtariIII / spm_MDP_pong sprite assets (required for Colab library use)
 !matlab_src/toolbox/DEM/baseball.png
 !matlab_src/toolbox/DEM/bat.png
-logs/
-misc/
-tools/eig_mkl_link_prefix/
-tools/eig_lapack_nobalance/build_mkl/
 
 # Type/lint caches
 .mypy_cache/
@@ -50,9 +65,7 @@ desktop.ini
 *.asv
 *.m~
 
-# Entry 4 Option B — vendored LAPACK extract + build tree (see tools/eig_lapack_nobalance/)
-tools/eig_lapack_nobalance/vendor/
-tools/eig_lapack_nobalance/build/
+# Binary build products under python_src (tools/ tree is fully ignored above)
 python_src/utils/eig_lapack_nobalance/_eig_lapack_nobalance.dll
 python_src/utils/eig_lapack_nobalance/mkl*.dll
 python_src/utils/eig_lapack_nobalance/libimalloc.dll
@@ -81,12 +94,3 @@ tests/demo1/optim1/fixtures/
 tests/demo1/optim1/python_native/
 visualizations/optim1/
 matlab_custom/optim1_parity_*_output.txt
-
-# Entry 4 B5.1 — staged Intel MKL NuGet unpack (see tools/eig_mkl_staging/)
-tools/eig_mkl_staging/nuget/
-tools/eig_mkl_staging/runtime/
-tools/eig_mkl_staging/oneapi_mkl/
-
-tools/eig_mkl_staging/nuget/
-tools/eig_mkl_staging/runtime/
-tools/eig_mkl_staging/oneapi_mkl/
