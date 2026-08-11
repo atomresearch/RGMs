@@ -4,16 +4,18 @@
 
 **RGMs**: This repository provides a Python-native library for Renormalising Generative Models (RGMs) via careful translation of selected routines from the open-source [SPM](https://github.com/spm/spm) (Statistical Parametric Mapping) toolbox. Bringing RGM procedures into Python supports reproducibility with respect to the original RGM introductions ([“From pixels to planning: scale-free active inference”](https://www.frontiersin.org/journals/network-physiology/articles/10.3389/fnetp.2025.1521963/full), [“Gradient-free de novo learning”](https://www.mdpi.com/1099-4300/27/9/992)), as well as further experimentation, optimization, and research applications in an accessible open-source language. Readers get an inspectable Python translation of selected SPM DEM / RGM demonstrations, with MATLAB-paired parity tests that compare the live Python library against the original MATLAB authority.
 
-**Current status**: The live compute library lives under `python_src/` (canonical MATLAB-matching module names). Two primary end-to-end simulations are available here, each with a **python-native** script, a **Google Colab** notebook walk of the same simulation, and a **parity-test** suite against MATLAB R2024b:
+**Current status**: The live compute library lives under `python_src/` (canonical MATLAB-matching module names). Two primary end-to-end simulations are available here. Each has a **python-native** script, a **local notebook**, a **Google Colab** notebook, and a **parity** suite against MATLAB R2024b:
 
-| Simulation (SPM) | Native Python script | Public parity entry |
-|------------------|----------------------|---------------------|
-| `DEM_AtariIII.m` | `python_src/toolbox/DEM/DEM_AtariIII.py` | `tests/dem_atariiii/dem_atariiii_parity_demo.py` |
-| `DEM_drone_VI.m` | `python_src/toolbox/DEM/DEM_drone_VI.py` | `tests/dem_drone_vi/dem_drone_vi_parity_demo.py` |
+| Simulation (SPM) | Native Python script | Local notebook | Google Colab | Parity entry |
+|------------------|----------------------|----------------|--------------|--------------|
+| `DEM_AtariIII.m` | `python_src/toolbox/DEM/DEM_AtariIII.py` | `notebooks/DEM_AtariIII.ipynb` | [Atari III on Colab](https://colab.research.google.com/drive/1V3S5esW--CsQmOy70VNFVSDiqD66f9E-?usp=sharing) | `tests/dem_atariiii/dem_atariiii_parity_demo.py` |
+| `DEM_drone_VI.m` | `python_src/toolbox/DEM/DEM_drone_VI.py` | `notebooks/DEM_drone_VI.ipynb` | [Drone VI on Colab](https://colab.research.google.com/drive/1hTjHvros5RwxWdYemaiX4SGp-il1fDwg?usp=sharing) | `tests/dem_drone_vi/dem_drone_vi_parity_demo.py` |
 
 Native success markers (`COLAB1_LOCAL_PASS` / `COLAB2_LOCAL_PASS`) mean the full MATLAB-matching script completed without MATLAB. They are **not** the same as MATLAB-paired parity. Parity capture and compare steps use MATLAB Engine (see Quick Start). Public parity for both demos was last verified **2026-08-05** (PASS).
 
-**Updates**: Translation and testing used MATLAB **R2024b** (parity authority) together with a conda Python environment (`rgms`). Hosted Colab notebooks clone this repository and install runtime dependencies in Cell 0. Archives under `python_src/fidelity/` and `python_src/optimized/` are retention only—they are **not** runtime import roots for the native demos or public parity suites.
+This repository has been thoroughly tested for **Python 3.11** and **Python 3.12**.
+
+**Updates**: Translation and testing used MATLAB **R2024b** (parity authority) together with a conda Python environment (`rgms`). Hosted Colab notebooks clone this repository and install dependencies from `requirements.txt` in Cell 0. Archives under `python_src/fidelity/` and `python_src/optimized/` are retention only—they are **not** runtime import roots for the native demos, notebooks, or parity suites.
 
 **Contributions**: Community contributions, within stated guidelines, will be made explicit and encouraged. Contact information for active developers can be provided by request for more involved contribution proposals.
 
@@ -27,24 +29,46 @@ Native success markers (`COLAB1_LOCAL_PASS` / `COLAB2_LOCAL_PASS`) mean the full
 
 ## Quick Start
 
-Work from the **repository root**. Use a conda environment named **`rgms`** with the usual scientific stack used by the demos and Colab Cell 0, including at least: `numpy`, `scipy`, `matplotlib`, `pypng`, `imageio`, `imageio-ffmpeg`. For **parity** only, also install MATLAB **R2024b** and [MATLAB Engine for Python](https://www.mathworks.com/help/matlab/matlab-engine-for-python.html).
+### 1. Local environment (once)
+
+1. Obtain this repository and open a terminal at its root directory (the directory that contains `requirements.txt` and `python_src/`).
+2. Create and activate a conda environment. Example name: `rgms`.
+3. Install the pinned runtime dependencies:
 
 ```powershell
-cd <path-to-RGMs>
 conda activate rgms
+python -m pip install -r requirements.txt
 ```
 
-### Atari III (`DEM_AtariIII.m`)
+For **parity** only, also install MATLAB **R2024b** and [MATLAB Engine for Python](https://www.mathworks.com/help/matlab/matlab-engine-for-python.html).
 
-**Python-native** (no MATLAB; full script walk + plots):
+### 2. Run a simulation
+
+All local commands below assume the repository root and an activated environment with `requirements.txt` already installed.
+
+#### Python-native (no MATLAB)
 
 ```powershell
 python python_src/toolbox/DEM/DEM_AtariIII.py
+python python_src/toolbox/DEM/DEM_drone_VI.py
 ```
 
-Expect `COLAB1_LOCAL_PASS` and figures under `visualizations/DEM_AtariIII/` (local; that tree is gitignored).
+Expect `COLAB1_LOCAL_PASS` / `COLAB2_LOCAL_PASS`. Figures (and for Drone, the behaviour MP4) are written under `visualizations/` (local; that tree is gitignored).
 
-**Parity** (MATLAB Engine required):
+#### Local notebooks (no MATLAB)
+
+Open with Jupyter, VS Code, Cursor, or another notebook front-end, using the same Python environment:
+
+- `notebooks/DEM_AtariIII.ipynb`
+- `notebooks/DEM_drone_VI.ipynb`
+
+Open the notebook from this repository (so the setup cell can locate `python_src/` and `requirements.txt`). The setup cell does **not** clone the repository and does **not** run `pip install`; it only puts the repository root on `sys.path` and imports library modules.
+
+Later cells—especially Atari’s active-inference loop of 32 training and structure merging episodes—are computationally heavy; expect a long run for a full notebook pass. Drone structure learning and variational message passing likewise dominate later cells; expect a nontrivial run for a full notebook pass.
+
+#### Parity (MATLAB Engine required)
+
+Atari:
 
 ```powershell
 python tests/dem_atariiii/dem_atariiii_parity_demo.py --capture-ledger
@@ -52,19 +76,7 @@ python tests/dem_atariiii/dem_atariiii_parity_demo.py --capture-plot-fixtures
 python tests/dem_atariiii/dem_atariiii_parity_demo.py
 ```
 
-Individual witnesses after capture: `--pairing-audit`, `--tier3g`, `--plot-parity`. `--check-authority` only checks that fixtures are present; it does not establish compute parity. A bare (no-flag) run is the full public Atari witness.
-
-### Drone VI (`DEM_drone_VI.m`)
-
-**Python-native** (no MATLAB; full script walk + plots + behaviour MP4):
-
-```powershell
-python python_src/toolbox/DEM/DEM_drone_VI.py
-```
-
-Expect `COLAB2_LOCAL_PASS` and outputs under `visualizations/DEM_drone_vi/`.
-
-**Parity** (MATLAB Engine required):
+Drone:
 
 ```powershell
 python tests/dem_drone_vi/dem_drone_vi_parity_demo.py --capture-ledger
@@ -73,11 +85,11 @@ python tests/dem_drone_vi/dem_drone_vi_parity_demo.py --capture-fsl-rgm-g
 python tests/dem_drone_vi/dem_drone_vi_parity_demo.py
 ```
 
-Spine witness: `--spine-e2e` (F0→F6). Again, `--check-authority` is presence-only; a bare run is the full public drone witness.
+Individual Atari witnesses after capture: `--pairing-audit`, `--tier3g`, `--plot-parity`. Drone spine witness: `--spine-e2e` (F0→F6). `--check-authority` only checks that fixtures are present; it does not establish compute parity. A bare (no-flag) run is the full public witness for that simulation. Pass criterion: process exit code **0**.
 
-### Google Colab
+#### Google Colab
 
-Hosted Colab notebooks for the same two simulations clone `https://github.com/apashea/RGMs.git`, put the clone on `sys.path`, install runtime dependencies, then run a cell walk matching the native scripts. **Do not** `import DEM_AtariIII` or `import DEM_drone_VI` to obtain helpers—those modules execute the full simulation at import time. Drone Cell 0 must import shared helpers from `python_src.toolbox.DEM.dem_drone_vi_lib` (see **Using the Python translations** below).
+Use the Colab links in the Overview table. Hosted Cell 0 clones `https://github.com/apashea/RGMs.git`, installs from `requirements.txt`, and imports library modules. **Do not** `import DEM_AtariIII` or `import DEM_drone_VI` to obtain helpers—those modules execute the full simulation at import time. Drone Cell 0 must import shared helpers from `python_src.toolbox.DEM.dem_drone_vi_lib` (see **Using the Python translations** below).
 
 ## Repository Layout
 
@@ -85,34 +97,38 @@ Hosted Colab notebooks for the same two simulations clone `https://github.com/ap
 RGMs/
 |-- LICENCE                 # GPL-2.0-or-later (SPM-aligned) + project copyright
 |-- README.md               # this file
+|-- requirements.txt        # pinned runtime dependencies (native / notebooks / Colab)
 |-- matlab_compat.py        # shared MATLAB/Python mechanical compatibility helpers
 |-- matlab_src/             # staged SPM / MATLAB sources used as translation authority
+|-- notebooks/
+|   |-- DEM_AtariIII.ipynb  # local Atari III notebook
+|   `-- DEM_drone_VI.ipynb  # local Drone VI notebook
 |-- python_src/
 |   |-- toolbox/DEM/        # canonical live library + native demo scripts
 |   |-- fidelity/           # archive only (not a demo/parity import root)
 |   `-- optimized/          # archive only (not a demo/parity import root)
 |-- tests/
-|   |-- dem_atariiii/       # public Atari parity suite
-|   |-- dem_drone_vi/       # public Drone VI parity suite
+|   |-- dem_atariiii/       # Atari parity suite
+|   |-- dem_drone_vi/       # Drone VI parity suite
 |   |-- oracle/             # per-file MATLAB↔Python oracle tests (development)
 |   `-- helpers/            # shared test utilities (e.g. MATLAB Engine session helpers)
-`-- visualizations/         # local native/Colab figure and video output (gitignored)
+`-- visualizations/         # local figure and video output (gitignored)
 ```
 
-Historical development trees (for example under `tests/demo1/optim*full/`) may remain on disk as lineage or iteration history. They are **not** the public user entry; prefer the native `DEM_*.py` scripts and `tests/dem_*` suites above.
+Historical development trees (for example under `tests/demo1/optim*full/`) may remain on disk. Prefer the native `DEM_*.py` scripts, `notebooks/`, and `tests/dem_*` suites above.
 
 ## What The Code Covers
 
-The companion paper discusses SPM DEM toolbox demonstrations that exercise RGM structure learning and active inference. This repository’s **primary** public end-to-end surfaces are:
+The companion paper discusses SPM DEM toolbox demonstrations that exercise RGM structure learning and active inference. This repository’s **primary** end-to-end surfaces are:
 
 - **Atari III** (`DEM_AtariIII.m` ↔ `DEM_AtariIII.py`): a simplified Pong-like task with pixel streams, rewards, costs, actions, trajectory selection, active inference, learning, and model compression.
 - **Drone VI** (`DEM_drone_VI.m` ↔ `DEM_drone_VI.py`): a dynamic three-dimensional scene with a moving object, fast structure learning, recursive-model construction, surveillance, and wayfinding (including a behaviour movie on the native path).
 
-Related SPM demos (for example Drone V) informed the translation programme; the native scripts and public parity suites above are the primary surfaces documented here.
+Related SPM demos (for example Drone V) informed the translation programme; the native scripts, notebooks, and parity suites above are the primary surfaces documented here.
 
 ## Verification Model
 
-MATLAB remains the source of truth for **parity**. Public parity suites drive the live library under `python_src/` against MATLAB-owned fixtures and declared injects (for example random ledgers, and MATLAB spectral / sort steps where the Python toolchain cannot match MATLAB `eig(...,'nobalance')` semantics).
+MATLAB remains the source of truth for **parity**. Parity suites drive the live library under `python_src/` against MATLAB-owned fixtures and declared injects (for example random ledgers, and MATLAB spectral / sort steps where the Python toolchain cannot match MATLAB `eig(...,'nobalance')` semantics).
 
 What is compared depends on the witness, and typically includes:
 
@@ -124,9 +140,9 @@ What is compared depends on the witness, and typically includes:
 - structure-learning and RDP / VB stages;
 - plot-site fingerprints where the Atari parity suite includes `--plot-parity`.
 
-**Native** runs are MATLAB-free full-script executions and intentionally omit some parity injects. Treat native PASS and parity PASS as separate claims.
+**Native** and **notebook** runs are MATLAB-free full-script executions and intentionally omit some parity injects. Treat native/notebook completion and parity PASS as separate claims.
 
-Oracle-style per-file tests under `tests/oracle/` remain useful during translation development. They are not a substitute for the public `tests/dem_*` singular demos when the question is whether the Atari / Drone spine matches MATLAB.
+Oracle-style per-file tests under `tests/oracle/` remain useful during translation development. They are not a substitute for the `tests/dem_*` demos when the question is whether the Atari / Drone spine matches MATLAB.
 
 ### MATLAB Engine smoke test (parity prerequisite)
 
@@ -142,68 +158,28 @@ python=<path to rgms python>
 sqrt16=4.0
 ```
 
-## Running Native And Parity Witnesses
-
-Always run from the repository root with `conda activate rgms`.
-
-### Native (no MATLAB)
-
-```powershell
-python python_src/toolbox/DEM/DEM_AtariIII.py
-python python_src/toolbox/DEM/DEM_drone_VI.py
-```
-
-### Public parity (after local fixture capture)
-
-Atari — capture then full witness (or use `--pairing-audit` / `--tier3g` / `--plot-parity` individually):
-
-```powershell
-python tests/dem_atariiii/dem_atariiii_parity_demo.py --capture-ledger
-python tests/dem_atariiii/dem_atariiii_parity_demo.py --capture-plot-fixtures
-python tests/dem_atariiii/dem_atariiii_parity_demo.py
-```
-
-Drone — capture then full witness (or `--spine-e2e`):
-
-```powershell
-python tests/dem_drone_vi/dem_drone_vi_parity_demo.py --capture-ledger
-python tests/dem_drone_vi/dem_drone_vi_parity_demo.py --capture-f0
-python tests/dem_drone_vi/dem_drone_vi_parity_demo.py --capture-fsl-rgm-g
-python tests/dem_drone_vi/dem_drone_vi_parity_demo.py
-```
-
-Pass criterion for these public entries: process exit code **0**. Large parity runs are slow because they start MATLAB Engine and compare staged spine outputs.
-
-### Development oracle tests (optional)
-
-Smaller helper translations can still be checked with pytest under `tests/oracle/`, for example:
-
-```powershell
-conda activate rgms
-pytest tests/oracle/toolbox/DEM/test_spm_MDP_size.py
-```
-
-Prefer the smallest oracle that covers the function you changed. Do not treat a green helper oracle as a substitute for the public `tests/dem_*` parity demos.
-
 ## Atari III And Drone VI
 
 ### Key paths
 
 ```text
-python_src/toolbox/DEM/DEM_AtariIII.py          # native Atari script walk
+python_src/toolbox/DEM/DEM_AtariIII.py          # native Atari script
 python_src/toolbox/DEM/run_dem_atariiii.py      # staged Entries 1–12 spine (parity / FSL callers)
-python_src/toolbox/DEM/DEM_drone_VI.py          # native Drone VI script walk
+python_src/toolbox/DEM/DEM_drone_VI.py          # native Drone VI script
 python_src/toolbox/DEM/dem_drone_vi_lib.py      # durable drone helpers + parity fence APIs
-tests/dem_atariiii/dem_atariiii_parity_demo.py  # singular Atari parity entry
-tests/dem_drone_vi/dem_drone_vi_parity_demo.py  # singular Drone VI parity entry
+notebooks/DEM_AtariIII.ipynb                    # local Atari notebook
+notebooks/DEM_drone_VI.ipynb                    # local Drone notebook
+tests/dem_atariiii/dem_atariiii_parity_demo.py  # Atari parity entry
+tests/dem_drone_vi/dem_drone_vi_parity_demo.py  # Drone VI parity entry
 matlab_src/toolbox/DEM/                         # staged MATLAB / SPM sources
+requirements.txt                                # pinned runtime dependencies
 ```
 
 ### Import rules (important)
 
 - **Do not** import `DEM_AtariIII` or `DEM_drone_VI` as libraries to obtain helpers; importing them runs the full simulation as a side effect. Run them as scripts (`python …/DEM_AtariIII.py`, `python …/DEM_drone_VI.py`).
-- Atari **parity** uses `run_dem_atariiii` for staged spine stops; the **native** Atari script does **not** import that module for its walk.
-- Drone **native**, Colab, and **parity** share helpers from `dem_drone_vi_lib`. Colab / library consumers must import those helpers from `dem_drone_vi_lib`, never from `DEM_drone_VI`.
+- Atari **parity** uses `run_dem_atariiii` for staged spine stops; the **native** Atari script and local Atari notebook do **not** import that module for their walks.
+- Drone **native**, Colab, local notebook, and **parity** share helpers from `dem_drone_vi_lib`. Consumers must import those helpers from `dem_drone_vi_lib`, never from `DEM_drone_VI`.
 
 ### Current public parity status (2026-08-05)
 
@@ -215,7 +191,7 @@ matlab_src/toolbox/DEM/                         # staged MATLAB / SPM sources
 
 ## Using The Python Translations
 
-Run Python from the **repository root** so `python_src` imports resolve.
+Run Python from the repository root so `python_src` imports resolve.
 
 Small SPM-style helper:
 
@@ -267,7 +243,7 @@ Default workflow for faithful translation work:
 2. Update the matching live module under `python_src/` (prefer MATLAB-matching names and control flow).
 3. Preserve shapes, ordering, indexing conventions, and nested object structure where they affect behaviour.
 4. Add or update an oracle test under `tests/oracle/` when translating a discrete function.
-5. If the change touches an end-to-end demo path, re-run the relevant **native** script and/or **`tests/dem_*`** parity demo—not only a small helper pytest.
+5. If the change touches an end-to-end demo path, re-run the relevant **native** script, **notebook**, and/or **`tests/dem_*`** parity demo—not only a small helper pytest.
 6. Do not import or “fix” demos by routing through `python_src/fidelity/` or `python_src/optimized/` archives.
 
-Avoid redesigning or optimizing during a faithful translation pass. Native full-script runs and MATLAB-paired parity are separate claims: do not weaken parity asserts, and do not treat a native PASS as proof of MATLAB equivalence.
+Avoid redesigning or optimizing during a faithful translation pass. Native/notebook runs and MATLAB-paired parity are separate claims: do not weaken parity asserts, and do not treat native or notebook completion as proof of MATLAB equivalence.
