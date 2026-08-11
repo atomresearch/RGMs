@@ -1,8 +1,10 @@
 # RGMs
 
+K. Zaghw, A. Pashea, M. Pritsch, W. Nuijten, K. Friston, and L. Da Costa, “Renormalising generative models for active inference: Foundations, derivations, and verification,” arXiv, Aug. 2026. [Online]. Available: [https://arxiv.org/abs/2608.09512](https://arxiv.org/abs/2608.09512).
+
 ## Overview
 
-**RGMs**: This repository provides a Python-native library for Renormalising Generative Models (RGMs) via careful translation of selected routines from the open-source [SPM](https://github.com/spm/spm) (Statistical Parametric Mapping) toolbox. Bringing RGM procedures into Python supports reproducibility with respect to the original RGM introductions ([“From pixels to planning: scale-free active inference”](https://www.frontiersin.org/journals/network-physiology/articles/10.3389/fnetp.2025.1521963/full), [“Gradient-free de novo learning”](https://www.mdpi.com/1099-4300/27/9/992)), as well as further experimentation, optimization, and research applications in an accessible open-source language. Readers get an inspectable Python translation of selected SPM DEM / RGM demonstrations, with MATLAB-paired parity tests that compare the live Python library against the original MATLAB authority.
+**RGMs**: This repository provides a Python-native library for Renormalising Generative Models (RGMs) via careful translation of selected routines from the open-source [SPM](https://github.com/spm/spm) (Statistical Parametric Mapping) toolbox. Bringing RGM procedures into Python supports reproducibility with respect to the original RGM introductions ([“From pixels to planning: scale-free active inference”](https://www.frontiersin.org/journals/network-physiology/articles/10.3389/fnetp.2025.1521963/full), [“Gradient-free de novo learning”](https://www.mdpi.com/1099-4300/27/9/992)), as well as further experimentation, optimization, and research applications in an accessible open-source language. The repository comprises an inspectable Python translation of selected SPM DEM / RGM demonstrations, with MATLAB-paired parity tests that compare the live Python library against the original MATLAB authority.
 
 **Current status**: The live compute library lives under `python_src/` (canonical MATLAB-matching module names). Two primary end-to-end simulations are available here. Each has a **python-native** script, a **local notebook**, a **Google Colab** notebook, and a **parity** suite against MATLAB R2024b:
 
@@ -144,20 +146,6 @@ What is compared depends on the witness, and typically includes:
 
 Oracle-style per-file tests under `tests/oracle/` remain useful during translation development. They are not a substitute for the `tests/dem_*` demos when the question is whether the Atari / Drone spine matches MATLAB.
 
-### MATLAB Engine smoke test (parity prerequisite)
-
-```powershell
-conda activate rgms
-python -u -c "import sys, matlab.engine; print('python=' + sys.executable); eng = matlab.engine.start_matlab('-nojvm -nosplash -nodesktop'); print('sqrt16=' + str(eng.sqrt(16.0))); eng.quit()"
-```
-
-Expected output:
-
-```text
-python=<path to rgms python>
-sqrt16=4.0
-```
-
 ## Atari III And Drone VI
 
 ### Key paths
@@ -175,11 +163,11 @@ matlab_src/toolbox/DEM/                         # staged MATLAB / SPM sources
 requirements.txt                                # pinned runtime dependencies
 ```
 
-### Import rules (important)
+### Import details (important)
 
 - **Do not** import `DEM_AtariIII` or `DEM_drone_VI` as libraries to obtain helpers; importing them runs the full simulation as a side effect. Run them as scripts (`python …/DEM_AtariIII.py`, `python …/DEM_drone_VI.py`).
 - Atari **parity** uses `run_dem_atariiii` for staged spine stops; the **native** Atari script and local Atari notebook do **not** import that module for their walks.
-- Drone **native**, Colab, local notebook, and **parity** share helpers from `dem_drone_vi_lib`. Consumers must import those helpers from `dem_drone_vi_lib`, never from `DEM_drone_VI`.
+- Drone **native**, Colab, local notebook, and **parity** share helpers from `dem_drone_vi_lib`. Users must import those helpers from `dem_drone_vi_lib`.
 
 ### Current public parity status (2026-08-05)
 
