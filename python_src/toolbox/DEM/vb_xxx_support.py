@@ -2036,10 +2036,18 @@ def _spm_norm_inplace(a: np.ndarray) -> np.ndarray:
     if a.size == 0 or (a.ndim >= 1 and int(a.shape[0]) == 0):
         return a
     s = np.sum(a, axis=0, keepdims=True)
-    np.divide(a, s, out=a, where=s != 0)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        np.divide(a, s, out=a, where=s != 0)
+    # MATLAB ``A(isnan(A)) = 1/size(A,1)``: a zero-sum column divides 0/0 -> NaN,
+    # then every NaN is replaced by the uniform value 1/nrows. Python must treat
+    # the skipped zero-columns the same way, so assign them directly.
     nan_m = np.isnan(a)
     if np.any(nan_m):
         a[nan_m] = 1.0 / int(a.shape[0])
+    # Zero-sum columns were skipped by ``where=s != 0`` and contain 0 (no NaN);
+    # MATLAB produces NaN there and replaces it with the same uniform value.
+    if np.any(s == 0):
+        a[:, (s == 0).ravel()] = 1.0 / int(a.shape[0])
     return a
 
 

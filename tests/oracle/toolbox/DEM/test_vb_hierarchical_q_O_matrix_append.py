@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from python_src.toolbox.DEM.spm_MDP_VB_XXX import (
+from python_src.toolbox.DEM.vb_xxx_support import (
     _vb_hierarchical_q_O_matrix_to_flat_cells,
     _vb_hierarchical_q_append_level,
     _vb_hierarchical_q_O_level_to_matrix,

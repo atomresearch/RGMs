@@ -17,9 +17,10 @@ _MATLAB_SRC = _REPO_ROOT / "matlab_src"
 @pytest.fixture(scope="session")
 def eng():
     if _MATLAB_ENGINE_IMPORT_ERROR is not None:
-        raise RuntimeError(
-            "MATLAB Engine for Python is required for oracle tests."
-        ) from _MATLAB_ENGINE_IMPORT_ERROR
+        pytest.skip(
+            "MATLAB Engine for Python is required for oracle tests: "
+            f"{_MATLAB_ENGINE_IMPORT_ERROR}"
+        )
 
     engine = matlab.engine.start_matlab()
     try:
