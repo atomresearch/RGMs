@@ -11,10 +11,8 @@ import copy
 import numpy as np
 import pytest
 
-from python_src.toolbox.DEM.spm_MDP_VB_XXX import (
-    _vb_models_after_checkx,
-    spm_MDP_VB_XXX,
-)
+from python_src.toolbox.DEM.spm_MDP_VB_XXX import spm_MDP_VB_XXX
+from python_src.toolbox.DEM.vb_xxx_support import _vb_models_after_checkx
 from python_src.toolbox.DEM.spm_MDP_checkX import spm_MDP_checkX
 
 
