@@ -9,3 +9,4 @@ matplotlib==3.10.0
 pypng==0.20220715.0
 imageio==2.37.3
 imageio-ffmpeg==0.6.0
+pillow==11.0.0
