@@ -18,7 +18,7 @@ from tests.oracle.toolbox.DEM.test_DEM_AtariIII_entry12_handoff_capture import (
     entry12_handoff_capture_driver_params,
     load_or_build_entry12_handoff_capture,
 )
-from python_src.toolbox.DEM.spm_MDP_VB_XXX import (
+from python_src.toolbox.DEM.vb_xxx_support import (
     _default_options_vb,
     _vb_hyperparameters_mdp1,
     _vb_init_QXSP_outcomes_and_process,

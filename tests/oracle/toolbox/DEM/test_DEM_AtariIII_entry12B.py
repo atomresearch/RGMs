@@ -18,7 +18,7 @@ from tests.oracle.toolbox.DEM.test_DEM_AtariIII_entry12_handoff_capture import (
     entry12_handoff_capture_driver_params,
     load_or_build_entry12_handoff_capture,
 )
-from python_src.toolbox.DEM.spm_MDP_VB_XXX import _vb_tensors_through_H
+from python_src.toolbox.DEM.vb_xxx_support import _vb_tensors_through_H
 
 
 def _base_model_nonprocess() -> dict:

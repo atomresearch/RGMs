@@ -10,7 +10,7 @@ import copy
 import pytest
 
 import python_src.toolbox.DEM.spm_MDP_VB_XXX as vbxxx
-from python_src.toolbox.DEM.spm_MDP_VB_XXX import _vb_hyperparameters_mdp1
+from python_src.toolbox.DEM.vb_xxx_support import _vb_hyperparameters_mdp1
 
 from tests.oracle.toolbox.DEM._entry12_handoff_assert import assert_deep_exact_equal
 from tests.oracle.toolbox.DEM.test_DEM_AtariIII_entry12_handoff_capture import (
