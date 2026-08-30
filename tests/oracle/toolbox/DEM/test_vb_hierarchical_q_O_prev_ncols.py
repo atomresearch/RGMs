@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from python_src.toolbox.DEM.spm_MDP_VB_XXX import _vb_hierarchical_q_O_prev_ncols
+from python_src.toolbox.DEM.vb_xxx_support import _vb_hierarchical_q_O_prev_ncols
 
 
 def test_vb_hierarchical_q_O_prev_ncols_prefers_parent_ng_width():

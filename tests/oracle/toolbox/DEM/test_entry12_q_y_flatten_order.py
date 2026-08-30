@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from python_src.toolbox.DEM.spm_MDP_VB_XXX import _vb_hierarchical_q_ot_grid_to_cell_row
+from python_src.toolbox.DEM.vb_xxx_support import _vb_hierarchical_q_ot_grid_to_cell_row
 
 
 def test_q_ot_grid_flatten_column_major_o_plus_t_ng() -> None:
